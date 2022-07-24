@@ -13,13 +13,15 @@ default-run = "app"
 tauri-build = { version = "1.0.4", features = [] }
 
 [dependencies]
-anyhow = "1.0"
+console-subscriber = "0.1"
 discord-rich-presence = "0.2"
 exitcode = "1.1"
 reqwest = { version = "0.11", features = ["json"] }
 serde = "1.0"
 serde_json = "1.0"
+snafu = "0.7.1"
 tauri = { version = "1.0.5", features = ["api-all", "system-tray"] }
+tracing = "0.1"
 
 [features]
 # by default Tauri runs in production mode
