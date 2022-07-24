@@ -2,6 +2,32 @@
 
 use tauri::Manager;
 
+#[tauri::command]
+async fn fetch_status() -> Result<(), String> {
+  async fn aux() -> anyhow::Result<()> {
+    let url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002";
+
+    // TODO: create a personal Web API Key at https://steamcommunity.com/dev/apikey
+    let key = "<FIXME>";
+    // TODO: see "Steam ID" at top left of page at https://store.steampowered.com/account/
+    let steamids = "<FIXME>";
+
+    let client = reqwest::Client::new();
+
+    let request = client.get(url).query(&[("key", key), ("steamids", steamids)]).build()?;
+    println!("request: {:#?}", request);
+
+    let response = client.execute(request).await?;
+    println!("response: {:#?}", response);
+
+    let json: serde_json::Value = response.json().await?;
+    println!("json: {:#?}", json);
+
+    Ok(())  
+  }
+  aux().await.map_err(|err| err.to_string())
+}
+
 fn main() -> anyhow::Result<()> {
     let system_tray_menu = tauri::SystemTrayMenu::new()
         .add_item(tauri::CustomMenuItem::new("toggle-hide-show", "Hide"))
@@ -36,6 +62,7 @@ fn main() -> anyhow::Result<()> {
             },
             _ => {},
         })
+        .invoke_handler(tauri::generate_handler![fetch_status])
         .build(tauri::generate_context!())?;
 
     // hide app from Dock on macOS
