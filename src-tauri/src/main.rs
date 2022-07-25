@@ -4,6 +4,9 @@ use discord_rich_presence::{activity::Activity, DiscordIpc, DiscordIpcClient};
 use snafu::prelude::*;
 use tauri::Manager;
 
+mod api;
+mod app;
+
 #[derive(Debug, Snafu)]
 enum Error {
     DiscordRichPresenceError { source: Box<dyn std::error::Error> },
@@ -18,9 +21,9 @@ async fn fetch_status() -> Result<serde_json::Value, self::Error> {
     let url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002";
 
     // TODO: create a personal Web API Key at https://steamcommunity.com/dev/apikey
-    let key = "CBDF281E72D227CE234CFDD98DC954B6";
+    let key = "<FIXME>";
     // TODO: see "Steam ID" at top left of page at https://store.steampowered.com/account/
-    let steamids = "76561197986358250";
+    let steamids = "<FIXME>";
 
     let client = reqwest::Client::new();
 
@@ -92,7 +95,7 @@ fn main() -> Result<(), self::Error> {
 
     let mut client = {
         // get a client id by registering an application at https://discord.com/developers/applications
-        let client_id = "1000779677092286524";
+        let client_id = "<FIXME>";
         DiscordIpcClient::new(client_id)
     }
     .context(DiscordRichPresenceSnafu)?;
@@ -126,18 +129,29 @@ fn main() -> Result<(), self::Error> {
         tauri::RunEvent::Ready => {
             let json = tauri::async_runtime::block_on(fetch_status()).unwrap();
             let mut state = String::from("Not playing anything");
-            if let Ok(gameextrainfo) = json
+
+            if let Some(player) = json
                 .get("response")
                 .and_then(|json| json.get("players"))
                 .and_then(|json| json.get(0))
-                .and_then(|json| json.get("gameextrainfo"))
-                .context(NoneSnafu)
-                .and_then(|json| serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu))
             {
-                state = format!("Playing {}", gameextrainfo);
-            } else {
-                tracing::info!(r#""gameextra" field not found in response from Steam Web API"#);
+                if let Ok(gameextrainfo) = player
+                    .get("gameextrainfo")
+                    .context(NoneSnafu)
+                    .and_then(|json| serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu))
+                {
+                    state = format!("Playing {}", gameextrainfo);
+                } else {
+                    tracing::info!(r#""gameextra" field not found in response from Steam Web API"#);
+                    if let Ok(gameid) = player.get("gameid").context(NoneSnafu).and_then(|json| {
+                        serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu)
+                    }) {
+                        tracing::info!(r#""gameid" field not found in response from Steam Web API"#);
+                        // FIXME: do something with "gameid" if defined but "gameextra" is not
+                    }
+                }
             }
+
             client.connect().unwrap();
             client.set_activity(Activity::new().state(&state)).unwrap();
         },
