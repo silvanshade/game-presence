@@ -1,3 +1,3 @@
-mod discord;
-mod matrix;
-mod steam;
+pub mod discord;
+pub mod matrix;
+pub mod steam;

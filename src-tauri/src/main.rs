@@ -4,8 +4,8 @@ use discord_rich_presence::{activity::Activity, DiscordIpc, DiscordIpcClient};
 use snafu::prelude::*;
 use tauri::Manager;
 
-mod api;
-mod app;
+pub mod api;
+pub mod app;
 
 #[derive(Debug, Snafu)]
 enum Error {
@@ -126,6 +126,10 @@ fn main() -> Result<(), self::Error> {
                     .unwrap();
             }
         },
+        tauri::RunEvent::Ready => {
+            let data = tauri::async_runtime::block_on(crate::app::config::config_data()).unwrap();
+            println!("{:#?}", data);
+        },
         // tauri::RunEvent::Ready => {
         //     let json = tauri::async_runtime::block_on(fetch_status()).unwrap();
         //     let mut state = String::from("Not playing anything");
@@ -138,8 +142,8 @@ fn main() -> Result<(), self::Error> {
         //         if let Ok(gameextrainfo) = player
         //             .get("gameextrainfo")
         //             .context(NoneSnafu)
-        //             .and_then(|json| serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu))
-        //         {
+        //             .and_then(|json|
+        // serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu))         {
         //             state = format!("Playing {}", gameextrainfo);
         //         } else {
         //             tracing::info!(r#""gameextra" field not found in response from Steam Web API"#);

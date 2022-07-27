@@ -1,2 +1,2 @@
-mod config;
-mod metadata;
+pub mod config;
+pub mod metadata;
