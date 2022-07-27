@@ -56,7 +56,8 @@ pub async fn config_data() -> Result<Config, Error> {
     if config_text.is_empty() {
         tracing::info!(r#""config.json" is empty; writing defaults to file"#);
         let config_data = Config::default();
-        let config_data = serde_json::ser::to_vec(&config_data).context(SerdeJsonSnafu)?;
+        let config_data = serde_json::ser::to_string_pretty(&config_data).context(SerdeJsonSnafu)?;
+        let config_data = config_data.as_bytes();
         config_file.write_all(&config_data).await.context(IoSnafu)?;
         config_file.flush().await.context(IoSnafu)?;
         config_file.seek(std::io::SeekFrom::Start(0)).await.context(IoSnafu)?;
