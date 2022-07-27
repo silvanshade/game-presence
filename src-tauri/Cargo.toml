@@ -1,11 +1,10 @@
 [package]
 edition = "2021"
 name = "app"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception"
 repository = "https://github.com/silvanshade/steam-presence"
-readme = "README.md"
 description = "A Tauri App"
 default-run = "app"
 

@@ -126,35 +126,35 @@ fn main() -> Result<(), self::Error> {
                     .unwrap();
             }
         },
-        tauri::RunEvent::Ready => {
-            let json = tauri::async_runtime::block_on(fetch_status()).unwrap();
-            let mut state = String::from("Not playing anything");
+        // tauri::RunEvent::Ready => {
+        //     let json = tauri::async_runtime::block_on(fetch_status()).unwrap();
+        //     let mut state = String::from("Not playing anything");
 
-            if let Some(player) = json
-                .get("response")
-                .and_then(|json| json.get("players"))
-                .and_then(|json| json.get(0))
-            {
-                if let Ok(gameextrainfo) = player
-                    .get("gameextrainfo")
-                    .context(NoneSnafu)
-                    .and_then(|json| serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu))
-                {
-                    state = format!("Playing {}", gameextrainfo);
-                } else {
-                    tracing::info!(r#""gameextra" field not found in response from Steam Web API"#);
-                    if let Ok(gameid) = player.get("gameid").context(NoneSnafu).and_then(|json| {
-                        serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu)
-                    }) {
-                        tracing::info!(r#""gameid" field not found in response from Steam Web API"#);
-                        // FIXME: do something with "gameid" if defined but "gameextra" is not
-                    }
-                }
-            }
+        //     if let Some(player) = json
+        //         .get("response")
+        //         .and_then(|json| json.get("players"))
+        //         .and_then(|json| json.get(0))
+        //     {
+        //         if let Ok(gameextrainfo) = player
+        //             .get("gameextrainfo")
+        //             .context(NoneSnafu)
+        //             .and_then(|json| serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu))
+        //         {
+        //             state = format!("Playing {}", gameextrainfo);
+        //         } else {
+        //             tracing::info!(r#""gameextra" field not found in response from Steam Web API"#);
+        //             if let Ok(gameid) = player.get("gameid").context(NoneSnafu).and_then(|json| {
+        //                 serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu)
+        //             }) {
+        //                 tracing::info!(r#""gameid" field not found in response from Steam Web API"#);
+        //                 // FIXME: do something with "gameid" if defined but "gameextra" is not
+        //             }
+        //         }
+        //     }
 
-            client.connect().unwrap();
-            client.set_activity(Activity::new().state(&state)).unwrap();
-        },
+        //     client.connect().unwrap();
+        //     client.set_activity(Activity::new().state(&state)).unwrap();
+        // },
         _ => {},
     });
 
