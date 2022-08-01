@@ -1,12 +1,7 @@
 <template>
-  <v-app>
-    <v-main>
-      <HelloWorld />
-    </v-main>
-  </v-app>
+  <h1 class="text-3xl font-bold underline">Hello, world!</h1>
 </template>
 
 <script setup lang="ts">
-import HelloWorld from "./components/HelloWorld.vue";
-import { VApp, VMain } from "vuetify/components";
+//
 </script>

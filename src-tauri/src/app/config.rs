@@ -70,6 +70,7 @@ impl Config {
         config_file.read_to_string(&mut config_text).await.context(IoSnafu)?;
 
         if config_text.is_empty() {
+            #[cfg(feature = "debug")]
             tracing::info!(r#""{}" is empty; writing defaults to file"#, Self::FILE_NAME);
             Self::default().file_write().await?;
             config_file.read_to_string(&mut config_text).await.context(IoSnafu)?;
@@ -89,6 +90,7 @@ impl Config {
         }
 
         if !config_json.is_empty() {
+            #[cfg(feature = "debug")]
             tracing::warn!(r#""config.json" includes spurious data; overwriting"#);
             config_data.file_write().await?;
         }

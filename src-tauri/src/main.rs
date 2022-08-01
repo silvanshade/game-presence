@@ -22,13 +22,18 @@ enum Error {
     TauriError {
         source: tauri::Error,
     },
+    #[cfg(feature = "debug")]
     TracingSubscriberError {
         source: Box<dyn std::error::Error + Send + Sync>,
     },
 }
 
-#[tracing::instrument]
 async fn fetch_status() -> Result<serde_json::Value, self::Error> {
+    #[cfg(feature = "debug")]
+    let span = tracing::span!(tracing::Level::TRACE, "fetch_status");
+    #[cfg(feature = "debug")]
+    let _enter = span.enter();
+
     let url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002";
 
     // TODO: create a personal Web API Key at https://steamcommunity.com/dev/apikey
@@ -43,12 +48,15 @@ async fn fetch_status() -> Result<serde_json::Value, self::Error> {
         .query(&[("key", key), ("steamids", steamids)])
         .build()
         .context(ReqwestSnafu)?;
+    #[cfg(feature = "debug")]
     tracing::debug!(?request);
 
     let response = client.execute(request).await.context(ReqwestSnafu)?;
+    #[cfg(feature = "debug")]
     tracing::debug!(?response);
 
     let json: serde_json::Value = response.json().await.context(ReqwestSnafu)?;
+    #[cfg(feature = "debug")]
     tracing::debug!(?json);
 
     Ok(json)
@@ -61,6 +69,7 @@ async fn fetch_status_command() -> Result<(), String> {
 }
 
 fn main() -> Result<(), self::Error> {
+    #[cfg(feature = "debug")]
     tracing_subscriber::fmt::try_init().context(TracingSubscriberSnafu)?;
 
     let system_tray_menu = tauri::SystemTrayMenu::new()

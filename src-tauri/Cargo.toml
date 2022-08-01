@@ -18,12 +18,13 @@ default = ["custom-protocol"]
 # this feature is used used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
 custom-protocol = ["tauri/custom-protocol"]
+debug = ["tracing", "tracing-subscriber"]
 
 [build-dependencies]
 tauri-build = { version = "1.0", features = [] }
 
 [dependencies]
-cached = "0.37.0"
+cached = { version = "0.37.0", default-features = false }
 directories = "4.0"
 discord-rich-presence = "0.2"
 exitcode = "1.1"
@@ -33,8 +34,8 @@ serde_json = { version = "1.0", default-features = false }
 snafu = { version = "0.7", default-features = false, features = ["std"] }
 tauri = { version = "1.0", default-features = false, features = ["system-tray", "wry"] }
 tokio = { version = "1.20", default-features = false }
-tracing = { version = "0.1", default-features = false, features = ["attributes"] }
-tracing-subscriber = { version = "0.3", default-features = false, features = ["ansi"] }
+tracing = { version = "0.1", default-features = false, features = ["attributes"], optional = true }
+tracing-subscriber = { version = "0.3", default-features = false, features = ["ansi"], optional = true }
 
 [profile.release]
 codegen-units = 1

@@ -71,7 +71,7 @@ rules:
   vue/prefer-prop-type-boolean-first: error
   vue/prefer-separate-static-class: error
   vue/prefer-true-attribute-shorthand: error
-  vue/require-direct-export: error
+  # vue/require-direct-export: error
   vue/require-emit-validator: error
   vue/require-expose: error
   vue/require-name-property: error
@@ -120,11 +120,6 @@ rules:
   vue/space-infix-ops: error
   vue/space-unary-ops: error
   vue/template-curly-spacing: error
-overrides:
-  - files: "quasar.config.js"
-    rules:
-      "@typescript-eslint/no-var-requires": off
-      vue/sort-keys: off
 globals:
   ga: readonly
   cordova: readonly
