@@ -1,30 +1,15 @@
 [package]
+publish = false
 edition = "2021"
-name = "app"
+name = "steam-presence"
 version = "0.0.0"
 authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception"
 repository = "https://github.com/silvanshade/steam-presence"
-description = "A Tauri App"
-default-run = "app"
-
-[build-dependencies]
-tauri-build = { version = "1.0", features = [] }
-
-[dependencies]
-console-subscriber = "0.1"
-directories = "4.0"
-discord-rich-presence = "0.2"
-exitcode = "1.1"
-matrix-sdk = "0.5"
-reqwest = { version = "0.11", features = ["json"] }
-ruma = "0.6"
-serde = "1.0"
-serde_json = "1.0"
-snafu = "0.7"
-tauri = { version = "1.0", features = ["api-all", "system-tray"] }
-tokio = { version = "1.20", features = ["io-util"] }
-tracing = "0.1"
+description = """
+A system-tray application for reporting Steam status as Discord rich presence
+"""
+default-run = "steam-presence"
 
 [features]
 # by default Tauri runs in production mode
@@ -33,3 +18,27 @@ default = ["custom-protocol"]
 # this feature is used used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
 custom-protocol = ["tauri/custom-protocol"]
+
+[build-dependencies]
+tauri-build = { version = "1.0", features = [] }
+
+[dependencies]
+cached = "0.37.0"
+directories = "4.0"
+discord-rich-presence = "0.2"
+exitcode = "1.1"
+reqwest = { version = "0.11", default-features = false, features = ["json"] }
+serde = { version = "1.0", default-features = false }
+serde_json = { version = "1.0", default-features = false }
+snafu = { version = "0.7", default-features = false, features = ["std"] }
+tauri = { version = "1.0", default-features = false, features = ["system-tray", "wry"] }
+tokio = { version = "1.20", default-features = false }
+tracing = { version = "0.1", default-features = false, features = ["attributes"] }
+tracing-subscriber = { version = "0.3", default-features = false, features = ["ansi"] }
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = "s"
+panic = "abort"
+strip = true

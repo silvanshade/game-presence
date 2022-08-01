@@ -1,7 +1,8 @@
 {
-  "name": "steam-presence",
   "private": true,
+  "name": "steam-presence",
   "version": "0.0.0",
+  "author": "silvanshade <silvanshade@users.noreply.github.com>",
   "type": "module",
   "scripts": {
     "dev": "vite",

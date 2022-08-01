@@ -9,11 +9,22 @@ pub mod app;
 
 #[derive(Debug, Snafu)]
 enum Error {
-    DiscordRichPresenceError { source: Box<dyn std::error::Error> },
+    DiscordRichPresenceError {
+        source: Box<dyn std::error::Error>,
+    },
     NoneError,
-    ReqwestError { source: reqwest::Error },
-    SerdeJsonDeserializeError { source: serde_json::Error },
-    TauriError { source: tauri::Error },
+    ReqwestError {
+        source: reqwest::Error,
+    },
+    SerdeJsonDeserializeError {
+        source: serde_json::Error,
+    },
+    TauriError {
+        source: tauri::Error,
+    },
+    TracingSubscriberError {
+        source: Box<dyn std::error::Error + Send + Sync>,
+    },
 }
 
 #[tracing::instrument]
@@ -50,7 +61,7 @@ async fn fetch_status_command() -> Result<(), String> {
 }
 
 fn main() -> Result<(), self::Error> {
-    console_subscriber::init();
+    tracing_subscriber::fmt::try_init().context(TracingSubscriberSnafu)?;
 
     let system_tray_menu = tauri::SystemTrayMenu::new()
         .add_item(tauri::CustomMenuItem::new("toggle-hide-show", "Hide"))
@@ -127,7 +138,7 @@ fn main() -> Result<(), self::Error> {
             }
         },
         tauri::RunEvent::Ready => {
-            let data = tauri::async_runtime::block_on(crate::app::config::config_data()).unwrap();
+            let data = tauri::async_runtime::block_on(crate::app::Config::load()).unwrap();
             println!("{:#?}", data);
         },
         // tauri::RunEvent::Ready => {
