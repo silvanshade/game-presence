@@ -14,9 +14,9 @@ enum Error {
         source: Box<dyn std::error::Error>,
     },
     NoneError,
-    ReqwestError {
-        source: reqwest::Error,
-    },
+    // ReqwestError {
+    //     source: reqwest::Error,
+    // },
     SerdeJsonDeserializeError {
         source: serde_json::Error,
     },
@@ -29,45 +29,45 @@ enum Error {
     },
 }
 
-async fn fetch_status() -> Result<serde_json::Value, self::Error> {
-    #[cfg(feature = "debug")]
-    let span = tracing::span!(tracing::Level::TRACE, "fetch_status");
-    #[cfg(feature = "debug")]
-    let _enter = span.enter();
+// async fn fetch_status() -> Result<serde_json::Value, self::Error> {
+//     #[cfg(feature = "debug")]
+//     let span = tracing::span!(tracing::Level::TRACE, "fetch_status");
+//     #[cfg(feature = "debug")]
+//     let _enter = span.enter();
 
-    let url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002";
+//     let url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002";
 
-    // TODO: create a personal Web API Key at https://steamcommunity.com/dev/apikey
-    let key = "<FIXME>";
-    // TODO: see "Steam ID" at top left of page at https://store.steampowered.com/account/
-    let steamids = "<FIXME>";
+//     // TODO: create a personal Web API Key at https://steamcommunity.com/dev/apikey
+//     let key = "<FIXME>";
+//     // TODO: see "Steam ID" at top left of page at https://store.steampowered.com/account/
+//     let steamids = "<FIXME>";
 
-    let client = reqwest::Client::new();
+//     let client = reqwest::Client::new();
 
-    let request = client
-        .get(url)
-        .query(&[("key", key), ("steamids", steamids)])
-        .build()
-        .context(ReqwestSnafu)?;
-    #[cfg(feature = "debug")]
-    tracing::debug!(?request);
+//     let request = client
+//         .get(url)
+//         .query(&[("key", key), ("steamids", steamids)])
+//         .build()
+//         .context(ReqwestSnafu)?;
+//     #[cfg(feature = "debug")]
+//     tracing::debug!(?request);
 
-    let response = client.execute(request).await.context(ReqwestSnafu)?;
-    #[cfg(feature = "debug")]
-    tracing::debug!(?response);
+//     let response = client.execute(request).await.context(ReqwestSnafu)?;
+//     #[cfg(feature = "debug")]
+//     tracing::debug!(?response);
 
-    let json: serde_json::Value = response.json().await.context(ReqwestSnafu)?;
-    #[cfg(feature = "debug")]
-    tracing::debug!(?json);
+//     let json: serde_json::Value = response.json().await.context(ReqwestSnafu)?;
+//     #[cfg(feature = "debug")]
+//     tracing::debug!(?json);
 
-    Ok(json)
-}
+//     Ok(json)
+// }
 
-#[tauri::command]
-async fn fetch_status_command() -> Result<(), String> {
-    fetch_status().await.map_err(|err| err.to_string())?;
-    Ok(())
-}
+// #[tauri::command]
+// async fn fetch_status_command() -> Result<(), String> {
+//     fetch_status().await.map_err(|err| err.to_string())?;
+//     Ok(())
+// }
 
 fn main() -> Result<(), self::Error> {
     #[cfg(feature = "debug")]
@@ -106,7 +106,7 @@ fn main() -> Result<(), self::Error> {
             },
             _ => {},
         })
-        .invoke_handler(tauri::generate_handler![fetch_status_command])
+        // .invoke_handler(tauri::generate_handler![fetch_status_command])
         .build(tauri::generate_context!())
         .context(TauriSnafu)?;
 
