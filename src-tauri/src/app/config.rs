@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Snafu)]
 pub enum Error {
     IoError { source: tokio::io::Error },
@@ -11,9 +12,9 @@ pub enum Error {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
-    pub discord_api_client_id: Option<String>,
-    pub steam_id: Option<String>,
-    pub steam_web_api_user_key: Option<String>,
+    pub discord_client_id: Option<String>,
+    pub steam_user_id: Option<String>,
+    pub steam_user_key: Option<String>,
 }
 
 impl Config {
@@ -31,7 +32,7 @@ impl Config {
         Ok(config_dir)
     }
 
-    async fn file_open() -> Result<tokio::fs::File, Error> {
+    async fn file_open(read: bool, write: bool, create: bool, truncate: bool) -> Result<tokio::fs::File, Error> {
         let config_dirs_path = Self::path_find().await?;
         tokio::fs::create_dir_all(&config_dirs_path).await.context(IoSnafu)?;
         let config_file_name = Self::FILE_NAME.into();
@@ -39,60 +40,87 @@ impl Config {
             .iter()
             .collect::<std::path::PathBuf>();
         let config_file = tokio::fs::OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
+            .read(read)
+            .write(write)
+            .create(create)
+            .truncate(truncate)
             .open(config_file_path)
             .await
             .context(IoSnafu)?;
         Ok(config_file)
     }
 
+    async fn file_read(dst: &mut String) -> Result<usize, Error> {
+        use tokio::io::AsyncReadExt;
+        let read = true;
+        let write = false;
+        let create = false;
+        let truncate = false;
+        Self::file_open(read, write, create, truncate)
+            .await?
+            .read_to_string(dst)
+            .await
+            .context(IoSnafu)
+    }
+
     async fn file_write(&self) -> Result<(), Error> {
-        use tokio::io::{AsyncSeekExt, AsyncWriteExt};
-        let mut config_file = Self::file_open().await?;
+        use tokio::io::AsyncWriteExt;
+        let read = false;
+        let write = true;
+        let create = true;
+        let truncate = true;
+        let mut config_file = Self::file_open(read, write, create, truncate).await?;
         let config_data = serde_json::ser::to_string_pretty(&self).context(SerdeJsonSerializeSnafu)?;
         let config_data = config_data.as_bytes();
-        config_file.seek(std::io::SeekFrom::Start(0)).await.context(IoSnafu)?;
-        config_file.write_all(&config_data).await.context(IoSnafu)?;
+        config_file.write_all(config_data).await.context(IoSnafu)?;
         config_file.flush().await.context(IoSnafu)?;
-        config_file.seek(std::io::SeekFrom::Start(0)).await.context(IoSnafu)?;
         Ok(())
     }
 
     pub async fn load() -> Result<Self, Error> {
-        use tokio::io::AsyncReadExt;
-
-        let mut config_file = Self::file_open().await?;
         let mut config_text = String::new();
         let mut config_data = Self::default();
 
-        config_file.read_to_string(&mut config_text).await.context(IoSnafu)?;
+        Self::file_read(&mut config_text).await?;
 
         if config_text.is_empty() {
             #[cfg(feature = "debug")]
             tracing::info!(r#""{}" is empty; writing defaults to file"#, Self::FILE_NAME);
-            Self::default().file_write().await?;
-            config_file.read_to_string(&mut config_text).await.context(IoSnafu)?;
-        }
-
-        let mut config_json =
-            serde_json::from_str::<serde_json::Map<_, _>>(&config_text).context(SerdeJsonDeserializeSnafu)?;
-
-        if let Some(value) = config_json.remove("discordApiClientId") {
-            config_data.discord_api_client_id = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
-        }
-        if let Some(value) = config_json.remove("steamId") {
-            config_data.steam_id = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
-        }
-        if let Some(value) = config_json.remove("steamWebApiUserKey") {
-            config_data.steam_web_api_user_key = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
-        }
-
-        if !config_json.is_empty() {
-            #[cfg(feature = "debug")]
-            tracing::warn!(r#""config.json" includes spurious data; overwriting"#);
             config_data.file_write().await?;
+            Self::file_read(&mut config_text).await?;
+        }
+
+        let config_read = serde_json::from_str::<serde_json::Map<_, _>>(&config_text);
+
+        if let Err(error) = &config_read {
+            if !error.is_eof() {
+                #[cfg(feature = "debug")]
+                tracing::warn!(
+                    ?error,
+                    r#"error deserializing "{}"; writing defaults to file"#,
+                    Self::FILE_NAME
+                );
+                config_data.file_write().await?;
+                Self::file_read(&mut config_text).await?;
+            }
+        }
+
+        if let Ok(mut config_json) = config_read {
+            if let Some(value) = config_json.remove("discordClientId") {
+                config_data.discord_client_id = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
+            }
+            if let Some(value) = config_json.remove("steamUserId") {
+                config_data.steam_user_id = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
+            }
+            if let Some(value) = config_json.remove("steamUserKey") {
+                config_data.steam_user_key = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
+            }
+
+            if !config_json.is_empty() {
+                #[cfg(feature = "debug")]
+                tracing::warn!(r#""config.json" includes spurious data; overwriting"#);
+                config_data.file_write().await?;
+            }
         }
 
         Ok(config_data)

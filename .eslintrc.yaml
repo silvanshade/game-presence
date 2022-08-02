@@ -102,6 +102,7 @@ rules:
     - code: 120
       comments: 120
       template: 120
+      ignoreHTMLAttributeValues: true
       ignoreUrls: true
   vue/no-constant-condition: error
   vue/no-empty-pattern: error

@@ -7,6 +7,7 @@ use tauri::Manager;
 pub mod api;
 pub mod app;
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Snafu)]
 enum Error {
     DiscordRichPresenceError {
