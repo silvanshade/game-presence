@@ -32,7 +32,7 @@ reqwest = { version = "0.11", default-features = false, features = ["json"] }
 serde = { version = "1.0", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 snafu = { version = "0.7", default-features = false, features = ["std"] }
-tauri = { version = "1.0", default-features = false, features = ["system-tray", "wry"] }
+tauri = { version = "1.0", default-features = false, features = ["devtools", "http-request", "system-tray", "wry"] }
 tokio = { version = "1.20", default-features = false }
 tracing = { version = "0.1", default-features = false, features = ["attributes"], optional = true }
 tracing-subscriber = { version = "0.3", default-features = false, features = ["ansi"], optional = true }
@@ -40,6 +40,7 @@ tracing-subscriber = { version = "0.3", default-features = false, features = ["a
 [profile.release]
 codegen-units = 1
 lto = "fat"
+incremental = false
 opt-level = "s"
 panic = "abort"
 strip = true

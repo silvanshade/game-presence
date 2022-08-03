@@ -5,7 +5,9 @@
     "module": "ES2022",
     "moduleResolution": "Node",
     "lib": ["ESNext", "DOM"],
+    "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "resolveJsonModule": true,
@@ -31,5 +33,4 @@
     "src/**/*.tsx",
     "src/**/*.vue"
   ],
-  // "references": [{ "path": "./tsconfig.node.json" }]
 }

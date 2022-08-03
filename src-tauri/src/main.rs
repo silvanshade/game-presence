@@ -29,46 +29,6 @@ enum Error {
     },
 }
 
-// async fn fetch_status() -> Result<serde_json::Value, self::Error> {
-//     #[cfg(feature = "debug")]
-//     let span = tracing::span!(tracing::Level::TRACE, "fetch_status");
-//     #[cfg(feature = "debug")]
-//     let _enter = span.enter();
-
-//     let url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002";
-
-//     // TODO: create a personal Web API Key at https://steamcommunity.com/dev/apikey
-//     let key = "<FIXME>";
-//     // TODO: see "Steam ID" at top left of page at https://store.steampowered.com/account/
-//     let steamids = "<FIXME>";
-
-//     let client = reqwest::Client::new();
-
-//     let request = client
-//         .get(url)
-//         .query(&[("key", key), ("steamids", steamids)])
-//         .build()
-//         .context(ReqwestSnafu)?;
-//     #[cfg(feature = "debug")]
-//     tracing::debug!(?request);
-
-//     let response = client.execute(request).await.context(ReqwestSnafu)?;
-//     #[cfg(feature = "debug")]
-//     tracing::debug!(?response);
-
-//     let json: serde_json::Value = response.json().await.context(ReqwestSnafu)?;
-//     #[cfg(feature = "debug")]
-//     tracing::debug!(?json);
-
-//     Ok(json)
-// }
-
-// #[tauri::command]
-// async fn fetch_status_command() -> Result<(), String> {
-//     fetch_status().await.map_err(|err| err.to_string())?;
-//     Ok(())
-// }
-
 fn main() -> Result<(), self::Error> {
     #[cfg(feature = "debug")]
     tracing_subscriber::fmt::try_init().context(TracingSubscriberSnafu)?;
@@ -77,36 +37,12 @@ fn main() -> Result<(), self::Error> {
         .add_item(tauri::CustomMenuItem::new("toggle-hide-show", "Hide"))
         .add_native_item(tauri::SystemTrayMenuItem::Separator)
         .add_item(tauri::CustomMenuItem::new("exit-app", "Quit"));
-
     let system_tray = tauri::SystemTray::new().with_menu(system_tray_menu);
 
     #[allow(unused_mut)]
     let mut app = tauri::Builder::default()
         .system_tray(system_tray)
-        .on_system_tray_event(|app, event| match event {
-            tauri::SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
-                "exit-app" => {
-                    app.exit(exitcode::OK);
-                },
-                "toggle-hide-show" => {
-                    let window = app.get_window("main").unwrap();
-                    let new_title = if window.is_visible().unwrap() {
-                        window.hide().unwrap();
-                        "Show"
-                    } else {
-                        window.show().unwrap();
-                        "Hide"
-                    };
-                    app.tray_handle()
-                        .get_item("toggle-hide-show")
-                        .set_title(new_title)
-                        .unwrap();
-                },
-                _ => {},
-            },
-            _ => {},
-        })
-        // .invoke_handler(tauri::generate_handler![fetch_status_command])
+        .on_system_tray_event(app_system_tray_event_handler)
         .build(tauri::generate_context!())
         .context(TauriSnafu)?;
 
@@ -114,14 +50,19 @@ fn main() -> Result<(), self::Error> {
     #[cfg(target_os = "macos")]
     app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
+    app.run(app_run_event_handler);
+
+    Ok(())
+}
+
+fn app_run_event_handler(app: &tauri::AppHandle, event: tauri::RunEvent) {
     let mut client = {
         // get a client id by registering an application at https://discord.com/developers/applications
         let client_id = "<FIXME>";
         DiscordIpcClient::new(client_id)
-    }
-    .context(DiscordRichPresenceSnafu)?;
+    }.expect("failed to create discord client");
 
-    app.run(move |app_handle, e| match e {
+    match event {
         tauri::RunEvent::Exit => {
             client.close().unwrap();
         },
@@ -135,12 +76,12 @@ fn main() -> Result<(), self::Error> {
         } => {
             if label == "main" {
                 api.prevent_close();
-                let window = app_handle.get_window("main").unwrap();
+                let window = app.get_window("main").unwrap();
                 let new_title = {
                     window.hide().unwrap();
                     "Show"
                 };
-                app_handle
+                app
                     .tray_handle()
                     .get_item("toggle-hide-show")
                     .set_title(new_title)
@@ -181,7 +122,31 @@ fn main() -> Result<(), self::Error> {
         //     client.set_activity(Activity::new().state(&state)).unwrap();
         // },
         _ => {},
-    });
+    }
+}
 
-    Ok(())
+fn app_system_tray_event_handler(app: &tauri::AppHandle, event: tauri::SystemTrayEvent) {
+    match event {
+        tauri::SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+            "exit-app" => {
+                app.exit(exitcode::OK);
+            },
+            "toggle-hide-show" => {
+                let window = app.get_window("main").unwrap();
+                let new_title = if window.is_visible().unwrap() {
+                    window.hide().unwrap();
+                    "Show"
+                } else {
+                    window.show().unwrap();
+                    "Hide"
+                };
+                app.tray_handle()
+                    .get_item("toggle-hide-show")
+                    .set_title(new_title)
+                    .unwrap();
+            },
+            _ => {},
+        },
+        _ => {},
+    }
 }
