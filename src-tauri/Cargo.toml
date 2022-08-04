@@ -21,14 +21,16 @@ custom-protocol = ["tauri/custom-protocol"]
 debug = ["tracing", "tracing-subscriber"]
 
 [build-dependencies]
+filetime = "0.2"
+regex = "1.6"
+serde_json = { version = "1.0", default-features = false }
 tauri-build = { version = "1.0", features = [] }
 
 [dependencies]
-cached = { version = "0.37.0", default-features = false }
+cached = { version = "0.37", default-features = false }
 directories = "4.0"
 discord-rich-presence = "0.2"
 exitcode = "1.1"
-reqwest = { version = "0.11", default-features = false, features = ["json"] }
 serde = { version = "1.0", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 snafu = { version = "0.7", default-features = false, features = ["std"] }
@@ -41,6 +43,6 @@ tracing-subscriber = { version = "0.3", default-features = false, features = ["a
 codegen-units = 1
 lto = "fat"
 incremental = false
-opt-level = "s"
+opt-level = "z"
 panic = "abort"
 strip = true
