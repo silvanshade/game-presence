@@ -80,63 +80,63 @@ fn handle_run_events(app: &tauri::AppHandle, event: tauri::RunEvent) {
     // }
     // .expect("failed to create discord client");
 
-    // match event {
-    //     tauri::RunEvent::Exit => {
-    //         client.close().unwrap();
-    //     },
-    //     tauri::RunEvent::ExitRequested { api, .. } => {
-    //         api.prevent_exit();
-    //     },
-    //     tauri::RunEvent::WindowEvent {
-    //         label,
-    //         event: tauri::WindowEvent::CloseRequested { api, .. },
-    //         ..
-    //     } => {
-    //         if label == "main" {
-    //             api.prevent_close();
-    //             let window = app.get_window("main").unwrap();
-    //             let new_title = {
-    //                 window.hide().unwrap();
-    //                 "Show"
-    //             };
-    //             app.tray_handle()
-    //                 .get_item("toggle-hide-show")
-    //                 .set_title(new_title)
-    //                 .unwrap();
-    //         }
-    //     },
-    //     tauri::RunEvent::Ready => {},
-    //     // tauri::RunEvent::Ready => {
-    //     //     let json = tauri::async_runtime::block_on(fetch_status()).unwrap();
-    //     //     let mut state = String::from("Not playing anything");
+    match event {
+        tauri::RunEvent::Exit => {
+            // client.close().unwrap();
+        },
+        tauri::RunEvent::ExitRequested { api, .. } => {
+            api.prevent_exit();
+        },
+        tauri::RunEvent::WindowEvent {
+            label,
+            event: tauri::WindowEvent::CloseRequested { api, .. },
+            ..
+        } => {
+            if label == "main" {
+                api.prevent_close();
+                let window = app.get_window("main").unwrap();
+                let new_title = {
+                    window.hide().unwrap();
+                    "Show"
+                };
+                app.tray_handle()
+                    .get_item("toggle-hide-show")
+                    .set_title(new_title)
+                    .unwrap();
+            }
+        },
+        tauri::RunEvent::Ready => {},
+        // tauri::RunEvent::Ready => {
+        //     let json = tauri::async_runtime::block_on(fetch_status()).unwrap();
+        //     let mut state = String::from("Not playing anything");
 
-    //     //     if let Some(player) = json
-    //     //         .get("response")
-    //     //         .and_then(|json| json.get("players"))
-    //     //         .and_then(|json| json.get(0))
-    //     //     {
-    //     //         if let Ok(gameextrainfo) = player
-    //     //             .get("gameextrainfo")
-    //     //             .context(NoneSnafu)
-    //     //             .and_then(|json|
-    //     // serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu))         {
-    //     //             state = format!("Playing {}", gameextrainfo);
-    //     //         } else {
-    //     //             tracing::info!(r#""gameextra" field not found in response from Steam Web API"#);
-    //     //             if let Ok(gameid) = player.get("gameid").context(NoneSnafu).and_then(|json| {
-    //     //                 serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu)
-    //     //             }) {
-    //     //                 tracing::info!(r#""gameid" field not found in response from Steam Web API"#);
-    //     //                 // FIXME: do something with "gameid" if defined but "gameextra" is not
-    //     //             }
-    //     //         }
-    //     //     }
+        //     if let Some(player) = json
+        //         .get("response")
+        //         .and_then(|json| json.get("players"))
+        //         .and_then(|json| json.get(0))
+        //     {
+        //         if let Ok(gameextrainfo) = player
+        //             .get("gameextrainfo")
+        //             .context(NoneSnafu)
+        //             .and_then(|json|
+        // serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu))         {
+        //             state = format!("Playing {}", gameextrainfo);
+        //         } else {
+        //             tracing::info!(r#""gameextra" field not found in response from Steam Web API"#);
+        //             if let Ok(gameid) = player.get("gameid").context(NoneSnafu).and_then(|json| {
+        //                 serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu)
+        //             }) {
+        //                 tracing::info!(r#""gameid" field not found in response from Steam Web API"#);
+        //                 // FIXME: do something with "gameid" if defined but "gameextra" is not
+        //             }
+        //         }
+        //     }
 
-    //     //     client.connect().unwrap();
-    //     //     client.set_activity(Activity::new().state(&state)).unwrap();
-    //     // },
-    //     _ => {},
-    // }
+        //     client.connect().unwrap();
+        //     client.set_activity(Activity::new().state(&state)).unwrap();
+        // },
+        _ => {},
+    }
 }
 
 fn handle_system_tray_events(app: &tauri::AppHandle, event: tauri::SystemTrayEvent) {
