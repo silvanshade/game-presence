@@ -30,7 +30,11 @@
             <span class="absolute left-0 inset-y-0 flex items-center pl-3 z-10">
               <UserIcon class="absolute h-5 w-5 pointer-events-none" />
             </span>
-            <span class="absolute right-0 inset-y-0 flex items-center pr-8 z-10">
+            <span
+              class="absolute right-0 inset-y-0 flex items-center pr-8 z-10 tooltip tooltip-left"
+              data-tip='Click to open your Steam account then copy and paste the "Steam ID" under your name'
+              @click="openSteamUserIdWebPage"
+            >
               <QuestionMarkCircleIcon class="absolute h-5 w-5 text-yellow-500 pointer-events-none" />
             </span>
           </div>
@@ -52,7 +56,11 @@
             <span class="absolute left-0 inset-y-0 flex items-center pl-3 z-10">
               <KeyIcon class="absolute h-5 w-5 pointer-events-none" />
             </span>
-            <span class="absolute right-0 inset-y-0 flex items-center pr-8 z-10">
+            <span
+              class="absolute right-0 inset-y-0 flex items-center pr-8 z-10 tooltip tooltip-left"
+              data-tip='Click to open your Steam api key page then copy and paste the "Key" value. Generate a new key if you do not already have one. ("Domain Name" can be set to anything)'
+              @click="openSteamUserKeyWebPage"
+            >
               <QuestionMarkCircleIcon class="absolute h-5 w-5 text-yellow-500 pointer-events-none" />
             </span>
           </div>
@@ -78,6 +86,15 @@
 </template>
 
 <script setup lang="ts">
+import * as tauri from "@tauri-apps/api";
 import { KeyIcon, QuestionMarkCircleIcon, UserIcon } from "@heroicons/vue/outline";
 import { CogIcon } from "@heroicons/vue/solid";
+
+const openSteamUserIdWebPage = async () => {
+  await tauri.shell.open("https://store.steampowered.com/account");
+};
+
+const openSteamUserKeyWebPage = async () => {
+  await tauri.shell.open("https://steamcommunity.com/dev/apikey");
+};
 </script>

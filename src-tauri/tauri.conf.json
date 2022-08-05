@@ -19,6 +19,13 @@
         "scope": [
           "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002*"
         ]
+      },
+      "shell": {
+        "all": false,
+        "execute": false,
+        "open": "https://store.steampowered.com/account|https://steamcommunity.com/dev/apikey",
+        "scope": [],
+        "sidecar": false
       }
     },
     "bundle": {
@@ -55,7 +62,7 @@
       }
     },
     "security": {
-      "csp": "img-src tauri://localhost/assets/steam.4123825c.svg; style-src tauri://localhost/assets/index.8cc2af98.css"
+      "csp": "img-src tauri://localhost/assets/steam.4123825c.svg; style-src tauri://localhost/assets/index.801beb36.css"
     },
     "systemTray": {
       "iconAsTemplate": true,
@@ -68,7 +75,7 @@
       {
         "fullscreen": false,
         "height": 220,
-        "resizable": true,
+        "resizable": false,
         "title": "Steam Presence",
         "width": 600
       }
