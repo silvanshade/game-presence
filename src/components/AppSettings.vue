@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-full flexjustify-center px-6">
-    <div class="w-full">
+  <div class="absolute px-6 w-full">
+    <div>
       <form
         class="space-y-6"
         action="#"
