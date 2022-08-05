@@ -1,5 +1,5 @@
 <template>
-  <div class="absolute w-full"></div>
+  <div class="absolute w-full">status</div>
 </template>
 
 <script setup lang="ts">
