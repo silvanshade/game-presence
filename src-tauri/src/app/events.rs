@@ -1,5 +1,3 @@
-
-
 pub fn handle_run(app: &tauri::AppHandle, event: tauri::RunEvent) {
     match event {
         tauri::RunEvent::Exit => {
