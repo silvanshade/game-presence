@@ -1,6 +1,5 @@
-pub mod config;
+pub mod frontend;
 pub mod metadata;
-mod data;
+mod model;
 
-pub use self::config::Config;
-pub use self::data::Data;
+pub use self::model::Model;

@@ -1,8 +1,6 @@
 #![cfg_attr(all(not(debug_assertions), target_os = "windows"), windows_subsystem = "windows")]
 
-// use discord_rich_presence::{activity::Activity, DiscordIpc, DiscordIpcClient};
 use snafu::prelude::*;
-use tauri::Manager;
 
 pub mod api;
 pub mod app;
@@ -10,12 +8,6 @@ pub mod app;
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Snafu)]
 enum Error {
-    ConfigError {
-        source: crate::app::config::Error,
-    },
-    // DiscordRichPresenceError {
-    //     source: Box<dyn std::error::Error>,
-    // },
     NoneError,
     SerdeJsonDeserializeError {
         source: serde_json::Error,
@@ -29,13 +21,6 @@ enum Error {
     },
 }
 
-#[tauri::command]
-async fn get_config(app: tauri::AppHandle) -> crate::app::Config {
-    let data = app.state::<crate::app::Data>();
-    let config = data.config.read().await;
-    config.clone()
-}
-
 fn main() -> Result<(), self::Error> {
     #[cfg(feature = "debug")]
     tracing_subscriber::fmt::try_init().context(TracingSubscriberSnafu)?;
@@ -44,10 +29,9 @@ fn main() -> Result<(), self::Error> {
 
     #[allow(unused_mut)]
     let mut app = tauri::Builder::default()
-        .manage(self::make_state()?)
+        .manage(crate::app::Model::new())
         .system_tray(self::make_system_tray())
         .on_system_tray_event(self::handle_system_tray_events)
-        .invoke_handler(tauri::generate_handler![get_config])
         .build(context)
         .context(TauriSnafu)?;
 
@@ -60,12 +44,6 @@ fn main() -> Result<(), self::Error> {
     Ok(())
 }
 
-fn make_state() -> Result<crate::app::Data, self::Error> {
-    let config = tauri::async_runtime::block_on(crate::app::Config::load()).context(ConfigSnafu)?;
-    let data = crate::app::Data::new(config);
-    Ok(data)
-}
-
 fn make_system_tray() -> tauri::SystemTray {
     let system_tray_menu = tauri::SystemTrayMenu::new()
         .add_item(tauri::CustomMenuItem::new("toggle-hide-show", "Hide"))
@@ -75,12 +53,7 @@ fn make_system_tray() -> tauri::SystemTray {
 }
 
 fn handle_run_events(app: &tauri::AppHandle, event: tauri::RunEvent) {
-    // let mut client = {
-    //     // get a client id by registering an application at https://discord.com/developers/applications
-    //     let client_id = "<FIXME>";
-    //     DiscordIpcClient::new(client_id)
-    // }
-    // .expect("failed to create discord client");
+    use tauri::Manager;
 
     match event {
         tauri::RunEvent::Exit => {
@@ -107,41 +80,13 @@ fn handle_run_events(app: &tauri::AppHandle, event: tauri::RunEvent) {
                     .unwrap();
             }
         },
-        tauri::RunEvent::Ready => {},
-        // tauri::RunEvent::Ready => {
-        //     let json = tauri::async_runtime::block_on(fetch_status()).unwrap();
-        //     let mut state = String::from("Not playing anything");
-
-        //     if let Some(player) = json
-        //         .get("response")
-        //         .and_then(|json| json.get("players"))
-        //         .and_then(|json| json.get(0))
-        //     {
-        //         if let Ok(gameextrainfo) = player
-        //             .get("gameextrainfo")
-        //             .context(NoneSnafu)
-        //             .and_then(|json|
-        // serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu))         {
-        //             state = format!("Playing {}", gameextrainfo);
-        //         } else {
-        //             tracing::info!(r#""gameextra" field not found in response from Steam Web API"#);
-        //             if let Ok(gameid) = player.get("gameid").context(NoneSnafu).and_then(|json| {
-        //                 serde_json::from_value::<String>(json.clone()).context(SerdeJsonDeserializeSnafu)
-        //             }) {
-        //                 tracing::info!(r#""gameid" field not found in response from Steam Web API"#);
-        //                 // FIXME: do something with "gameid" if defined but "gameextra" is not
-        //             }
-        //         }
-        //     }
-
-        //     client.connect().unwrap();
-        //     client.set_activity(Activity::new().state(&state)).unwrap();
-        // },
         _ => {},
     }
 }
 
 fn handle_system_tray_events(app: &tauri::AppHandle, event: tauri::SystemTrayEvent) {
+    use tauri::Manager;
+
     match event {
         tauri::SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
             "exit-app" => {

@@ -2,15 +2,9 @@
   <div class="absolute px-6 w-full">
     <div>
       <form
-        class="space-y-6"
-        action="#"
-        method="POST"
+        class="space-y-6 py-6"
+        @submit.prevent="saveSettings"
       >
-        <input
-          type="hidden"
-          name="remember"
-          value="true"
-        />
         <div class="rounded shadow -space-y-px">
           <div class="relative">
             <label
@@ -20,10 +14,10 @@
             >
             <input
               id="steam-user-id"
-              name="email"
-              type="email"
-              autocomplete="email"
-              required="false"
+              v-model.lazy="steamUserId"
+              name="steam-user-id"
+              type="text"
+              required="true"
               class="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
               placeholder="Steam User ID"
             />
@@ -46,10 +40,10 @@
             >
             <input
               id="steam-user-key"
-              name="password"
+              v-model.lazy="steamUserKey"
+              name="steam-user-key"
               type="password"
-              autocomplete="current-password"
-              required="false"
+              required="true"
               class="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
               placeholder="Steam User Key"
             />
@@ -86,9 +80,18 @@
 </template>
 
 <script setup lang="ts">
+import * as vue from "vue";
 import * as tauri from "@tauri-apps/api";
 import { KeyIcon, QuestionMarkCircleIcon, UserIcon } from "@heroicons/vue/outline";
 import { CogIcon } from "@heroicons/vue/solid";
+
+const steamUserId = vue.ref("");
+const steamUserKey = vue.ref("");
+
+interface Settings {
+  steamUserId: string;
+  steamUserKey: string;
+}
 
 const openSteamUserIdWebPage = async () => {
   await tauri.shell.open("https://store.steampowered.com/account");
@@ -96,5 +99,13 @@ const openSteamUserIdWebPage = async () => {
 
 const openSteamUserKeyWebPage = async () => {
   await tauri.shell.open("https://steamcommunity.com/dev/apikey");
+};
+
+const saveSettings = async () => {
+  const payload: Settings = {
+    steamUserId: steamUserId.value,
+    steamUserKey: steamUserKey.value,
+  };
+  await tauri.event.emit("save-settings", payload);
 };
 </script>

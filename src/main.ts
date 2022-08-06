@@ -1,8 +1,9 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import "./index.css";
-import * as app from "./lib/app";
+import * as lib from "./lib";
 
-app.getConfig().then(console.log).catch(console.error);
+lib.getConfig().then(console.log).catch(console.error);
 
-createApp(App).mount("#app");
+const app = createApp(App);
+app.mount("#app");
