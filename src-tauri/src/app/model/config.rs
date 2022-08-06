@@ -1,12 +1,11 @@
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 
-#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Snafu)]
 pub enum Error {
-    IoError { source: tokio::io::Error },
-    SerdeJsonDeserializeError { source: serde_json::Error },
-    SerdeJsonSerializeError { source: serde_json::Error },
+    Io { source: tokio::io::Error },
+    SerdeJsonDeserialize { source: serde_json::Error },
+    SerdeJsonSerialize { source: serde_json::Error },
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

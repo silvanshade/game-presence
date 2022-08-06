@@ -1,52 +1,54 @@
 use snafu::prelude::*;
 
-#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Snafu)]
 enum Error {
     BuiltWriteBuiltFile {
         source: std::io::Error,
     },
-    FileTimeSetATimeError {
+    FileTimeSetATime {
         source: std::io::Error,
     },
-    FileTimeSetMTimeError {
+    FileTimeSetMTime {
         source: std::io::Error,
     },
 
-    FsDirEntryError {
+    FsDirEntry {
         source: std::io::Error,
     },
-    FsMetaDataError {
-        source: std::io::Error,
-        tauri_conf_json_path: std::path::PathBuf,
-    },
-    FsOpenReadError {
+    FsMetaData {
         source: std::io::Error,
         tauri_conf_json_path: std::path::PathBuf,
     },
-    FsOpenWriteError {
+    FsOpenRead {
         source: std::io::Error,
         tauri_conf_json_path: std::path::PathBuf,
     },
-    FsReadDirError {
+    FsOpenWrite {
+        source: std::io::Error,
+        tauri_conf_json_path: std::path::PathBuf,
+    },
+    FsReadDir {
         source: std::io::Error,
         assets_path: std::path::PathBuf,
     },
-    FsWriteAllError {
+    FsWriteAll {
         source: std::io::Error,
         tauri_conf_json_path: std::path::PathBuf,
         tauri_conf_json: serde_json::Value,
     },
-    RegexError {
+    Regex {
         source: regex::Error,
     },
-    SerdeJsonDeserializeError {
+    SerdeJsonDeserialize {
         source: serde_json::Error,
         tauri_conf_json_path: std::path::PathBuf,
     },
     SerdeJsonToStringPretty {
         source: serde_json::Error,
         tauri_conf_json: serde_json::Value,
+    },
+    TauriCspPointer {
+        csp_pointer: String,
     },
 }
 
@@ -91,10 +93,9 @@ fn tauri_conf_csp_update() -> Result<(), self::Error> {
         .context(SerdeJsonDeserializeSnafu { tauri_conf_json_path })?;
 
     let csp_pointer = r"/tauri/security/csp";
-    let csp = tauri_conf_json.pointer_mut(csp_pointer).expect(&format!(
-        r#"property for json pointer "{}" does not exist in "{}""#,
-        csp_pointer, tauri_conf_json_name,
-    ));
+    let csp = tauri_conf_json
+        .pointer_mut(csp_pointer)
+        .context(TauriCspPointerSnafu { csp_pointer })?;
 
     let mut images = Vec::<String>::new();
     let mut styles = Vec::<String>::new();

@@ -1,22 +1,23 @@
+use snafu::prelude::*;
 use tokio::sync::RwLock;
 
 mod config;
 pub use self::config::Config;
 
-#[derive(Debug)]
+#[derive(Debug, Snafu)]
+pub enum Error {
+    Config { source: self::config::Error },
+}
+
+#[derive(Debug, Default)]
 pub struct Model {
     pub config: RwLock<self::Config>,
 }
 
 impl Model {
-    pub fn new() -> Self {
-        let config = Default::default();
-        Self { config }
+    pub async fn load(&self) -> Result<(), self::Error> {
+        let config = self::Config::load().await.context(ConfigSnafu)?;
+        *self.config.write().await = config;
+        Ok(())
     }
 }
-
-// fn make_state() -> Result<crate::app::Model, self::Error> {
-//     let config = tauri::async_runtime::block_on(crate::app::Config::load()).context(ConfigSnafu)?;
-//     let data = crate::app::Model::new(config);
-//     Ok(data)
-// }
