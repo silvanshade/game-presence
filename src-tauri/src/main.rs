@@ -25,8 +25,8 @@ fn main() -> Result<(), self::Error> {
     #[allow(unused_mut)]
     let mut app = tauri::Builder::default()
         .manage(crate::app::Model::default())
-        .system_tray(crate::app::make_system_tray())
-        .on_system_tray_event(crate::app::handle_system_tray_events)
+        .system_tray(crate::app::gui::make_system_tray())
+        .on_system_tray_event(crate::app::events::handle_system_tray)
         .build(context)
         .context(TauriSnafu)?;
 
@@ -34,7 +34,7 @@ fn main() -> Result<(), self::Error> {
     #[cfg(target_os = "macos")]
     app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
-    app.run(crate::app::handle_run_events);
+    app.run(crate::app::events::handle_run);
 
     Ok(())
 }
