@@ -3,7 +3,7 @@ publish = false
 edition = "2021"
 name = "steam-presence"
 version = "0.0.0"
-authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
+authors = ["silvanshade <silvanshade@users.noreply.github.com>", "bar"]
 license = "Apache-2.0 WITH LLVM-exception"
 repository = "https://github.com/silvanshade/steam-presence"
 description = """
@@ -21,9 +21,11 @@ custom-protocol = ["tauri/custom-protocol"]
 debug = ["tracing", "tracing-subscriber"]
 
 [build-dependencies]
+built = "0.5"
 filetime = "0.2"
 regex = "1.6"
 serde_json = { version = "1.0", default-features = false }
+snafu = { version = "0.7", default-features = false, features = ["std"] }
 tauri-build = { version = "1.0", features = [] }
 
 [dependencies]

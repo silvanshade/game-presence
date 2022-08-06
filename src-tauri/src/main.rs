@@ -40,13 +40,15 @@ fn main() -> Result<(), self::Error> {
     #[cfg(feature = "debug")]
     tracing_subscriber::fmt::try_init().context(TracingSubscriberSnafu)?;
 
+    let context = tauri::generate_context!();
+
     #[allow(unused_mut)]
     let mut app = tauri::Builder::default()
         .manage(self::make_state()?)
         .system_tray(self::make_system_tray())
         .on_system_tray_event(self::handle_system_tray_events)
         .invoke_handler(tauri::generate_handler![get_config])
-        .build(tauri::generate_context!())
+        .build(context)
         .context(TauriSnafu)?;
 
     // hide app from Dock on macOS

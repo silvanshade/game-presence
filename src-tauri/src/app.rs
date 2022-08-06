@@ -1,5 +1,5 @@
 pub mod config;
-mod metadata;
+pub mod metadata;
 mod data;
 
 pub use self::config::Config;
