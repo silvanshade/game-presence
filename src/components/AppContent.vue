@@ -1,6 +1,8 @@
 <template>
   <div class="relative w-full">
-    <AppSettings v-show="currentPage === 'settings'" />
+    <Suspense>
+      <AppSettings v-show="currentPage === 'settings'" />
+    </Suspense>
     <AppSteamStatus v-show="currentPage === 'steam-status'" />
     <AppAboutVue v-show="currentPage === 'about'" />
   </div>

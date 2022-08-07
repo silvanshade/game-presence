@@ -27,6 +27,11 @@ fn main() -> Result<(), self::Error> {
         .manage(crate::app::Model::default())
         .system_tray(crate::app::gui::make_system_tray())
         .on_system_tray_event(crate::app::events::handle_system_tray)
+        .invoke_handler(tauri::generate_handler![
+            crate::app::commands::init_app,
+            crate::app::commands::get_settings,
+            crate::app::commands::set_settings,
+        ])
         .build(context)
         .context(TauriSnafu)?;
 

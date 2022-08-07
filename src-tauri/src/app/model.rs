@@ -1,7 +1,7 @@
 use snafu::prelude::*;
-use tokio::sync::RwLock;
+use tauri::async_runtime::RwLock;
 
-mod config;
+pub mod config;
 pub use self::config::Config;
 
 #[derive(Debug, Snafu)]
