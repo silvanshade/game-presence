@@ -131,23 +131,23 @@ const settings: Settings = vue.reactive(await getSettings());
 
 const settingsSaveButtonState = vue.reactive({
   colors: {
-    "bg-green-300": true,
-    "bg-red-600": false,
-    "focus:ring-red-500": false,
-    "hover:bg-red-700": false,
+    "bg-indigo-300": true,
+    "bg-indigo-600": false,
+    "focus:ring-indigo-500": false,
+    "hover:bg-indigo-700": false,
   },
   disabled: true,
 });
 
 function settingsState(state: "clean" | "dirty") {
   if (state === "clean") {
-    settingsSaveButtonState.colors["bg-green-300"] = true;
-    settingsSaveButtonState.colors["bg-red-600"] = false;
+    settingsSaveButtonState.colors["bg-indigo-300"] = true;
+    settingsSaveButtonState.colors["bg-indigo-600"] = false;
     settingsSaveButtonState.disabled = true;
   }
   if (state === "dirty") {
-    settingsSaveButtonState.colors["bg-green-300"] = false;
-    settingsSaveButtonState.colors["bg-red-600"] = true;
+    settingsSaveButtonState.colors["bg-indigo-300"] = false;
+    settingsSaveButtonState.colors["bg-indigo-600"] = true;
     settingsSaveButtonState.disabled = false;
   }
 }
