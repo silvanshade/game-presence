@@ -1,4 +1,4 @@
-pub fn handle_run(app: &tauri::AppHandle, event: tauri::RunEvent) {
+pub fn run(app: &tauri::AppHandle, event: tauri::RunEvent) {
     match event {
         tauri::RunEvent::Exit => {
             // client.close().unwrap();
@@ -20,7 +20,7 @@ pub fn handle_run(app: &tauri::AppHandle, event: tauri::RunEvent) {
     }
 }
 
-pub fn handle_system_tray(app: &tauri::AppHandle, event: tauri::SystemTrayEvent) {
+pub fn system_tray(app: &tauri::AppHandle, event: tauri::SystemTrayEvent) {
     if let tauri::SystemTrayEvent::MenuItemClick { id, .. } = event {
         match id.as_str() {
             "exit-app" => {

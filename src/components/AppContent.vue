@@ -3,8 +3,12 @@
     <Suspense>
       <AppSettings v-show="currentPage === 'settings'" />
     </Suspense>
-    <AppSteamStatus v-show="currentPage === 'steam-status'" />
-    <AppAboutVue v-show="currentPage === 'about'" />
+    <Suspense>
+      <AppSteamStatus v-show="currentPage === 'steam-status'" />
+    </Suspense>
+    <Suspense>
+      <AppAboutVue v-show="currentPage === 'about'" />
+    </Suspense>
   </div>
 </template>
 

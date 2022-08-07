@@ -23,7 +23,7 @@
       "shell": {
         "all": false,
         "execute": false,
-        "open": "https://store.steampowered.com/account|https://steamcommunity.com/dev/apikey",
+        "open": "https://github.com/silvanshade/steam-presence|https://store.steampowered.com/account|https://steamcommunity.com/dev/apikey",
         "scope": [],
         "sidecar": false
       }
@@ -77,7 +77,7 @@
         "height": 222,
         "resizable": true,
         "title": "Steam Presence",
-        "width": 600
+        "width": 700
       }
     ]
   }

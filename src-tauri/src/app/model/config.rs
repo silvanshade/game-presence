@@ -11,7 +11,6 @@ pub enum Error {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
-    pub discord_client_id: Option<String>,
     pub steam_user_id: Option<String>,
     pub steam_user_key: Option<String>,
 }
@@ -105,9 +104,6 @@ impl Config {
         }
 
         if let Ok(mut config_json) = config_read {
-            if let Some(value) = config_json.remove("discordClientId") {
-                config_data.discord_client_id = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
-            }
             if let Some(value) = config_json.remove("steamUserId") {
                 config_data.steam_user_id = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
             }

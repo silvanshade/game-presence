@@ -9,9 +9,10 @@ pub enum Error {
     Config { source: self::config::Error },
 }
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct Model {
     pub config: RwLock<self::Config>,
+    pub discord_ipc_client: RwLock<Option<discord_rich_presence::DiscordIpcClient>>,
 }
 
 impl Model {

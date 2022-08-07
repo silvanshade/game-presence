@@ -26,9 +26,10 @@ fn main() -> Result<(), self::Error> {
     let mut app = tauri::Builder::default()
         .manage(crate::app::Model::default())
         .system_tray(crate::app::gui::make_system_tray())
-        .on_system_tray_event(crate::app::events::handle_system_tray)
+        .on_system_tray_event(crate::app::handler::system_tray)
         .invoke_handler(tauri::generate_handler![
-            crate::app::commands::init_app,
+            crate::app::commands::init_model,
+            crate::app::commands::get_built_info,
             crate::app::commands::get_settings,
             crate::app::commands::set_settings,
         ])
@@ -39,7 +40,7 @@ fn main() -> Result<(), self::Error> {
     #[cfg(target_os = "macos")]
     app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
-    app.run(crate::app::events::handle_run);
+    app.run(crate::app::handler::run);
 
     Ok(())
 }

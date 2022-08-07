@@ -60,7 +60,11 @@ fn main() -> Result<(), self::Error> {
 }
 
 fn collect_metadata() -> Result<(), self::Error> {
-    built::write_built_file().context(BuiltWriteBuiltFileSnafu)?;
+    let mut opts = built::Options::default();
+    opts.set_dependencies(true);
+    let src = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let dst = std::path::Path::new(&std::env::var("OUT_DIR").unwrap()).join("built.rs");
+    built::write_built_file_with_opts(&opts, src.as_ref(), &dst).context(BuiltWriteBuiltFileSnafu)?;
     Ok(())
 }
 

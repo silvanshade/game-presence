@@ -10,7 +10,11 @@
         @click="$emit('appSidebarClickedSteamStatus')"
       >
         <ChatAltIcon class="relative inline h-5 w-5 pr-7" />
-        <a href="#!">Steam Status</a>
+        <a
+          href="#!"
+          style="font-family: -apple-system"
+          >Steam Status</a
+        >
       </li>
       <li
         class="pl-6 py-1 hover:bg-indigo-200"

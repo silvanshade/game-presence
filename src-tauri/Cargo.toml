@@ -3,8 +3,9 @@ publish = false
 edition = "2021"
 name = "steam-presence"
 version = "0.0.0"
-authors = ["silvanshade <silvanshade@users.noreply.github.com>", "bar"]
+authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
 license = "Apache-2.0 WITH LLVM-exception"
+homepage = "https://github.com/silvanshade/steam-presence"
 repository = "https://github.com/silvanshade/steam-presence"
 description = """
 A system-tray application for reporting Steam status as Discord rich presence
@@ -21,7 +22,7 @@ custom-protocol = ["tauri/custom-protocol"]
 debug = ["tracing", "tracing-subscriber"]
 
 [build-dependencies]
-built = "0.5"
+built = { version = "0.5", features = ["chrono", "git2", "semver"] }
 filetime = "0.2"
 regex = "1.6"
 serde_json = { version = "1.0", default-features = false }
@@ -29,7 +30,7 @@ snafu = { version = "0.7", default-features = false, features = ["std"] }
 tauri-build = { version = "1.0", features = [] }
 
 [dependencies]
-cached = { version = "0.37", default-features = false }
+cached = { version = "0.38", default-features = false }
 directories = "4.0"
 discord-rich-presence = "0.2"
 exitcode = "1.1"

@@ -54,7 +54,7 @@ rules:
   vue/no-empty-component-block: error
   vue/no-multiple-objects-in-class: error
   vue/no-potential-component-option-typo: error
-  vue/no-static-inline-styles: error
+  # vue/no-static-inline-styles: error
   vue/no-template-target-blank: error
   vue/no-this-in-before-route-enter: error
   vue/no-undef-components: error

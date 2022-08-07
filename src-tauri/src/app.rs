@@ -1,5 +1,5 @@
 pub mod commands;
-pub mod events;
+pub mod handler;
 pub mod gui;
 pub mod metadata;
 mod model;
