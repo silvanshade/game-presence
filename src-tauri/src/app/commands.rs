@@ -26,10 +26,10 @@ pub async fn connect_client(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub async fn init_model(app: tauri::AppHandle) -> Result<(), String> {
+pub async fn model_config_load(app: tauri::AppHandle) -> Result<(), String> {
     async fn inner(app: tauri::AppHandle) -> Result<(), self::Error> {
         let model = app.try_state::<crate::app::Model>().context(AppGetStateSnafu)?;
-        model.load().await.context(ModelSnafu)?;
+        model.load_config().await.context(ModelSnafu)?;
         Ok(())
     }
     inner(app).await.map_err(|err| err.to_string())

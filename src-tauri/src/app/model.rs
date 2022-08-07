@@ -16,7 +16,7 @@ pub struct Model {
 }
 
 impl Model {
-    pub async fn load(&self) -> Result<(), self::Error> {
+    pub async fn load_config(&self) -> Result<(), self::Error> {
         let config = self::Config::load().await.context(ConfigSnafu)?;
         *self.config.write().await = config;
         Ok(())

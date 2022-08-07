@@ -20,9 +20,7 @@
       <div class="text-right">homepage:</div>
       <div class="font-mono text-xs">
         <a
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="#!"
           @click="openHomePage"
         >
           {{ about.pkgRepository }}
@@ -36,9 +34,8 @@
 import * as tauri from "@tauri-apps/api";
 
 interface About {
-  [key: string]: unknown;
-  pkgHomepage: string;
   pkgDescription: string;
+  pkgHomepage: string;
   pkgLicense: string;
   pkgRepository: string;
   target: string;

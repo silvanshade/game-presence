@@ -28,7 +28,7 @@ fn main() -> Result<(), self::Error> {
         .system_tray(crate::app::gui::make_system_tray())
         .on_system_tray_event(crate::app::handler::system_tray)
         .invoke_handler(tauri::generate_handler![
-            crate::app::commands::init_model,
+            crate::app::commands::model_config_load,
             crate::app::commands::get_built_info,
             crate::app::commands::get_settings,
             crate::app::commands::set_settings,
