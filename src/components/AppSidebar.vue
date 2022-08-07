@@ -1,6 +1,6 @@
 <template>
   <div class="w-64 shadow-2xl">
-    <div class="pl-6 py-6">
+    <div class="pl-6 pt-5 pb-3.5">
       <img src="../assets/steam.svg" />
     </div>
     <ul>

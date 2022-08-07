@@ -17,8 +17,9 @@
             name="steam-user-id"
             type="text"
             required="true"
-            class="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
+            class="appearance-none rounded-none relative block w-full pl-10 pr-12 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
             placeholder="Steam User ID"
+            @input="settingsState('dirty')"
           />
           <span class="absolute left-0 inset-y-0 flex items-center pl-3 z-10">
             <UserIcon class="absolute h-5 w-5 pointer-events-none" />
@@ -43,8 +44,9 @@
             name="steam-user-key"
             type="password"
             required="true"
-            class="appearance-none rounded-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
+            class="appearance-none rounded-none relative block w-full pl-10 pr-12 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10"
             placeholder="Steam User Key"
+            @input="settingsState('dirty')"
           />
           <span class="absolute left-0 inset-y-0 flex items-center pl-3 z-10">
             <KeyIcon class="absolute h-5 w-5 pointer-events-none" />
@@ -62,11 +64,19 @@
       <div>
         <button
           type="submit"
-          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded text-white focus:outline-none focus:ring-2 focus:ring-offset-2"
+          :class="settingsSaveButtonState.colors"
+          :disabled="settingsSaveButtonState.disabled"
         >
           <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-            <CogIcon
-              class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+            <CheckIcon
+              v-show="settingsSaveButtonState.disabled"
+              class="absolute h-5 w-5"
+              aria-hidden="true"
+            />
+            <ExclamationIcon
+              v-show="!settingsSaveButtonState.disabled"
+              class="absolute h-5 w-5"
               aria-hidden="true"
             />
           </span>
@@ -80,8 +90,7 @@
 <script setup lang="ts">
 import * as vue from "vue";
 import * as tauri from "@tauri-apps/api";
-import { KeyIcon, QuestionMarkCircleIcon, UserIcon } from "@heroicons/vue/outline";
-import { CogIcon } from "@heroicons/vue/solid";
+import { CheckIcon, ExclamationIcon, KeyIcon, QuestionMarkCircleIcon, UserIcon } from "@heroicons/vue/outline";
 
 interface Settings {
   steamUserId: string;
@@ -115,15 +124,39 @@ async function getSettings(): Promise<Settings> {
 async function setSettings() {
   const payload = { ...settings };
   await tauri.invoke("set_settings", { payload });
+  settingsState("clean");
 }
 
 const settings: Settings = vue.reactive(await getSettings());
 
-const openSteamUserIdWebPage = async () => {
-  await tauri.shell.open("https://store.steampowered.com/account");
-};
+const settingsSaveButtonState = vue.reactive({
+  colors: {
+    "bg-green-300": true,
+    "bg-red-600": false,
+    "focus:ring-red-500": false,
+    "hover:bg-red-700": false,
+  },
+  disabled: true,
+});
 
-const openSteamUserKeyWebPage = async () => {
+function settingsState(state: "clean" | "dirty") {
+  if (state === "clean") {
+    settingsSaveButtonState.colors["bg-green-300"] = true;
+    settingsSaveButtonState.colors["bg-red-600"] = false;
+    settingsSaveButtonState.disabled = true;
+  }
+  if (state === "dirty") {
+    settingsSaveButtonState.colors["bg-green-300"] = false;
+    settingsSaveButtonState.colors["bg-red-600"] = true;
+    settingsSaveButtonState.disabled = false;
+  }
+}
+
+async function openSteamUserIdWebPage() {
+  await tauri.shell.open("https://store.steampowered.com/account");
+}
+
+async function openSteamUserKeyWebPage() {
   await tauri.shell.open("https://steamcommunity.com/dev/apikey");
-};
+}
 </script>

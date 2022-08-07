@@ -17,7 +17,7 @@ import AppSidebar from "./components/AppSidebar.vue";
 
 export type Page = "settings" | "steam-status" | "about";
 
-let currentPage: vue.Ref<Page> = vue.ref("steam-status");
+let currentPage: vue.Ref<Page> = vue.ref("settings");
 
 const onAppSidebarClickedSettings = () => {
   currentPage.value = "settings";

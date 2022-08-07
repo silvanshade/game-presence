@@ -124,4 +124,8 @@ impl Config {
 
         Ok(config_data)
     }
+
+    pub async fn save(&self) -> Result<(), Error> {
+        self.file_write().await
+    }
 }

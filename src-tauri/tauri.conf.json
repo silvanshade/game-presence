@@ -74,7 +74,7 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 230,
+        "height": 222,
         "resizable": true,
         "title": "Steam Presence",
         "width": 600

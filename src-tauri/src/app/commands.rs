@@ -46,6 +46,7 @@ pub async fn set_settings(app: tauri::AppHandle, payload: Settings) -> Result<()
         let mut config = model.config.write().await;
         config.steam_user_id = Some(payload.steam_user_id);
         config.steam_user_key = Some(payload.steam_user_key);
+        config.save().await.context(ConfigSnafu)?;
         Ok(())
     }
     inner(app, payload).await.map_err(|err| err.to_string())
