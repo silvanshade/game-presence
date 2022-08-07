@@ -18,7 +18,8 @@ pub async fn connect_client(app: tauri::AppHandle) -> Result<(), String> {
         let client = discord_rich_presence::DiscordIpcClient::new(client_id).context(DiscordRichPresenceSnafu)?;
         let model = app.try_state::<crate::app::Model>().context(AppGetStateSnafu)?;
         *model.discord_ipc_client.write().await = Some(client);
-        app.emit_all("steam-presence:discord-ipc-client-connected", ()).context(TauriEmitAllSnafu)?;
+        app.emit_all("steam-presence:discord-ipc-client-connected", ())
+            .context(TauriEmitAllSnafu)?;
         Ok(())
     }
     inner(app).await.map_err(|err| err.to_string())

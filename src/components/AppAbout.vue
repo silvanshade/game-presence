@@ -1,7 +1,8 @@
 <template>
   <div class="absolute flex h-full w-full">
     <div class="m-auto mt-6 grid gap-x-2 text-xs">
-      <div class="col-span-2 mb-7 text-center text-xl">steam presence</div>
+      <div class="col-span-2 mb-1 text-center text-xl">steam presence</div>
+      <div class="col-span-2 mb-4 text-center">{{ about.pkgDescription }}</div>
       <div>release version:</div>
       <div class="font-mono text-xs">{{ about.appVersion }}::{{ about.profile }}</div>
       <div>release platform:</div>
@@ -33,6 +34,7 @@ import * as tauri from "@tauri-apps/api";
 interface About {
   [key: string]: unknown;
   pkgHomepage: string;
+  pkgDescription: string;
   pkgLicense: string;
   pkgRepository: string;
   target: string;
