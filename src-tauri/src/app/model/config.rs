@@ -8,11 +8,25 @@ pub enum Error {
     SerdeJsonSerialize { source: serde_json::Error },
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub steam_user_id: Option<String>,
     pub steam_user_key: Option<String>,
+    pub steam_api_poll_rate_secs: u64,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        let steam_user_id = Option::<String>::default();
+        let steam_user_key = Option::<String>::default();
+        let steam_api_poll_rate_secs = 60;
+        Config {
+            steam_user_id,
+            steam_user_key,
+            steam_api_poll_rate_secs,
+        }
+    }
 }
 
 impl Config {
@@ -75,16 +89,15 @@ impl Config {
         Ok(())
     }
 
-    pub async fn load() -> Result<Self, Error> {
+    pub async fn load(&mut self) -> Result<(), Error> {
         let mut config_text = String::new();
-        let mut config_data = Self::default();
 
         Self::file_read(&mut config_text).await?;
 
         if config_text.is_empty() {
             #[cfg(feature = "debug")]
             tracing::info!(r#""{}" is empty; writing defaults to file"#, Self::FILE_NAME);
-            config_data.file_write().await?;
+            self.file_write().await?;
             Self::file_read(&mut config_text).await?;
         }
 
@@ -96,29 +109,29 @@ impl Config {
                 tracing::warn!(
                     ?error,
                     r#"error deserializing "{}"; writing defaults to file"#,
-                    Self::FILE_NAME
+                    Self::FILE_NAME,
                 );
-                config_data.file_write().await?;
+                self.file_write().await?;
                 Self::file_read(&mut config_text).await?;
             }
         }
 
         if let Ok(mut config_json) = config_read {
             if let Some(value) = config_json.remove("steamUserId") {
-                config_data.steam_user_id = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
+                self.steam_user_id = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
             }
             if let Some(value) = config_json.remove("steamUserKey") {
-                config_data.steam_user_key = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
+                self.steam_user_key = serde_json::from_value(value).context(SerdeJsonDeserializeSnafu)?;
             }
 
             if !config_json.is_empty() {
                 #[cfg(feature = "debug")]
                 tracing::warn!(r#""config.json" includes spurious data; overwriting"#);
-                config_data.file_write().await?;
+                self.file_write().await?;
             }
         }
 
-        Ok(config_data)
+        Ok(())
     }
 
     pub async fn save(&self) -> Result<(), Error> {

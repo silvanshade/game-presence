@@ -1,24 +1,30 @@
 use snafu::prelude::*;
-use tauri::async_runtime::RwLock;
+use std::sync::Arc;
+use tauri::async_runtime::{Mutex, RwLock};
 
 pub mod config;
-pub use self::config::Config;
+pub mod discord;
+pub mod steam;
+pub use self::{config::Config, discord::Discord};
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    Config { source: self::config::Error },
+    ConfigLoad { source: self::config::Error },
+    DiscordNew { source: self::discord::Error },
 }
 
-#[derive(Default)]
 pub struct Model {
-    pub config: RwLock<self::Config>,
-    pub discord_ipc_client: RwLock<Option<discord_rich_presence::DiscordIpcClient>>,
+    pub config: Arc<RwLock<self::Config>>,
+    pub discord: Arc<Mutex<self::discord::Discord>>,
+    pub steam: self::steam::Steam,
 }
 
 impl Model {
-    pub async fn load_config(&self) -> Result<(), self::Error> {
-        let config = self::Config::load().await.context(ConfigSnafu)?;
-        *self.config.write().await = config;
-        Ok(())
+    pub fn new() -> Result<Self, self::Error> {
+        let config = Arc::<RwLock<self::Config>>::default();
+        let discord = self::discord::Discord::new(config.clone()).context(DiscordNewSnafu)?;
+        let discord = Arc::new(Mutex::new(discord));
+        let steam = self::steam::Steam::new(config.clone(), discord.clone());
+        Ok(Self { config, discord, steam })
     }
 }

@@ -62,7 +62,7 @@
       }
     },
     "security": {
-      "csp": "img-src tauri://localhost/assets/steam.4123825c.svg; style-src tauri://localhost/assets/index.c57f7230.css"
+      "csp": "img-src tauri://localhost/assets/steam.4123825c.svg; style-src tauri://localhost/assets/index.309bbf87.css"
     },
     "systemTray": {
       "iconAsTemplate": true,

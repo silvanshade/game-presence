@@ -5,21 +5,24 @@ use tauri::Manager;
 #[derive(Debug, Snafu)]
 pub enum Error {
     AppGetState,
-    Config { source: crate::app::model::config::Error },
-    DiscordRichPresence { source: Box<dyn std::error::Error> },
-    Model { source: crate::app::model::Error },
+    ConfigLoad { source: crate::app::model::config::Error },
+    ConfigSave { source: crate::app::model::config::Error },
+    DiscordConnect { source: crate::app::model::discord::Error },
+    DiscordUpdatePresence { source: crate::app::model::discord::Error },
     TauriEmitAll { source: tauri::Error },
 }
 
 #[tauri::command]
-pub async fn connect_client(app: tauri::AppHandle) -> Result<(), String> {
+pub async fn model_discord_connect(app: tauri::AppHandle) -> Result<(), String> {
     async fn inner(app: tauri::AppHandle) -> Result<(), self::Error> {
-        let client_id = crate::api::DISCORD_CLIENT_ID;
-        let client = discord_rich_presence::DiscordIpcClient::new(client_id).context(DiscordRichPresenceSnafu)?;
         let model = app.try_state::<crate::app::Model>().context(AppGetStateSnafu)?;
-        *model.discord_ipc_client.write().await = Some(client);
-        app.emit_all("steam-presence:discord-ipc-client-connected", ())
-            .context(TauriEmitAllSnafu)?;
+        let mut discord = model.discord.lock().await;
+        discord.connect().context(DiscordConnectSnafu)?;
+        #[cfg(feature = "debug")]
+        tracing::info!("updating");
+        discord.update_presence(None).context(DiscordUpdatePresenceSnafu)?;
+        #[cfg(feature = "debug")]
+        tracing::info!("updated");
         Ok(())
     }
     inner(app).await.map_err(|err| err.to_string())
@@ -29,7 +32,7 @@ pub async fn connect_client(app: tauri::AppHandle) -> Result<(), String> {
 pub async fn model_config_load(app: tauri::AppHandle) -> Result<(), String> {
     async fn inner(app: tauri::AppHandle) -> Result<(), self::Error> {
         let model = app.try_state::<crate::app::Model>().context(AppGetStateSnafu)?;
-        model.load_config().await.context(ModelSnafu)?;
+        model.config.write().await.load().await.context(ConfigLoadSnafu)?;
         Ok(())
     }
     inner(app).await.map_err(|err| err.to_string())
@@ -67,7 +70,7 @@ pub async fn set_settings(app: tauri::AppHandle, payload: Settings) -> Result<()
         let mut config = model.config.write().await;
         config.steam_user_id = Some(payload.steam_user_id);
         config.steam_user_key = Some(payload.steam_user_key);
-        config.save().await.context(ConfigSnafu)?;
+        config.save().await.context(ConfigSaveSnafu)?;
         Ok(())
     }
     inner(app, payload).await.map_err(|err| err.to_string())

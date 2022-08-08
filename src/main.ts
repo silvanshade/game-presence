@@ -3,7 +3,8 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import "./index.css";
 
-tauri.invoke("model_config_load").catch(console.error);
+await tauri.invoke("model_config_load");
+await tauri.invoke("model_discord_connect");
 
 const app = createApp(App);
 app.mount("#app");
