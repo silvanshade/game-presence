@@ -18,11 +18,7 @@ pub async fn model_discord_connect(app: tauri::AppHandle) -> Result<(), String> 
         let model = app.try_state::<crate::app::Model>().context(AppGetStateSnafu)?;
         let mut discord = model.discord.lock().await;
         discord.connect().context(DiscordConnectSnafu)?;
-        #[cfg(feature = "debug")]
-        tracing::info!("updating");
         discord.update_presence(None).context(DiscordUpdatePresenceSnafu)?;
-        #[cfg(feature = "debug")]
-        tracing::info!("updated");
         Ok(())
     }
     inner(app).await.map_err(|err| err.to_string())

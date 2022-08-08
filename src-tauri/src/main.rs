@@ -23,9 +23,6 @@ fn main() -> Result<(), self::Error> {
     #[cfg(feature = "debug")]
     tracing_subscriber::fmt::try_init().context(TracingSubscriberSnafu)?;
 
-    #[cfg(feature = "debug")]
-    tracing::info!("tracing");
-
     let context = tauri::generate_context!();
 
     #[allow(unused_mut)]

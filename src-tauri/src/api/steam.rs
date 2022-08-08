@@ -87,8 +87,6 @@ pub async fn poll_loop(
             ..
         } = config.read().await.clone();
         let data = get_player_summaries::fetch(steam_user_id, steam_user_key).await?;
-        #[cfg(feature = "debug")]
-        tracing::info!(?data);
         discord
             .lock()
             .await

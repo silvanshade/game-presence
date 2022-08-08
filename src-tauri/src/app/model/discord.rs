@@ -58,7 +58,7 @@ impl Discord {
 
         if !self.connected.load(std::sync::atomic::Ordering::Acquire) {
             #[cfg(feature = "debug")]
-            tracing::info!("skipping presence update; ipc not connected");
+            tracing::info!("ipc not connected; skipping presence update");
             return Ok(());
         }
 
@@ -93,9 +93,6 @@ impl Discord {
             .map_err(Into::into)
             .context(DiscordActivitySnafu)?;
 
-        #[cfg(feature = "debug")]
-        tracing::info!("activity set");
-
-        Ok(())
+            Ok(())
     }
 }
