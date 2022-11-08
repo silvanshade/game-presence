@@ -28,10 +28,22 @@
       animated
       class="fit"
     >
-      <q-tab-panel name="activity">
+      <q-tab-panel
+        name="services"
+        class="flex-center column"
+      >
+        <SettingsPageServices />
+      </q-tab-panel>
+      <q-tab-panel
+        name="activity"
+        class=""
+      >
         <SettingsPageActivity />
       </q-tab-panel>
-      <q-tab-panel name="games"></q-tab-panel>
+      <q-tab-panel
+        name="games"
+        class=""
+      ></q-tab-panel>
     </q-tab-panels>
   </div>
 </template>
@@ -43,10 +55,11 @@ import { symOutlinedDetectionAndZone } from "@quasar/extras/material-symbols-out
 import { mdiController } from "@quasar/extras/mdi-v7";
 
 import SettingsPageActivity from "pages/SettingsPageActivity.vue";
+import SettingsPageServices from "pages/SettingsPageServices.vue";
 
 export default defineComponent({
   name: "SettingsPage",
-  components: { SettingsPageActivity },
+  components: { SettingsPageActivity, SettingsPageServices },
   setup(_props, ctx) {
     const tab = ref<"services" | "activity" | "games">("activity");
     ctx.expose([]);
