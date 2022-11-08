@@ -1,57 +1,53 @@
 <template>
-  <div class="flex-center column fit">
-    <q-list>
-      <q-item
-        v-ripple
-        tag="label"
+  <div class="fit">
+    <q-tabs
+      v-model="tab"
+      inline-label
+    >
+      <q-tab
+        :icon="symOutlinedDetectionAndZone"
+        name="activity"
+        label="activity"
+      />
+      <q-tab
+        :icon="matPermMedia"
+        name="games"
+        label="games"
+        disable
       >
-        <q-item-section>
-          <q-item-label>Enable Discord Rich Presence</q-item-label>
-          <q-item-label caption>Toggle to control showing game activity on Discord</q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
-          <q-toggle
-            v-model="activityDiscordPresenceEnabled"
-            :icon="mdiDiscord"
-            size="xl"
-          />
-        </q-item-section>
-      </q-item>
-      <q-item
-        v-ripple
-        tag="label"
-      >
-        <q-item-section>
-          <q-item-label>Enable Twitch integration for game assets</q-item-label>
-          <q-item-label caption>Support fetching game assets from Twitch instead of game service</q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
-          <q-toggle
-            v-model="activityTwitchIntegrationEnabled"
-            :icon="mdiTwitch"
-            size="xl"
-          />
-        </q-item-section>
-      </q-item>
-    </q-list>
+        <q-tooltip>Not yet implemented</q-tooltip>
+      </q-tab>
+    </q-tabs>
+    <q-tab-panels
+      v-model="tab"
+      animated
+      class="fit"
+    >
+      <q-tab-panel name="activity">
+        <SettingsPageActivity />
+      </q-tab-panel>
+      <q-tab-panel name="games"></q-tab-panel>
+    </q-tab-panels>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { mdiDiscord } from "@quasar/extras/mdi-v6";
-import { mdiTwitch } from "@quasar/extras/mdi-v7";
+import { matPermMedia } from "@quasar/extras/material-icons";
+import { symOutlinedDetectionAndZone } from "@quasar/extras/material-symbols-outlined";
+
+import SettingsPageActivity from "pages/SettingsPageActivity.vue";
 
 export default defineComponent({
   name: "SettingsPage",
-  components: {},
+  components: { SettingsPageActivity },
   setup(_props, ctx) {
+    const tab = ref<"activity" | "games">("activity");
     ctx.expose([]);
     return {
-      activityDiscordPresenceEnabled: ref(false),
-      activityTwitchIntegrationEnabled: ref(false),
-      mdiDiscord,
-      mdiTwitch,
+      matPermMedia,
+      symOutlinedDetectionAndZone,
+      tab,
     };
   },
 });

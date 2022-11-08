@@ -49,7 +49,7 @@
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({
-  name: "SettingsPage",
+  name: "SettingsPageGames",
   components: {},
   setup(_props, ctx) {
     ctx.expose([]);
