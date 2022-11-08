@@ -1,8 +1,10 @@
 <template>
-  <div class="fit">
+  <div class="fit column bg-green">
     <q-tabs
       v-model="tab"
       inline-label
+      class="row bg-blue"
+      style="flex-shrink: 1"
     >
       <q-tab
         :icon="mdiController"
@@ -26,7 +28,8 @@
     <q-tab-panels
       v-model="tab"
       animated
-      class="fit"
+      class="row bg-red"
+      style="flex-grow: 1"
     >
       <q-tab-panel
         name="services"

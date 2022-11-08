@@ -15,7 +15,7 @@
       <SideBar />
     </q-drawer>
 
-    <q-page-container class="window-height">
+    <q-page-container class="window-height bg-yellow">
       <router-view />
     </q-page-container>
   </q-layout>
