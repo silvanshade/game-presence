@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-center column fit">
+  <div>
     <q-list>
       <q-item
         v-ripple
@@ -11,25 +11,33 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="activityDiscordPresenceEnabled"
-            :icon="mdiDiscord"
-            size="xl"
+            v-model="notifications"
+            color="green"
+            val="friend"
           />
         </q-item-section>
-      </q-item>
-      <q-item
-        v-ripple
-        tag="label"
-      >
+
         <q-item-section>
           <q-item-label>Enable Twitch integration for game assets</q-item-label>
           <q-item-label caption>Support fetching game assets from Twitch instead of game service</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="activityTwitchIntegrationEnabled"
-            :icon="mdiTwitch"
-            size="xl"
+            v-model="notifications"
+            color="green"
+            val="friend"
+          />
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label>Game asset source priorities</q-item-label>
+          <q-item-label caption>Assets source priority list (expand and drag to reorder)</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-toggle
+            v-model="notifications"
+            color="green"
+            val="friend"
           />
         </q-item-section>
       </q-item>
@@ -39,8 +47,6 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { mdiDiscord } from "@quasar/extras/mdi-v6";
-import { mdiTwitch } from "@quasar/extras/mdi-v7";
 
 export default defineComponent({
   name: "SettingsPage",
@@ -48,10 +54,7 @@ export default defineComponent({
   setup(_props, ctx) {
     ctx.expose([]);
     return {
-      activityDiscordPresenceEnabled: ref(false),
-      activityTwitchIntegrationEnabled: ref(false),
-      mdiDiscord,
-      mdiTwitch,
+      notifications: ref(["friend"]),
     };
   },
 });
