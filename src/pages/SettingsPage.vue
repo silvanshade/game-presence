@@ -4,7 +4,6 @@
       v-model="tab"
       inline-label
       class="row bg-blue"
-      style="flex-shrink: 1"
     >
       <q-tab
         :icon="mdiController"
