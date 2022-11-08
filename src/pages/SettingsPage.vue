@@ -1,9 +1,9 @@
 <template>
-  <div class="fit column bg-green">
+  <div class="fit column">
     <q-tabs
       v-model="tab"
       inline-label
-      class="row bg-blue"
+      class="row"
     >
       <q-tab
         :icon="mdiController"
@@ -27,7 +27,7 @@
     <q-tab-panels
       v-model="tab"
       animated
-      class="row bg-red"
+      class="row"
       style="flex-grow: 1"
     >
       <q-tab-panel
