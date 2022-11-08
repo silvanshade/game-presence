@@ -5,6 +5,11 @@
       inline-label
     >
       <q-tab
+        :icon="mdiController"
+        name="services"
+        label="services"
+      />
+      <q-tab
         :icon="symOutlinedDetectionAndZone"
         name="activity"
         label="activity"
@@ -35,6 +40,7 @@
 import { defineComponent, ref } from "vue";
 import { matPermMedia } from "@quasar/extras/material-icons";
 import { symOutlinedDetectionAndZone } from "@quasar/extras/material-symbols-outlined";
+import { mdiController } from "@quasar/extras/mdi-v7";
 
 import SettingsPageActivity from "pages/SettingsPageActivity.vue";
 
@@ -42,10 +48,11 @@ export default defineComponent({
   name: "SettingsPage",
   components: { SettingsPageActivity },
   setup(_props, ctx) {
-    const tab = ref<"activity" | "games">("activity");
+    const tab = ref<"services" | "activity" | "games">("activity");
     ctx.expose([]);
     return {
       matPermMedia,
+      mdiController,
       symOutlinedDetectionAndZone,
       tab,
     };

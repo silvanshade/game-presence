@@ -2,7 +2,7 @@
   <div class="full-width">
     <q-tabs vertical>
       <q-route-tab
-        :icon="matSpeakerNotes"
+        :icon="matMms"
         label="status"
         to="/status"
       ></q-route-tab>
@@ -22,14 +22,14 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { matContactSupport, matDisplaySettings, matSpeakerNotes } from "@quasar/extras/material-icons";
+import { matContactSupport, matDisplaySettings, matMms } from "@quasar/extras/material-icons";
 
 export default defineComponent({
   name: "SideBar",
   components: {},
   setup(_props, ctx) {
     ctx.expose([]);
-    return { matContactSupport, matDisplaySettings, matSpeakerNotes };
+    return { matContactSupport, matDisplaySettings, matMms };
   },
 });
 </script>
