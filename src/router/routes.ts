@@ -2,11 +2,17 @@ import type * as vue from "vue-router";
 
 const routes: vue.RouteRecordRaw[] = [
   {
-    path: "/",
-    component: () => import("layouts/MainLayout.vue"),
-    children: [
-      // { path: "", component: () => import("pages/IndexPage.vue") }
-    ],
+    path: "/about",
+    component: () => import("pages/AboutPage.vue"),
+  },
+  {
+    path: "/settings",
+    component: () => import("pages/SettingsPage.vue"),
+    alias: "/",
+  },
+  {
+    path: "/status",
+    component: () => import("pages/StatusPage.vue"),
   },
 ];
 

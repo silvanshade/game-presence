@@ -4,14 +4,17 @@
       <q-route-tab
         :icon="matSpeakerNotes"
         label="status"
+        to="/status"
       ></q-route-tab>
       <q-route-tab
         :icon="matDisplaySettings"
         label="settings"
+        to="/settings"
       ></q-route-tab>
       <q-route-tab
         :icon="matContactSupport"
         label="about"
+        to="/about"
       ></q-route-tab>
     </q-tabs>
   </div>

@@ -1,14 +1,14 @@
 <template>
-  <router-view />
+  <MainLayout />
 </template>
 
 <script lang="ts">
-import { RouterView } from "vue-router";
 import { defineComponent } from "vue";
+import MainLayout from "layouts/MainLayout.vue";
 
 export default defineComponent({
   name: "App",
-  components: { RouterView },
+  components: { MainLayout },
   setup(_props, ctx) {
     ctx.expose([]);
   },

@@ -1,5 +1,5 @@
 <template>
-  <p>status</p>
+  <p>settings</p>
 </template>
 
 <script lang="ts">
