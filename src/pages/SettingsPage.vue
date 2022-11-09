@@ -1,5 +1,5 @@
 <template>
-  <div class="fit column">
+  <div class="fit column no-wrap">
     <q-tabs
       v-model="tab"
       inline-label
