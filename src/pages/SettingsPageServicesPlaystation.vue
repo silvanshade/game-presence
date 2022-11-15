@@ -6,7 +6,7 @@
         tag="label"
       >
         <q-item-section>
-          <q-item-label>Enable Playstation integration</q-item-label>
+          <q-item-label>Enable Playstation integration for game status</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-toggle

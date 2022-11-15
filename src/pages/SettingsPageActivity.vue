@@ -6,7 +6,7 @@
         tag="label"
       >
         <q-item-section>
-          <q-item-label>Display status as Discord rich presence</q-item-label>
+          <q-item-label>Display status as Discord presence</q-item-label>
           <q-item-label caption>Toggle to control displaying game activity on Discord</q-item-label>
         </q-item-section>
         <q-item-section avatar>
