@@ -13,8 +13,8 @@
           <q-toggle
             v-model="activityDiscordPresenceEnabled"
             color="brand-discord"
-            :icon="mdiDiscord"
             size="xl"
+            :icon="mdiDiscord"
           />
         </q-item-section>
       </q-item>
@@ -30,8 +30,8 @@
           <q-toggle
             v-model="activityTwitchIntegrationEnabled"
             color="brand-twitch"
-            :icon="mdiTwitch"
             size="xl"
+            :icon="mdiTwitch"
           />
         </q-item-section>
       </q-item>
