@@ -1,2 +1,0 @@
-- Set minimum dimensions
-- Fix services tabs

@@ -1,1 +1,2 @@
-- configure menubar/tasktray behavior
+- Set minimum dimensions
+- Fix blurry icon on windows
