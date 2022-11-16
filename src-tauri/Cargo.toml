@@ -1,0 +1,34 @@
+[package]
+edition = "2021"
+name = "game-presence"
+version = "0.0.0"
+authors = ["silvanshade <silvanshade@users.noreply.github.com>"]
+license = "Apache-2.0 WITH LLVM-exception"
+repository = "https://github.com/silvanshade/game-presence"
+rust-version = "1.65"
+description = """
+An application for reporting "currently playing" status from multiple game services as Discord presence
+"""
+
+[build-dependencies]
+snafu = { version = "0.7", features = ["std"] }
+tauri-build = { version = "1.1", features = [] }
+
+[dependencies]
+async-graphql = { version = "4.0" }
+built = { version = "0.5" }
+directories = { version = "4.0" }
+discord-rich-presence = { version = "0.2" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+snafu = { version = "0.7", features = ["std"] }
+tauri = { version = "1.1", features = [] }
+tokio = { version = "1.21" }
+tracing = { version = "0.1" }
+twitch_api2 = { version = "0.6" }
+twitch_oauth2 = { version = "0.9" }
+warp = { version = "0.3" }
+
+[features]
+default = [ "custom-protocol" ]
+custom-protocol = [ "tauri/custom-protocol" ]

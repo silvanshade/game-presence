@@ -1,26 +1,29 @@
 <template>
-  <q-toolbar>
+  <q-toolbar dense>
     <q-btn
       :icon="symOutlinedSettingsAccountBox"
       push
-      class="q-mr-md"
+      size="sm"
+      class="q-mr-sm"
     >
       <q-tooltip style="white-space: nowrap">add / remove profiles</q-tooltip>
     </q-btn>
     <q-btn
       :icon="matSwitchAccount"
       push
-      class="q-mr-md"
+      size="sm"
+      class="q-mr-sm"
     >
       <q-tooltip style="white-space: nowrap"> select profile </q-tooltip>
     </q-btn>
-    <q-toolbar-title>no profile selected</q-toolbar-title>
+    <q-toolbar-title style="font-size: 16px">no profile selected</q-toolbar-title>
     <q-space />
     <q-btn-toggle
       v-model="toggleShowHideGameModel"
       :options="toggleShowHideGameOptions"
       push
-      class="q-mr-md"
+      size="sm"
+      class="q-mr-sm"
     >
       <template #show>
         <q-icon :name="matImage" />
@@ -35,7 +38,7 @@
       v-model="toggleShowHideAllModel"
       :options="toggleShowHideAllOptions"
       push
-      class="q-mr-md"
+      size="sm"
     >
       <template #show>
         <q-icon :name="matVisibility" />
