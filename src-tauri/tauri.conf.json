@@ -43,8 +43,7 @@
       "csp": null
     },
     "systemTray": {
-      "iconPath": "icons/icon.png",
-      "title": "game presence"
+      "iconPath": "icons/icon.png"
     },
     "updater": {
       "active": false

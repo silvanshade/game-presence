@@ -92,13 +92,13 @@ pub(crate) fn init() -> Result<(), Error> {
 
     let system_tray_menu = tauri::SystemTrayMenu::new()
         .add_item(tauri::CustomMenuItem::new(
-            crate::app::menu::tray::quit::ID,
-            crate::app::menu::tray::quit::TITLE,
+            crate::app::menu::tray::visibility::ID,
+            crate::app::menu::tray::visibility::hide::TITLE,
         ))
         .add_native_item(tauri::SystemTrayMenuItem::Separator)
         .add_item(tauri::CustomMenuItem::new(
-            crate::app::menu::tray::visibility::ID,
-            crate::app::menu::tray::visibility::hide::TITLE,
+            crate::app::menu::tray::quit::ID,
+            crate::app::menu::tray::quit::TITLE,
         ));
 
     let system_tray = tauri::SystemTray::new().with_menu(system_tray_menu);
