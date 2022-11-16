@@ -1,0 +1,1 @@
+- configure menubar/tasktray behavior

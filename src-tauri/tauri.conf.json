@@ -42,6 +42,10 @@
     "security": {
       "csp": null
     },
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "title": "game presence"
+    },
     "updater": {
       "active": false
     },
