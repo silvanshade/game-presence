@@ -51,7 +51,7 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 300,
+        "height": 320,
         "resizable": false,
         "title": "game-presence",
         "width": 700

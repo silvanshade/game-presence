@@ -2,6 +2,7 @@
   <div class="fit column no-wrap">
     <q-tabs
       v-model="tab"
+      dense
       inline-label
       class="row"
     >

@@ -6,7 +6,7 @@
         tag="label"
       >
         <q-item-section>
-          <q-item-label>Enable Xbox integration for game status</q-item-label>
+          <q-item-label>Enable Xbox integration</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
