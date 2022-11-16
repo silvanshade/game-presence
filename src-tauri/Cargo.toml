@@ -7,7 +7,7 @@ license = "Apache-2.0 WITH LLVM-exception"
 repository = "https://github.com/silvanshade/game-presence"
 rust-version = "1.65"
 description = """
-An application for reporting "currently playing" status from multiple game services as Discord presence
+An app for reporting game status as Discord presence
 """
 
 [build-dependencies]
