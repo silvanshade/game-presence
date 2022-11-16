@@ -38,11 +38,13 @@ mod handler {
     pub fn run<R: tauri::Runtime>() -> impl FnMut(&tauri::AppHandle<R>, tauri::RunEvent) {
         use tauri::{RunEvent, WindowEvent};
         |app, run_event| match run_event {
-            RunEvent::WindowEvent { label, event, .. } => {
-                if let ("main", WindowEvent::CloseRequested { api, .. }) = (label.as_str(), event) {
-                    api.prevent_close();
-                    crate::app::window::main::toggle_visibility(app).unwrap();
-                }
+            RunEvent::WindowEvent {
+                label,
+                event: WindowEvent::CloseRequested { api, .. },
+                ..
+            } if label == "main" => {
+                api.prevent_close();
+                crate::app::window::main::toggle_visibility(app).unwrap();
             },
             _ => {},
         }
