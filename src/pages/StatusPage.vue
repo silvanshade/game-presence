@@ -1,5 +1,34 @@
 <template>
-  <p>status</p>
+  <div
+    class="fit flex-center row bg-blue"
+    style="gap: 0rem 1rem"
+  >
+    <div
+      class="relative-position bg-red"
+      style="height: 352px; width: 264px"
+    >
+      <div
+        class="absolute bg-yellow"
+        style="height: 352px; width: 264px"
+      >
+        large image
+      </div>
+      <div
+        class="absolute-bottom-right bg-grey"
+        style="height: 64px; width: 64px"
+      >
+        small image
+      </div>
+    </div>
+    <div class="bg-green">
+      <div>presence app name</div>
+      <div>details</div>
+      <div>
+        <span>state</span> &lt;<span>(<span>party size</span> of <span>party max</span>)</span>&gt;
+      </div>
+      <div><span>time</span> &lt;<span>elapsed | left</span>&gt;</div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

@@ -6,14 +6,15 @@
     </div>
     <div
       class="row"
-      style="font-family: monospace"
+      style="gap: 0rem 1rem; font-family: monospace"
     >
-      <div class="q-mr-md text-right">
+      <div class="text-right">
         <div>build 🏗️</div>
         <div>platform 🖥️</div>
         <div>timestamp ⏱️</div>
         <div>license 📜</div>
         <div>homepage 🏠</div>
+        <div>issue tracker 🏷️</div>
       </div>
       <div>
         <div>build</div>
@@ -21,6 +22,7 @@
         <div>timestamp</div>
         <div>license</div>
         <div>homepage</div>
+        <div>issue tracker</div>
       </div>
     </div>
   </div>
