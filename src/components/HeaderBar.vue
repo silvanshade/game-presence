@@ -1,5 +1,8 @@
 <template>
-  <q-toolbar dense>
+  <q-toolbar
+    dense
+    class="bg-grey text-white"
+  >
     <q-btn
       :icon="symOutlinedSettingsAccountBox"
       dense
