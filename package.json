@@ -12,6 +12,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@silvanshade/tauri-plugin-graphql-urql": "https://gitpkg.now.sh/silvanshade/tauri-plugin-graphql-ipc/packages/urql?main",
     "@tauri-apps/api": "^1.2.0",
     "pinia": "^2.0.24",
     "quasar": "^2.10.2",
@@ -20,13 +21,13 @@
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.0.0",
-    "@quasar/extras": "^1.15.5",
+    "@quasar/extras": "^1.15.6",
     "@tauri-apps/cli": "^1.2.0",
     "@types/node": "^18.11.6",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
     "autoprefixer": "^10.4.2",
-    "eslint": "^8.10.0",
+    "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^9.0.0",

@@ -11,7 +11,7 @@
         class="absolute bg-yellow"
         style="height: 352px; width: 264px"
       >
-        large image
+        <q-img src="https://images.igdb.com/igdb/image/upload/t_cover_big/co5pwb.png" />
       </div>
       <div
         class="absolute-bottom-right bg-grey"

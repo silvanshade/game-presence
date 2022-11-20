@@ -5,6 +5,7 @@ enum Error {
     AppInit { source: crate::app::Error },
 }
 
+mod api;
 mod app;
 
 fn main() -> Result<(), Error> {
