@@ -9,7 +9,7 @@ pub enum Error {
     WindowShow { source: tauri::Error },
 }
 
-mod config;
+pub mod data;
 mod handler;
 mod tray;
 

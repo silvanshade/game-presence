@@ -1,2 +1,1 @@
-- Set minimum dimensions
 - Fix blurry icon on windows
