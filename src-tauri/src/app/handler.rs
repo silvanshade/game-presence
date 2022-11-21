@@ -17,7 +17,7 @@ fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(),
 }
 
 pub fn invoke<R: tauri::Runtime>() -> impl Fn(tauri::Invoke<R>) {
-    tauri::generate_handler![]
+    tauri::generate_handler![crate::app::command::build_info]
 }
 
 pub fn run<R: tauri::Runtime>() -> impl FnMut(&tauri::AppHandle<R>, tauri::RunEvent) {
