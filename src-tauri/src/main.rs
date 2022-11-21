@@ -9,7 +9,6 @@ enum Error {
 }
 
 fn main() -> Result<(), Error> {
-    println!("{:#?}", crate::app::data::build::BuildInfo::collect());
     crate::app::init().context(AppInitSnafu)?;
     Ok(())
 }
