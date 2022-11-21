@@ -51,6 +51,8 @@ pub async fn open_authorization_window<R: tauri::Runtime, M: tauri::Manager<R>>(
             .expect(&format!(r#"failed to send message: "{:#?}""#, message));
     });
 
+    println!("after once");
+
     rx_close.await.context(TokioOneShotReceiveSnafu)?;
     let result = tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
         .await

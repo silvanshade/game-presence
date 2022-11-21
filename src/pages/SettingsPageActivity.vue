@@ -32,6 +32,7 @@
             color="brand-twitch"
             size="xl"
             :icon="mdiTwitch"
+            @update:model-value="activityTwitchIntegrationToggle"
           />
         </q-item-section>
       </q-item>
@@ -58,15 +59,22 @@
 import { defineComponent, ref } from "vue";
 import { mdiDiscord } from "@quasar/extras/mdi-v6";
 import { mdiTwitch } from "@quasar/extras/mdi-v7";
+import * as api from "@tauri-apps/api";
 
 export default defineComponent({
   name: "SettingsPageActivity",
   components: {},
   setup(_props, ctx) {
+    const activityTwitchIntegrationToggle: (value: boolean, event: Event) => Promise<void> = async (value, event) => {
+      console.log(JSON.stringify({ value, event }, null, 2));
+      await api.tauri.invoke("api_twitch_authorization_window_open");
+    };
+
     ctx.expose([]);
     return {
       activityDiscordPresenceEnabled: ref(false),
       activityTwitchIntegrationEnabled: ref(false),
+      activityTwitchIntegrationToggle,
       activityRequireGameWhitelisted: ref(false),
       mdiDiscord,
       mdiTwitch,
