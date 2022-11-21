@@ -96,7 +96,8 @@ pub mod service {
         type Error = super::Error;
 
         fn try_from(nintendo: crate::app::data::config::service::Nintendo) -> Result<Self, Self::Error> {
-            todo!()
+            let enabled = nintendo.enabled;
+            Ok(Self { enabled })
         }
     }
 
@@ -108,8 +109,9 @@ pub mod service {
     impl TryFrom<crate::app::data::config::service::Playstation> for self::Playstation {
         type Error = super::Error;
 
-        fn try_from(nintendo: crate::app::data::config::service::Playstation) -> Result<Self, Self::Error> {
-            todo!()
+        fn try_from(playstation: crate::app::data::config::service::Playstation) -> Result<Self, Self::Error> {
+            let enabled = playstation.enabled;
+            Ok(Self { enabled })
         }
     }
 
@@ -123,8 +125,11 @@ pub mod service {
     impl TryFrom<crate::app::data::config::service::Steam> for self::Steam {
         type Error = super::Error;
 
-        fn try_from(nintendo: crate::app::data::config::service::Steam) -> Result<Self, Self::Error> {
-            todo!()
+        fn try_from(steam: crate::app::data::config::service::Steam) -> Result<Self, Self::Error> {
+            let enabled = steam.enabled;
+            let id = steam.id;
+            let key = steam.key;
+            Ok(Self { enabled, id, key })
         }
     }
 
@@ -136,8 +141,9 @@ pub mod service {
     impl TryFrom<crate::app::data::config::service::Xbox> for self::Xbox {
         type Error = super::Error;
 
-        fn try_from(nintendo: crate::app::data::config::service::Xbox) -> Result<Self, Self::Error> {
-            todo!()
+        fn try_from(xbox: crate::app::data::config::service::Xbox) -> Result<Self, Self::Error> {
+            let enabled = xbox.enabled;
+            Ok(Self { enabled })
         }
     }
 }
