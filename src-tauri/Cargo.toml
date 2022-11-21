@@ -23,7 +23,7 @@ proc-exit = "2.0.0"
 serde = { version = "1.0", features = ["derive", "serde_derive", "std"] }
 serde_json = { version = "1.0", features = ["std"] }
 snafu = { version = "0.7", features = ["std"] }
-tauri = { version = "1.2", features = ["compression", "objc-exception", "system-tray", "wry"] }
+tauri = { version = "1.2", features = ["compression", "objc-exception", "shell-open", "system-tray", "wry"] }
 tauri-plugin-graphql-ipc = { version = "0.0", git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc", features = ["async-graphql"] }
 tokio = { version = "1.21" }
 tracing = { version = "0.1", features = ["attributes", "std"] }

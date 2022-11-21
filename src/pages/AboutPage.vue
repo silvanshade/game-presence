@@ -23,8 +23,24 @@
         <div>{{ buildInfo.target }}::{{ buildInfo.cfgOs }}</div>
         <div>{{ buildInfo.builtTimeUtc }}</div>
         <div>{{ buildInfo.pkgLicense }}</div>
-        <div>{{ buildInfo.pkgHomepage }}</div>
-        <div>{{ buildInfo.pkgIssueTracker }}</div>
+        <div>
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            @click="openHomePage"
+            >{{ buildInfo.pkgHomepage }}</a
+          >
+        </div>
+        <div>
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            @click="openIssueTracker"
+            >{{ buildInfo.pkgIssueTracker }}</a
+          >
+        </div>
       </div>
     </div>
   </div>
@@ -32,7 +48,7 @@
 
 <script lang="ts">
 import * as vue from "vue";
-import * as tauri from "@tauri-apps/api/tauri";
+import * as api from "@tauri-apps/api";
 
 interface BuildInfo {
   builtTimeUtc: string;
@@ -51,16 +67,22 @@ export default vue.defineComponent({
   name: "AboutPage",
   components: {},
   async setup(_props, ctx) {
-    // const buildInfo: () => Promise<BuildInfo> = async () => {
-    //   return await tauri.invoke<BuildInfo>("build_info");
-    // };
+    const buildInfo = await api.tauri.invoke<BuildInfo>("build_info");
 
-    const buildInfo = await tauri.invoke<BuildInfo>("build_info");
+    const openHomePage: () => Promise<void> = async () => {
+      await api.shell.open(buildInfo.pkgHomepage);
+    };
+
+    const openIssueTracker: () => Promise<void> = async () => {
+      await api.shell.open(buildInfo.pkgHomepage);
+    };
 
     ctx.expose([]);
 
     return {
       buildInfo,
+      openHomePage,
+      openIssueTracker,
     };
   },
 });

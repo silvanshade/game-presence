@@ -11,7 +11,15 @@
     "version": "0.0.0"
   },
   "tauri": {
-    "allowlist": {},
+    "allowlist": {
+      "shell": {
+        "all": false,
+        "execute": false,
+        "open": "^https://github.com/silvanshade/game-presence",
+        "scope": [],
+        "sidecar": false
+      }
+    },
     "bundle": {
       "active": true,
       "category": "Games",
