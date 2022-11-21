@@ -19,7 +19,8 @@ async-graphql = { version = "4.0", features = [] }
 built = { version = "0.5" }
 directories = { version = "4.0" }
 discord-rich-presence = { version = "0.2" }
-proc-exit = "2.0.0"
+proc-exit = { version = "2.0", features = [] }
+reqwest = { version = "0.11", features = [] }
 serde = { version = "1.0", features = ["derive", "serde_derive", "std"] }
 serde_json = { version = "1.0", features = ["std"] }
 snafu = { version = "0.7", features = ["std"] }
@@ -27,8 +28,10 @@ tauri = { version = "1.2", features = ["compression", "objc-exception", "shell-o
 tauri-plugin-graphql-ipc = { version = "0.0", git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc", features = ["async-graphql"] }
 tokio = { version = "1.21", features = ["fs"] }
 tracing = { version = "0.1", features = ["attributes", "std"] }
-twitch_api2 = { version = "0.6" }
-twitch_oauth2 = { version = "0.9" }
+triple_accel = { version = "0.4.0", features = [] }
+twitch_api2 = { version = "0.6", features = [] }
+twitch_oauth2 = { version = "0.9", features = [] }
+url = { version = "2.3", features = [] }
 warp = { version = "0.3", features = [] }
 
 [features]

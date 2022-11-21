@@ -4,14 +4,14 @@ fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(),
     use tauri::Manager;
     let window = app.get_window("main").expect(r#"failed to get "main" window"#);
     let item = app.tray_handle().get_item(crate::app::tray::visibility::ID);
-    if window.is_visible().context(crate::app::WindowIsVisibleSnafu)? {
+    if window.is_visible().context(crate::app::TauriWindowIsVisibleSnafu)? {
         item.set_title(crate::app::tray::visibility::show::TITLE)
-            .context(crate::app::MenuItemSetTitleSnafu)?;
-        window.hide().context(crate::app::WindowHideSnafu)?;
+            .context(crate::app::TauriMenuItemSetTitleSnafu)?;
+        window.hide().context(crate::app::TauriWindowHideSnafu)?;
     } else {
         item.set_title(crate::app::tray::visibility::hide::TITLE)
-            .context(crate::app::MenuItemSetTitleSnafu)?;
-        window.show().context(crate::app::WindowShowSnafu)?;
+            .context(crate::app::TauriMenuItemSetTitleSnafu)?;
+        window.show().context(crate::app::TauriWindowShowSnafu)?;
     }
     Ok(())
 }

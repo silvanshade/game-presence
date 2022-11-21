@@ -7,12 +7,12 @@ pub enum Error {
     SerdeJsonFromStr { source: serde_json::Error },
     SerdeJsonFromValue { source: serde_json::Error },
     SerdeJsonToVec { source: serde_json::Error },
-    FsCreateDirAll { source: std::io::Error },
-    FsMetadata { source: std::io::Error },
-    FsOpenOptions { source: std::io::Error },
-    FsReadToString { source: std::io::Error },
-    FsSyncAll { source: std::io::Error },
-    IoWriteAll { source: std::io::Error },
+    StdFsCreateDirAll { source: std::io::Error },
+    StdFsMetadata { source: std::io::Error },
+    StdFsOpenOptions { source: std::io::Error },
+    StdFsReadToString { source: std::io::Error },
+    StdFsSyncAll { source: std::io::Error },
+    StdIoWriteAll { source: std::io::Error },
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
@@ -37,7 +37,7 @@ impl Config {
 
     fn file_base_create() -> Result<(), Error> {
         let base = Self::file_base()?;
-        std::fs::create_dir_all(base).context(FsCreateDirAllSnafu)?;
+        std::fs::create_dir_all(base).context(StdFsCreateDirAllSnafu)?;
         Ok(())
     }
 
@@ -57,9 +57,9 @@ impl Config {
             .create(true)
             .read(true)
             .open(path)
-            .context(FsOpenOptionsSnafu)?;
+            .context(StdFsOpenOptionsSnafu)?;
         let mut json = String::new();
-        file.read_to_string(&mut json).context(FsReadToStringSnafu)?;
+        file.read_to_string(&mut json).context(StdFsReadToStringSnafu)?;
         let value = serde_json::from_str::<serde_json::Value>(&json).context(SerdeJsonFromStrSnafu);
         let config = match value {
             Err(_) => {
@@ -82,10 +82,10 @@ impl Config {
             .write(true)
             .truncate(true)
             .open(path)
-            .context(FsOpenOptionsSnafu)?;
+            .context(StdFsOpenOptionsSnafu)?;
         let json = serde_json::to_vec(self).context(SerdeJsonToVecSnafu)?;
-        file.write_all(&json).context(IoWriteAllSnafu)?;
-        file.sync_all().context(FsSyncAllSnafu)?;
+        file.write_all(&json).context(StdIoWriteAllSnafu)?;
+        file.sync_all().context(StdFsSyncAllSnafu)?;
         Ok(())
     }
 }

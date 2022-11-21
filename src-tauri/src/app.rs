@@ -8,12 +8,12 @@ mod tray;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    MenuItemSetTitle { source: tauri::Error },
     StateInit { source: crate::app::model::state::Error },
     TauriBuild { source: tauri::Error },
-    WindowHide { source: tauri::Error },
-    WindowIsVisible { source: tauri::Error },
-    WindowShow { source: tauri::Error },
+    TauriMenuItemSetTitle { source: tauri::Error },
+    TauriWindowHide { source: tauri::Error },
+    TauriWindowIsVisible { source: tauri::Error },
+    TauriWindowShow { source: tauri::Error },
 }
 
 fn make_system_tray() -> tauri::SystemTray {
