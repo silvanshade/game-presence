@@ -46,7 +46,7 @@ pub(crate) fn init() -> Result<(), Error> {
     let builder = builder.on_system_tray_event(handler::system_tray());
 
     let builder = {
-        let state = crate::app::model::State::init().context(StateInitSnafu)?;
+        let state = crate::app::model::State::load().context(StateInitSnafu)?;
         builder.manage(state)
     };
 

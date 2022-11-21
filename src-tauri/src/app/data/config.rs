@@ -24,7 +24,7 @@ impl Config {
     const FILE_NAME: &str = "config.json";
 
     pub fn init() -> Result<Self, Error> {
-        let config = Self::file_read()?;
+        let config = Self::read()?;
         Ok(config)
     }
 
@@ -47,7 +47,7 @@ impl Config {
         Ok(path)
     }
 
-    pub fn file_read() -> Result<Self, Error> {
+    pub fn read() -> Result<Self, Error> {
         use std::io::Read;
         Self::file_base_create()?;
         let path = Self::file_path()?;
@@ -64,7 +64,7 @@ impl Config {
         let config = match value {
             Err(_) => {
                 let config = Self::default();
-                config.file_write()?;
+                config.write()?;
                 config
             },
             Ok(value) => serde_json::from_value::<Config>(value).context(SerdeJsonFromValueSnafu)?,
@@ -72,7 +72,7 @@ impl Config {
         Ok(config)
     }
 
-    pub fn file_write(&self) -> Result<(), Error> {
+    pub fn write(&self) -> Result<(), Error> {
         use std::io::Write;
         Self::file_base_create()?;
         let path = Self::file_path()?;
@@ -90,11 +90,31 @@ impl Config {
     }
 }
 
+impl From<crate::app::model::State> for Config {
+    fn from(state: crate::app::model::State) -> Self {
+        let profiles = state.profiles.into_iter().map(Into::into).collect();
+        Self { profiles }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Profile {
     pub services: Services,
     pub activity: Activity,
     pub games: Games,
+}
+
+impl From<crate::app::model::state::Profile> for self::Profile {
+    fn from(profile: crate::app::model::state::Profile) -> Self {
+        let services = profile.services.into();
+        let activity = profile.activity.into();
+        let games = profile.games.into();
+        Self {
+            services,
+            activity,
+            games,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -105,6 +125,21 @@ pub struct Services {
     pub xbox: Option<self::service::Xbox>,
 }
 
+impl From<crate::app::model::state::Services> for self::Services {
+    fn from(services: crate::app::model::state::Services) -> Self {
+        let nintendo = services.nintendo.map(Into::into);
+        let playstation = services.playstation.map(Into::into);
+        let steam = services.steam.map(Into::into);
+        let xbox = services.xbox.map(Into::into);
+        Self {
+            nintendo,
+            playstation,
+            steam,
+            xbox,
+        }
+    }
+}
+
 pub mod service {
     use serde::{Deserialize, Serialize};
 
@@ -113,9 +148,23 @@ pub mod service {
         pub enabled: bool,
     }
 
+    impl From<crate::app::model::state::service::Nintendo> for self::Nintendo {
+        fn from(nintendo: crate::app::model::state::service::Nintendo) -> Self {
+            let enabled = nintendo.enabled;
+            Self { enabled }
+        }
+    }
+
     #[derive(Debug, Deserialize, Serialize)]
     pub struct Playstation {
         pub enabled: bool,
+    }
+
+    impl From<crate::app::model::state::service::Playstation> for self::Playstation {
+        fn from(playstation: crate::app::model::state::service::Playstation) -> Self {
+            let enabled = playstation.enabled;
+            Self { enabled }
+        }
     }
 
     #[derive(Debug, Deserialize, Serialize)]
@@ -125,9 +174,25 @@ pub mod service {
         pub key: String,
     }
 
+    impl From<crate::app::model::state::service::Steam> for self::Steam {
+        fn from(steam: crate::app::model::state::service::Steam) -> Self {
+            let enabled = steam.enabled;
+            let id = steam.id;
+            let key = steam.key;
+            Self { enabled, id, key }
+        }
+    }
+
     #[derive(Debug, Deserialize, Serialize)]
     pub struct Xbox {
         pub enabled: bool,
+    }
+
+    impl From<crate::app::model::state::service::Xbox> for self::Xbox {
+        fn from(xbox: crate::app::model::state::service::Xbox) -> Self {
+            let enabled = xbox.enabled;
+            Self { enabled }
+        }
     }
 }
 
@@ -138,5 +203,24 @@ pub struct Activity {
     pub games_require_whitelisting: bool,
 }
 
+impl From<crate::app::model::state::Activity> for self::Activity {
+    fn from(activity: crate::app::model::state::Activity) -> Self {
+        let discord_display_presence = activity.discord_display_presence;
+        let twitch_assets_enabled = activity.twitch_assets_enabled;
+        let games_require_whitelisting = activity.games_require_whitelisting;
+        Self {
+            discord_display_presence,
+            twitch_assets_enabled,
+            games_require_whitelisting,
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Games {}
+
+impl From<crate::app::model::state::Games> for self::Games {
+    fn from(_games: crate::app::model::state::Games) -> Self {
+        Self {}
+    }
+}

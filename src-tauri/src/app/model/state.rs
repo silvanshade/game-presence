@@ -3,6 +3,8 @@ use snafu::prelude::*;
 #[derive(Debug, Snafu)]
 pub enum Error {
     ConfigInit { source: crate::app::data::config::Error },
+    ConfigWrite { source: crate::app::data::config::Error },
+    TauriSpawnBlocking { source: tauri::Error },
 }
 
 #[derive(Debug)]
@@ -11,13 +13,16 @@ pub struct State {
 }
 
 impl State {
-    pub fn init() -> Result<Self, Error> {
+    pub fn load() -> Result<Self, Error> {
         let config = crate::app::data::Config::init().context(ConfigInitSnafu)?;
         config.try_into()
     }
 
-    pub fn write(&self) -> Result<(), Error> {
-        todo!();
+    pub async fn save(self) -> Result<(), Error> {
+        let config = Into::<crate::app::data::Config>::into(self);
+        let handle = tauri::async_runtime::spawn_blocking(move || config.write().context(ConfigWriteSnafu));
+        let result = handle.await.context(TauriSpawnBlockingSnafu)?;
+        result
     }
 }
 
@@ -165,7 +170,7 @@ pub struct Games {}
 impl TryFrom<crate::app::data::config::Games> for self::Games {
     type Error = Error;
 
-    fn try_from(_: crate::app::data::config::Games) -> Result<Self, Self::Error> {
+    fn try_from(_games: crate::app::data::config::Games) -> Result<Self, Self::Error> {
         Ok(Self {})
     }
 }
