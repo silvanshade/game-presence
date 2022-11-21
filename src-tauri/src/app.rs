@@ -3,10 +3,13 @@ use snafu::prelude::*;
 pub mod command;
 pub mod data;
 mod handler;
+pub mod model;
 mod tray;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
+    ConfigInit { source: crate::app::data::config::Error },
+    ConfigIntoState { source: crate::app::model::state::Error },
     MenuItemSetTitle { source: tauri::Error },
     TauriBuild { source: tauri::Error },
     WindowHide { source: tauri::Error },
@@ -44,9 +47,9 @@ pub(crate) fn init() -> Result<(), Error> {
     let builder = builder.on_system_tray_event(handler::system_tray());
 
     let builder = {
-        let config = crate::app::data::Config::init().expect("failed to initialize config");
-        println!("{:#?}", config);
-        builder.manage(config)
+        let config = crate::app::data::Config::init().context(ConfigInitSnafu)?;
+        let state = TryInto::<crate::app::model::State>::try_into(config).context(ConfigIntoStateSnafu)?;
+        builder.manage(state)
     };
 
     // build the tauri app
