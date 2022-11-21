@@ -43,6 +43,12 @@ pub(crate) fn init() -> Result<(), Error> {
     // handle system tray events
     let builder = builder.on_system_tray_event(handler::system_tray());
 
+    let builder = {
+        let config = crate::app::data::Config::init().expect("failed to initialize config");
+        println!("{:#?}", config);
+        builder.manage(config)
+    };
+
     // build the tauri app
     let app = builder.build(context).context(TauriBuildSnafu)?;
 
