@@ -1,11 +1,37 @@
 use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
-pub enum Error {}
+pub enum Error {
+    ConfigInit { source: crate::app::data::config::Error },
+}
 
 #[derive(Debug)]
 pub struct State {
     pub profiles: Vec<Profile>,
+}
+
+impl State {
+    pub fn init() -> Result<Self, Error> {
+        let config = crate::app::data::Config::init().context(ConfigInitSnafu)?;
+        config.try_into()
+    }
+
+    pub fn write(&self) -> Result<(), Error> {
+        todo!();
+    }
+}
+
+impl TryFrom<crate::app::data::Config> for State {
+    type Error = Error;
+
+    fn try_from(config: crate::app::data::Config) -> Result<Self, Self::Error> {
+        let profiles = config
+            .profiles
+            .into_iter()
+            .map(TryInto::try_into)
+            .collect::<Result<_, _>>()?;
+        Ok(Self { profiles })
+    }
 }
 
 #[derive(Debug)]
@@ -15,12 +41,44 @@ pub struct Profile {
     pub games: Games,
 }
 
+impl TryFrom<crate::app::data::config::Profile> for self::Profile {
+    type Error = Error;
+
+    fn try_from(profile: crate::app::data::config::Profile) -> Result<Self, Self::Error> {
+        let services = profile.services.try_into()?;
+        let activity = profile.activity.try_into()?;
+        let games = profile.games.try_into()?;
+        Ok(Self {
+            services,
+            activity,
+            games,
+        })
+    }
+}
+
 #[derive(Debug)]
 pub struct Services {
     pub nintendo: Option<self::service::Nintendo>,
     pub playstation: Option<self::service::Playstation>,
     pub steam: Option<self::service::Steam>,
     pub xbox: Option<self::service::Xbox>,
+}
+
+impl TryFrom<crate::app::data::config::Services> for self::Services {
+    type Error = Error;
+
+    fn try_from(services: crate::app::data::config::Services) -> Result<Self, Self::Error> {
+        let nintendo = services.nintendo.map(TryInto::try_into).transpose()?;
+        let playstation = services.playstation.map(TryInto::try_into).transpose()?;
+        let steam = services.steam.map(TryInto::try_into).transpose()?;
+        let xbox = services.xbox.map(TryInto::try_into).transpose()?;
+        Ok(Self {
+            nintendo,
+            playstation,
+            steam,
+            xbox,
+        })
+    }
 }
 
 pub mod service {
@@ -86,54 +144,6 @@ pub struct Activity {
     pub games_require_whitelisting: bool,
 }
 
-#[derive(Debug)]
-pub struct Games {}
-
-impl TryFrom<crate::app::data::Config> for State {
-    type Error = Error;
-
-    fn try_from(config: crate::app::data::Config) -> Result<Self, Self::Error> {
-        let profiles = config
-            .profiles
-            .into_iter()
-            .map(TryInto::try_into)
-            .collect::<Result<_, _>>()?;
-        Ok(Self { profiles })
-    }
-}
-
-impl TryFrom<crate::app::data::config::Profile> for self::Profile {
-    type Error = Error;
-
-    fn try_from(profile: crate::app::data::config::Profile) -> Result<Self, Self::Error> {
-        let services = profile.services.try_into()?;
-        let activity = profile.activity.try_into()?;
-        let games = profile.games.try_into()?;
-        Ok(Self {
-            services,
-            activity,
-            games,
-        })
-    }
-}
-
-impl TryFrom<crate::app::data::config::Services> for self::Services {
-    type Error = Error;
-
-    fn try_from(services: crate::app::data::config::Services) -> Result<Self, Self::Error> {
-        let nintendo = services.nintendo.map(TryInto::try_into).transpose()?;
-        let playstation = services.playstation.map(TryInto::try_into).transpose()?;
-        let steam = services.steam.map(TryInto::try_into).transpose()?;
-        let xbox = services.xbox.map(TryInto::try_into).transpose()?;
-        Ok(Self {
-            nintendo,
-            playstation,
-            steam,
-            xbox,
-        })
-    }
-}
-
 impl TryFrom<crate::app::data::config::Activity> for self::Activity {
     type Error = Error;
 
@@ -148,6 +158,9 @@ impl TryFrom<crate::app::data::config::Activity> for self::Activity {
         })
     }
 }
+
+#[derive(Debug)]
+pub struct Games {}
 
 impl TryFrom<crate::app::data::config::Games> for self::Games {
     type Error = Error;
