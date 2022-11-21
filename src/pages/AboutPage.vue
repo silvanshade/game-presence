@@ -17,26 +17,51 @@
         <div>issue tracker 🏷️</div>
       </div>
       <div>
-        <div>build</div>
-        <div>platform</div>
-        <div>timestamp</div>
-        <div>license</div>
-        <div>homepage</div>
-        <div>issue tracker</div>
+        <div>
+          {{ buildInfo.pkgVersion }}::{{ buildInfo.profile }}::{{ buildInfo.gitCommitHash }}::{{ buildInfo.gitDirty }}
+        </div>
+        <div>{{ buildInfo.target }}::{{ buildInfo.cfgOs }}</div>
+        <div>{{ buildInfo.builtTimeUtc }}</div>
+        <div>{{ buildInfo.pkgLicense }}</div>
+        <div>{{ buildInfo.pkgHomepage }}</div>
+        <div>{{ buildInfo.pkgIssueTracker }}</div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import * as vue from "vue";
+import * as tauri from "@tauri-apps/api/tauri";
 
-export default defineComponent({
+interface BuildInfo {
+  builtTimeUtc: string;
+  cfgOs: string;
+  gitCommitHash: string;
+  gitDirty: string;
+  pkgHomepage: string;
+  pkgIssueTracker: string;
+  pkgLicense: string;
+  pkgVersion: string;
+  profile: string;
+  target: string;
+}
+
+export default vue.defineComponent({
   name: "AboutPage",
   components: {},
-  setup(_props, ctx) {
+  async setup(_props, ctx) {
+    // const buildInfo: () => Promise<BuildInfo> = async () => {
+    //   return await tauri.invoke<BuildInfo>("build_info");
+    // };
+
+    const buildInfo = await tauri.invoke<BuildInfo>("build_info");
+
     ctx.expose([]);
-    return {};
+
+    return {
+      buildInfo,
+    };
   },
 });
 </script>
