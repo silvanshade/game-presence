@@ -200,6 +200,8 @@ pub mod service {
 pub struct Activity {
     pub discord_display_presence: bool,
     pub twitch_assets_enabled: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub twitch_access_token: Option<String>,
     pub games_require_whitelisting: bool,
 }
 
@@ -207,10 +209,12 @@ impl From<crate::app::model::state::Activity> for self::Activity {
     fn from(activity: crate::app::model::state::Activity) -> Self {
         let discord_display_presence = activity.discord_display_presence;
         let twitch_assets_enabled = activity.twitch_assets_enabled;
+        let twitch_access_token = activity.twitch_access_token;
         let games_require_whitelisting = activity.games_require_whitelisting;
         Self {
             discord_display_presence,
             twitch_assets_enabled,
+            twitch_access_token,
             games_require_whitelisting,
         }
     }

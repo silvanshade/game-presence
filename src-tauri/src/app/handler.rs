@@ -18,7 +18,7 @@ fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(),
 
 pub fn invoke<R: tauri::Runtime>() -> impl Fn(tauri::Invoke<R>) {
     use crate::app::command;
-    tauri::generate_handler![command::build_info, command::api_twitch_authorization_window_open]
+    tauri::generate_handler![command::build_info, command::api_twitch_authorization_flow]
 }
 
 pub fn run<R: tauri::Runtime>() -> impl FnMut(&tauri::AppHandle<R>, tauri::RunEvent) {

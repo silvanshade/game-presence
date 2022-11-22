@@ -67,7 +67,7 @@ export default defineComponent({
   setup(_props, ctx) {
     const activityTwitchIntegrationToggle: (value: boolean, event: Event) => Promise<void> = async (value, event) => {
       console.log(JSON.stringify({ value, event }, null, 2));
-      await api.tauri.invoke("api_twitch_authorization_window_open");
+      await api.tauri.invoke("api_twitch_authorization_flow");
     };
 
     ctx.expose([]);

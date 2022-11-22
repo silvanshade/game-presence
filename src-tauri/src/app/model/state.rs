@@ -29,7 +29,7 @@ impl State {
 impl TryFrom<crate::app::data::Config> for State {
     type Error = Error;
 
-    fn try_from(config: crate::app::data::Config) -> Result<Self, Self::Error> {
+    fn try_from(config: crate::app::data::Config) -> Result<Self, Error> {
         let profiles = config
             .profiles
             .into_iter()
@@ -49,7 +49,7 @@ pub struct Profile {
 impl TryFrom<crate::app::data::config::Profile> for self::Profile {
     type Error = Error;
 
-    fn try_from(profile: crate::app::data::config::Profile) -> Result<Self, Self::Error> {
+    fn try_from(profile: crate::app::data::config::Profile) -> Result<Self, Error> {
         let services = profile.services.try_into()?;
         let activity = profile.activity.try_into()?;
         let games = profile.games.try_into()?;
@@ -72,7 +72,7 @@ pub struct Services {
 impl TryFrom<crate::app::data::config::Services> for self::Services {
     type Error = Error;
 
-    fn try_from(services: crate::app::data::config::Services) -> Result<Self, Self::Error> {
+    fn try_from(services: crate::app::data::config::Services) -> Result<Self, Error> {
         let nintendo = services.nintendo.map(TryInto::try_into).transpose()?;
         let playstation = services.playstation.map(TryInto::try_into).transpose()?;
         let steam = services.steam.map(TryInto::try_into).transpose()?;
@@ -152,19 +152,22 @@ pub mod service {
 pub struct Activity {
     pub discord_display_presence: bool,
     pub twitch_assets_enabled: bool,
+    pub twitch_access_token: Option<String>,
     pub games_require_whitelisting: bool,
 }
 
 impl TryFrom<crate::app::data::config::Activity> for self::Activity {
     type Error = Error;
 
-    fn try_from(activity: crate::app::data::config::Activity) -> Result<Self, Self::Error> {
+    fn try_from(activity: crate::app::data::config::Activity) -> Result<Self, Error> {
         let discord_display_presence = activity.discord_display_presence;
         let twitch_assets_enabled = activity.twitch_assets_enabled;
+        let twitch_access_token = activity.twitch_access_token;
         let games_require_whitelisting = activity.games_require_whitelisting;
         Ok(Self {
             discord_display_presence,
             twitch_assets_enabled,
+            twitch_access_token,
             games_require_whitelisting,
         })
     }
@@ -176,7 +179,7 @@ pub struct Games {}
 impl TryFrom<crate::app::data::config::Games> for self::Games {
     type Error = Error;
 
-    fn try_from(_games: crate::app::data::config::Games) -> Result<Self, Self::Error> {
+    fn try_from(_games: crate::app::data::config::Games) -> Result<Self, Error> {
         Ok(Self {})
     }
 }
