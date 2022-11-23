@@ -34,6 +34,7 @@ twitch_api2 = { version = "0.6", features = [] }
 twitch_oauth2 = { version = "0.9", features = [] }
 url = { version = "2.3", features = [] }
 warp = { version = "0.3", features = [] }
+wry = { version = "0.22" }
 
 [features]
 default = [ "custom-protocol" ]

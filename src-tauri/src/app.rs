@@ -45,10 +45,15 @@ pub(crate) fn init() -> Result<(), Error> {
     // handle system tray events
     let builder = builder.on_system_tray_event(handler::system_tray());
 
+    // configure the app state
     let builder = {
         let state = crate::app::model::State::load().context(StateInitSnafu)?;
         builder.manage(state)
     };
+
+    let builder = builder.on_page_load(|window, payload| {
+        println!("on_page_load: {}@{}", window.label(), payload.url());
+    });
 
     // build the tauri app
     let app = builder.build(context).context(TauriBuildSnafu)?;

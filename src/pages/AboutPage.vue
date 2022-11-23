@@ -14,7 +14,6 @@
         <div>timestamp ⏱️</div>
         <div>license 📜</div>
         <div>homepage 🏠</div>
-        <div>issue tracker 🏷️</div>
       </div>
       <div>
         <div>
@@ -30,15 +29,6 @@
             rel="noopener noreferrer"
             @click="openHomePage"
             >{{ buildInfo.pkgHomepage }}</a
-          >
-        </div>
-        <div>
-          <a
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            @click="openIssueTracker"
-            >{{ buildInfo.pkgIssueTracker }}</a
           >
         </div>
       </div>

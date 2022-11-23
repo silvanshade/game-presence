@@ -71,65 +71,48 @@ pub async fn authorization_flow<R: tauri::Runtime>(app: &tauri::AppHandle<R>) ->
     let (tx_handler_ready, rx_handler_ready) = tokio::sync::oneshot::channel();
     let (tx_window_close, mut rx_window_close) = tokio::sync::mpsc::channel::<()>(2);
 
-    let access_token_result = {
-        let app = app.clone();
-        tauri::async_runtime::spawn(authorization_flow_redirect_handler(
-            app,
-            csrf_token,
-            tx_handler_ready,
-            tx_window_close,
-        ))
-    };
+    let access_token_result = tauri::async_runtime::spawn(authorization_flow_redirect_handler(
+        csrf_token,
+        tx_handler_ready,
+        tx_window_close,
+    ));
 
     rx_handler_ready.await.context(TokioOneShotReceiveSnafu)?;
 
-    let window = {
-        let label = "twitch-integration-authorization";
-        tauri::WindowBuilder::new(app, label, tauri::WindowUrl::External(url))
-            .build()
-            .context(TauriWindowBuilderNewSnafu)?
-    };
-
-    // window.once(AUTHORIZATION_WINDOW_CLOSE_EVENT, |_event| {
-    //     tx_window_close.send(()).unwrap();
-    // });
+    let window = tauri::WindowBuilder::new(app, "twitch-integration-authorization", tauri::WindowUrl::External(url))
+        .build()
+        .context(TauriWindowBuilderNewSnafu)?;
 
     rx_window_close.recv().await;
     tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
         .await
         .context(TauriSpawnSnafu)??;
 
-    // match access_token_result.await.context(TauriSpawnSnafu)? {
-    //     Ok(access_token) => {
-    //         todo!()
-    //     },
-    //     Err(err) => Err(err),
-    // }
-
-    Ok(())
+    match access_token_result.await.context(TauriSpawnSnafu)? {
+        Ok(access_token) => {
+            todo!()
+        },
+        Err(err) => Err(err),
+    }
 }
 
-async fn authorization_flow_redirect_handler<R: tauri::Runtime>(
-    app: tauri::AppHandle<R>,
+async fn authorization_flow_redirect_handler(
     csrf_token: twitch_oauth2::CsrfToken,
     tx_handler_ready: tokio::sync::oneshot::Sender<()>,
     tx_window_close: tokio::sync::mpsc::Sender<()>,
-) -> Result<(), Error> {
+) -> Result<twitch_oauth2::AccessToken, Error> {
     use warp::Filter;
 
     let result = std::sync::Arc::new(tokio::sync::RwLock::new(None::<String>));
 
     let (tx_handler_finished, mut rx_handler_finished) = tokio::sync::mpsc::channel::<()>(2);
 
-    let authorization = warp::path!("api" / "twitch" / "authorize" / ..);
-
-    let redirect = warp::path!("redirect").and(warp::fs::file(authorization_html_path()));
-
-    let token = {
-        let result = result.clone();
-        warp::path!("token")
-            .and(warp::query())
-            .and_then(move |data: std::collections::HashMap<String, String>| {
+    let routes = {
+        let authorize = warp::path!("api" / "twitch" / "authorize" / ..);
+        let redirect = warp::path!("redirect").and(warp::fs::file(authorization_html_path()));
+        let token = warp::path!("token").and(warp::query()).and_then({
+            let result = result.clone();
+            move |data: std::collections::HashMap<String, String>| {
                 let csrf_token = csrf_token.clone();
                 let tx_handler_finished = tx_handler_finished.clone();
                 let tx_window_close = tx_window_close.clone();
@@ -137,10 +120,8 @@ async fn authorization_flow_redirect_handler<R: tauri::Runtime>(
                 async move {
                     tx_handler_finished.send(()).await.context(TokioMpscSendSnafu)?;
                     if let (Some(access_token), Some(state)) = (data.get("access_token"), data.get("state")) {
-                        println!("access_token: {}", access_token);
-                        println!("state: {}", state);
                         if csrf_token.secret() == state {
-                            *result.write().await = Some(access_token.clone());
+                            *result.write().await = Some(String::from(access_token));
                             tx_handler_finished.send(()).await.unwrap();
                             tx_window_close.send(()).await.unwrap();
                             return Ok::<_, warp::reject::Rejection>(warp::reply());
@@ -148,24 +129,24 @@ async fn authorization_flow_redirect_handler<R: tauri::Runtime>(
                     }
                     Err(warp::reject::custom(Error::TwitchAuthorizationFailed))
                 }
-            })
+            }
+        });
+        authorize.and(redirect.or(token))
     };
-
-    let routes = authorization.and(redirect.or(token));
 
     let server = warp::serve(routes)
         .bind_with_graceful_shutdown(([127, 0, 0, 1], 3000), async move {
-            println!("foo");
             tx_handler_ready.send(()).unwrap();
-            println!("bar");
             rx_handler_finished.recv().await;
-            println!("baz");
         })
         .1;
 
     server.await;
 
-    println!("result: {:#?}", result);
+    let result = result.read().await.clone();
 
-    Ok(())
+    match result {
+        None => Err(Error::TwitchAuthorizationFailed),
+        Some(access_token) => Ok(twitch_oauth2::AccessToken::new(access_token)),
+    }
 }

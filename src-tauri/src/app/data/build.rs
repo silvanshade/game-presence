@@ -19,7 +19,6 @@ pub struct BuildInfo {
     pub git_commit_hash: &'static str,
     pub git_dirty: &'static str,
     pub pkg_homepage: &'static str,
-    pub pkg_issue_tracker: &'static str,
     pub pkg_license: &'static str,
     pub pkg_version: &'static str,
     pub profile: &'static str,
@@ -37,7 +36,6 @@ impl BuildInfo {
             "clean"
         };
         let pkg_homepage = self::metadata::PKG_HOMEPAGE;
-        let pkg_issue_tracker = self::metadata::PKG_HOMEPAGE;
         let pkg_license = self::metadata::PKG_LICENSE;
         let pkg_version = self::metadata::PKG_VERSION;
         let profile = self::metadata::PROFILE;
@@ -48,7 +46,6 @@ impl BuildInfo {
             git_dirty,
             git_commit_hash,
             pkg_homepage,
-            pkg_issue_tracker,
             pkg_license,
             pkg_version,
             profile,
