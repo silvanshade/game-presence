@@ -19,11 +19,23 @@
       content="width=device-width, initial-scale=1"
     />
     <script type="module">
-      window.onload = (event) => {};
+      window.onload = (event) => {
+        const data = document.location.hash.substr(1);
+        if (data != null) {
+          alert(data);
+          document.getElementById("container").innerHTML = "Token data retrieved. Redirecting…";
+          document.location.replace("/api/twitch/authorize/token?" + data);
+        } else {
+          document.getElementById("container").innerHTML = "Failed to retrieve token data";
+        }
+      };
     </script>
     <title>Twitch Integration Authorization Redirect</title>
   </head>
   <body>
-    <p>content</p>
+    <noscript>
+      <p>This page requires <strong>JavaScript</strong> to get your token.</p>
+    </noscript>
+    <div id="container"></div>
   </body>
 </html>

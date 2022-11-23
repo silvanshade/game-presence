@@ -1,3 +1,4 @@
+use serde::Deserialize;
 use snafu::prelude::*;
 use tauri::Manager;
 use url::form_urlencoded::Target;
@@ -30,7 +31,7 @@ impl warp::reject::Reject for Error {
 
 const GAME_PRESENCE_CLIENT_ID: &str = "0vvuyyk8c79jvwqwc9b4hmbqb3sjdr";
 
-const AUTHORIZATION_REDIRECT_URL: &str = "http://localhost:3000/api/twitch/authorize";
+const AUTHORIZATION_REDIRECT_URL: &str = "http://localhost:3000/api/twitch/authorize/redirect";
 
 const AUTHORIZATION_WINDOW_CLOSE_EVENT: &str = "authorization-complete";
 
@@ -51,14 +52,14 @@ pub fn authorization_html_path() -> std::path::PathBuf {
     .collect::<std::path::PathBuf>()
 }
 
-pub fn authorization_request_url() -> Result<url::Url, Error> {
+pub fn authorization_request_url() -> Result<(url::Url, twitch_oauth2::types::CsrfToken), Error> {
     use twitch_oauth2::{tokens::ImplicitUserTokenBuilder, ClientId};
     let client_id = ClientId::from_static(GAME_PRESENCE_CLIENT_ID);
     let redirect_url = authorization_redirect_url()?;
-    let (url, _csrf_token) = ImplicitUserTokenBuilder::new(client_id, redirect_url)
+    let result = ImplicitUserTokenBuilder::new(client_id, redirect_url)
         .force_verify(true)
         .generate_url();
-    Ok(url)
+    Ok(result)
 }
 
 pub fn authorization_redirect_url() -> Result<url::Url, Error> {
@@ -66,71 +67,105 @@ pub fn authorization_redirect_url() -> Result<url::Url, Error> {
 }
 
 pub async fn authorization_flow<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(), Error> {
+    let (url, csrf_token) = authorization_request_url()?;
     let (tx_handler_ready, rx_handler_ready) = tokio::sync::oneshot::channel();
+    let (tx_window_close, mut rx_window_close) = tokio::sync::mpsc::channel::<()>(2);
 
     let access_token_result = {
         let app = app.clone();
-        tauri::async_runtime::spawn(authorization_flow_redirect_handler(app, tx_handler_ready))
+        tauri::async_runtime::spawn(authorization_flow_redirect_handler(
+            app,
+            csrf_token,
+            tx_handler_ready,
+            tx_window_close,
+        ))
     };
 
     rx_handler_ready.await.context(TokioOneShotReceiveSnafu)?;
 
     let window = {
         let label = "twitch-integration-authorization";
-        let url = tauri::WindowUrl::External(authorization_request_url()?);
-        tauri::WindowBuilder::new(app, label, url)
+        tauri::WindowBuilder::new(app, label, tauri::WindowUrl::External(url))
             .build()
             .context(TauriWindowBuilderNewSnafu)?
     };
 
-    let (tx_close, rx_close) = tokio::sync::oneshot::channel();
-    window.once(AUTHORIZATION_WINDOW_CLOSE_EVENT, |_event| {
-        tx_close.send(()).unwrap();
-    });
+    // window.once(AUTHORIZATION_WINDOW_CLOSE_EVENT, |_event| {
+    //     tx_window_close.send(()).unwrap();
+    // });
 
-    rx_close.await.context(TokioOneShotReceiveSnafu)?;
-
+    rx_window_close.recv().await;
     tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
         .await
         .context(TauriSpawnSnafu)??;
 
-    match access_token_result.await.context(TauriSpawnSnafu)? {
-        Ok(access_token) => {
-            todo!()
-        },
-        Err(err) => Err(err),
-    }
+    // match access_token_result.await.context(TauriSpawnSnafu)? {
+    //     Ok(access_token) => {
+    //         todo!()
+    //     },
+    //     Err(err) => Err(err),
+    // }
+
+    Ok(())
 }
 
 async fn authorization_flow_redirect_handler<R: tauri::Runtime>(
     app: tauri::AppHandle<R>,
+    csrf_token: twitch_oauth2::CsrfToken,
     tx_handler_ready: tokio::sync::oneshot::Sender<()>,
+    tx_window_close: tokio::sync::mpsc::Sender<()>,
 ) -> Result<(), Error> {
     use warp::Filter;
 
-    let (tx_handler_finished, mut rx_handler_finished) = tokio::sync::mpsc::channel::<()>(1);
+    let result = std::sync::Arc::new(tokio::sync::RwLock::new(None::<String>));
 
-    let routes = warp::path!("api" / "twitch" / "authorize")
-        .and(warp::query())
-        .and(warp::fs::file(authorization_html_path()))
-        .and_then(move |map: std::collections::HashMap<String, String>, file| {
-            let tx_handler_finished = tx_handler_finished.clone();
-            async move {
-                if map.get("authorization_finished").is_some() {
+    let (tx_handler_finished, mut rx_handler_finished) = tokio::sync::mpsc::channel::<()>(2);
+
+    let authorization = warp::path!("api" / "twitch" / "authorize" / ..);
+
+    let redirect = warp::path!("redirect").and(warp::fs::file(authorization_html_path()));
+
+    let token = {
+        let result = result.clone();
+        warp::path!("token")
+            .and(warp::query())
+            .and_then(move |data: std::collections::HashMap<String, String>| {
+                let csrf_token = csrf_token.clone();
+                let tx_handler_finished = tx_handler_finished.clone();
+                let tx_window_close = tx_window_close.clone();
+                let result = result.clone();
+                async move {
                     tx_handler_finished.send(()).await.context(TokioMpscSendSnafu)?;
+                    if let (Some(access_token), Some(state)) = (data.get("access_token"), data.get("state")) {
+                        println!("access_token: {}", access_token);
+                        println!("state: {}", state);
+                        if csrf_token.secret() == state {
+                            *result.write().await = Some(access_token.clone());
+                            tx_handler_finished.send(()).await.unwrap();
+                            tx_window_close.send(()).await.unwrap();
+                            return Ok::<_, warp::reject::Rejection>(warp::reply());
+                        }
+                    }
+                    Err(warp::reject::custom(Error::TwitchAuthorizationFailed))
                 }
-                Ok::<_, warp::reject::Rejection>(file)
-            }
-        });
+            })
+    };
+
+    let routes = authorization.and(redirect.or(token));
 
     let server = warp::serve(routes)
         .bind_with_graceful_shutdown(([127, 0, 0, 1], 3000), async move {
+            println!("foo");
             tx_handler_ready.send(()).unwrap();
+            println!("bar");
             rx_handler_finished.recv().await;
+            println!("baz");
         })
         .1;
 
     server.await;
+
+    println!("result: {:#?}", result);
 
     Ok(())
 }
