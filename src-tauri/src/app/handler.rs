@@ -21,9 +21,13 @@ pub fn invoke<R: tauri::Runtime>() -> impl Fn(tauri::Invoke<R>) {
     tauri::generate_handler![command::build_info, command::api_twitch_authorization_flow]
 }
 
-pub fn run<R: tauri::Runtime>() -> impl FnMut(&tauri::AppHandle<R>, tauri::RunEvent) {
+pub fn run() -> impl FnMut(&tauri::AppHandle<tauri::Wry>, tauri::RunEvent) {
     use tauri::{RunEvent, WindowEvent};
     |app, run_event| match run_event {
+        RunEvent::Ready => {
+            let app = app.clone();
+            tauri::async_runtime::spawn(async move { crate::service::playstation::authorization_flow(&app).await });
+        },
         RunEvent::WindowEvent {
             label,
             event: WindowEvent::CloseRequested { api, .. },

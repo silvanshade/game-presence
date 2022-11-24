@@ -2,6 +2,7 @@ use snafu::prelude::*;
 
 mod api;
 mod app;
+mod service;
 
 #[derive(Debug, Snafu)]
 enum Error {

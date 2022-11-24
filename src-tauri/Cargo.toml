@@ -24,6 +24,7 @@ proc-exit = { version = "2.0", features = [] }
 reqwest = { version = "0.11", features = [] }
 serde = { version = "1.0", features = ["derive", "serde_derive", "std"] }
 serde_json = { version = "1.0", features = ["std"] }
+serde_urlencoded = { version = "0.7", features = [] }
 snafu = { version = "0.7", features = ["std"] }
 tauri = { version = "1.2", features = ["compression", "objc-exception", "shell-open", "system-tray", "wry"] }
 tauri-plugin-graphql-ipc = { version = "0.0", git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc", features = ["async-graphql"] }
@@ -33,8 +34,7 @@ triple_accel = { version = "0.4.0", features = [] }
 twitch_api2 = { version = "0.6", features = [] }
 twitch_oauth2 = { version = "0.9", features = [] }
 url = { version = "2.3", features = [] }
-warp = { version = "0.3", features = [] }
-wry = { version = "0.22" }
+windows = { version = "=0.39" }
 
 [features]
 default = [ "custom-protocol" ]
