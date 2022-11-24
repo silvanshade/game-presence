@@ -39,3 +39,8 @@ wry = { version = "0.22" }
 [features]
 default = [ "custom-protocol" ]
 custom-protocol = [ "tauri/custom-protocol" ]
+
+[patch.crates-io]
+tauri = { path = "../../tauri/core/tauri" }
+tauri-runtime = { path = "../../tauri/core/tauri-runtime" }
+tauri-runtime-wry = { path = "../../tauri/core/tauri-runtime-wry" }
