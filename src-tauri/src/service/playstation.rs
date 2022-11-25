@@ -1,4 +1,5 @@
 use snafu::prelude::*;
+use crate::service::PlatformWebviewExt;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
@@ -9,6 +10,9 @@ pub enum Error {
         source: tauri::Error,
     },
     TauriWindowClose {
+        source: tauri::Error,
+    },
+    TauriWithWebview {
         source: tauri::Error,
     },
     TokioMpscReceive,
@@ -80,25 +84,7 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
             .build()
             .context(TauriWindowBuilderNewSnafu)?
     };
-    println!(".with_webview()");
-    window.with_webview(|webview| {
-        #[cfg(windows)]
-        {
-            let controller = webview.controller();
-            println!(".controller()");
-            unsafe {
-                let core_web_view_2 = controller.CoreWebView2().unwrap();
-                println!(".CallDevToolsProtocolMethod()::Network.clearBrowserCache");
-                core_web_view_2.CallDevToolsProtocolMethod(windows::w!("Network.clearBrowserCache"), windows::w!("{}"), None).unwrap();
-                println!(".CallDevToolsProtocolMethod()::Network.clearBrowserCookies");
-                core_web_view_2.CallDevToolsProtocolMethod(windows::w!("Network.clearBrowserCookies"), windows::w!("{}"), None).unwrap();
-                println!(".Navigate()");
-                core_web_view_2.Navigate(windows::w!("https://ca.account.sony.com/api/authz/v3/oauth/authorize?response_type=code&app_context=inapp_ios&device_profile=mobile&extraQueryParams=%7B%0A%20%20%20%20PlatformPrivacyWs1%20%3D%20minimal%3B%0A%7D&token_format=jwt&access_type=offline&scope=psn%3Amobile.v1%20psn%3Aclientapp&service_entity=urn%3Aservice-entity%3Apsn&ui=pr&smcid=psapp%253Asettings-entrance&darkmode=true&redirect_uri=com.playstation.PlayStationApp%3A%2F%2Fredirect&support_scheme=sneiprls&client_id=ac8d161a-d966-4728-b0ea-ffec22f69edc&duid=0000000d0004008088347AA0C79542D3B656EBB51CE3EBE1&device_base_font_size=10&elements_visibility=no_aclink&service_logo=ps")).unwrap();
-                // core_web_view_2.Navigate(windows::w!("https://spotify.com")).unwrap();
-                println!("end of block");
-            }
-        }
-    }).unwrap();
+    window.with_webview(|webview| webview.clear_state().unwrap()).context(TauriWithWebviewSnafu)?;
 
     let token_result = rx_token.recv().await.context(TokioMpscReceiveSnafu)?;
     tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
