@@ -11,21 +11,81 @@ pub enum Error {
     ClearState {
         source: windows::core::Error,
     },
+
+    StdMpscChannelRecv {
+        source: std::sync::mpsc::RecvError,
+    },
+    StdTimeDurationSince {
+        source: std::time::SystemTimeError,
+    },
+    StdU64TryIntoI64 {
+        source: std::num::TryFromIntError,
+    },
     TauriWindowWithWebview {
         source: tauri::Error,
+    },
+    #[cfg(target_os = "linux")]
+    WebKit2GtkWebsiteDataManagerClear {
+        source: webkit2gtk::glib::Error,
+    },
+    #[cfg(target_os = "windows")]
+    WindowsCoreWebView2 {
+        source: windows::core::Error,
+    },
+    #[cfg(target_os = "windows")]
+    WindowsWebView2CallDevToolsProtocolMethod {
+        source: windows::core::Error,
     },
 }
 
 trait PlatformWebviewExt {
-    type Error;
-    fn clear_state(&self) -> Result<(), Self::Error>;
+    fn clear_data(&self) -> Result<(), Error>;
+    fn navigate(&self, uri: &str, clear_data: bool) -> Result<(), Error>;
 }
 
-#[cfg(windows)]
+#[cfg(target_os = "linux")]
 impl PlatformWebviewExt for tauri::window::PlatformWebview {
-    type Error = windows::core::Error;
+    fn clear_data(&self) -> Result<(), Error> {
+        use webkit2gtk::{gio, glib, WebsiteDataManager, WebsiteDataManagerExtManual, WebsiteDataTypes};
 
-    fn clear_state(&self) -> Result<(), Self::Error> {
+        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+
+        let types = WebsiteDataTypes::ALL - WebsiteDataTypes::COOKIES;
+        let timespan = glib::TimeSpan::from_seconds(0);
+        let cancellable = gio::Cancellable::NONE;
+        let callback = move |result: Result<(), glib::Error>| {
+            tx.send(result).unwrap();
+        };
+        let manager = WebsiteDataManager::new_ephemeral();
+        manager.clear(types, timespan, cancellable, callback);
+
+        rx.attach(None, |result| match result {
+            Ok(()) => {
+                println!("clear");
+                glib::Continue(true)
+            },
+            Err(error) => {
+                println!("error: {:#?}", error);
+                glib::Continue(false)
+            },
+        });
+
+        Ok(())
+    }
+
+    fn navigate(&self, uri: &str, clear_data: bool) -> Result<(), Error> {
+        use webkit2gtk::WebViewExt;
+        if clear_data {
+            self.clear_data()?;
+        }
+        self.inner().load_uri(uri);
+        Ok(())
+    }
+}
+
+#[cfg(target_os = "windows")]
+impl PlatformWebviewExt for tauri::window::PlatformWebview {
+    fn clear_data(&self) -> Result<(), Error> {
         use windows::w;
         let controller = self.controller();
         unsafe {
@@ -34,16 +94,5 @@ impl PlatformWebviewExt for tauri::window::PlatformWebview {
             web_view.CallDevToolsProtocolMethod(w!("Network.clearBrowserCookies"), w!("{}"), None)?;
         }
         Ok(())
-    }
-}
-
-trait WindowExt {
-    fn clear_webview_state(&self) -> Result<(), Error>;
-}
-
-impl WindowExt for tauri::Window {
-    fn clear_webview_state(&self) -> Result<(), Error> {
-        self.with_webview(|webview| webview.clear_state().unwrap())
-            .context(TauriWindowWithWebviewSnafu)
     }
 }

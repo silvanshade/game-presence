@@ -54,7 +54,7 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
 
     let window = {
         let label = "twitch-integration-authorization";
-        let url = tauri::WindowUrl::App("/empty".into());
+        let url = tauri::WindowUrl::App("/html/empty".into());
         let navigation_handler = move |url: String| {
             if url.starts_with(AUTHORIZATION_REDIRECT_URL) {
                 let result = Ok(url);
@@ -84,18 +84,22 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
             .build()
             .context(TauriWindowBuilderNewSnafu)?
     };
-    window.with_webview(|webview| webview.clear_state().unwrap()).context(TauriWithWebviewSnafu)?;
+    window.with_webview(move |webview| {
+        webview.clear_data().unwrap();
+    }).context(TauriWithWebviewSnafu)?;
 
-    let token_result = rx_token.recv().await.context(TokioMpscReceiveSnafu)?;
-    tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
-        .await
-        .context(TauriSpawnSnafu)??;
+    // let token_result = rx_token.recv().await.context(TokioMpscReceiveSnafu)?;
+    // tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
+    //     .await
+    //     .context(TauriSpawnSnafu)??;
 
-    match token_result {
-        Ok(access_token) => {
-            println!("got token: {}", access_token);
-            Ok(())
-        },
-        Err(err) => Err(err),
-    }
+    // match token_result {
+    //     Ok(access_token) => {
+    //         println!("got token: {}", access_token);
+    //         Ok(())
+    //     },
+    //     Err(err) => Err(err),
+    // }
+
+    Ok(())
 }
