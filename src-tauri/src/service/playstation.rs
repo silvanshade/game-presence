@@ -49,7 +49,6 @@ pub fn authorization_redirect_url() -> Result<url::Url, Error> {
 }
 
 pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<(), Error> {
-    let url = authorization_request_url()?;
     let (tx_token, mut rx_token) = tokio::sync::mpsc::channel::<Result<String, Error>>(2);
 
     let window = {
@@ -86,20 +85,19 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
     };
     window.with_webview(move |webview| {
         webview.clear_data().unwrap();
+        webview.navigate(AUTHORIZATION_REQUEST_URL).unwrap();
     }).context(TauriWithWebviewSnafu)?;
 
-    // let token_result = rx_token.recv().await.context(TokioMpscReceiveSnafu)?;
-    // tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
-    //     .await
-    //     .context(TauriSpawnSnafu)??;
+    let token_result = rx_token.recv().await.context(TokioMpscReceiveSnafu)?;
+    tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
+        .await
+        .context(TauriSpawnSnafu)??;
 
-    // match token_result {
-    //     Ok(access_token) => {
-    //         println!("got token: {}", access_token);
-    //         Ok(())
-    //     },
-    //     Err(err) => Err(err),
-    // }
-
-    Ok(())
+    match token_result {
+        Ok(access_token) => {
+            println!("got token: {}", access_token);
+            Ok(())
+        },
+        Err(err) => Err(err),
+    }
 }
