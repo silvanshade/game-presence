@@ -84,8 +84,9 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
             .context(TauriWindowBuilderNewSnafu)?
     };
     window.with_webview(move |webview| {
-        webview.clear_data().unwrap();
-        webview.navigate(AUTHORIZATION_REQUEST_URL).unwrap();
+        let uri = AUTHORIZATION_REQUEST_URL;
+        let clear_data = true;
+        webview.navigate(uri, clear_data).unwrap();
     }).context(TauriWithWebviewSnafu)?;
 
     let token_result = rx_token.recv().await.context(TokioMpscReceiveSnafu)?;

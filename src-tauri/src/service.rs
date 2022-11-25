@@ -1,4 +1,5 @@
 use snafu::prelude::*;
+use webkit2gtk::WebViewExt;
 
 pub mod nintendo;
 pub mod playstation;
@@ -40,78 +41,30 @@ pub enum Error {
 
 trait PlatformWebviewExt {
     fn clear_data(&self) -> Result<(), Error>;
-    fn navigate(&self, uri: &str) -> Result<(), Error>;
+    fn navigate(&self, uri: &str, clear_data: bool) -> Result<(), Error>;
 }
 
 #[cfg(target_os = "linux")]
 impl PlatformWebviewExt for tauri::window::PlatformWebview {
     fn clear_data(&self) -> Result<(), Error> {
-        use webkit2gtk::{
-            gio,
-            glib,
-            WebsiteData,
-            WebsiteDataManager,
-            WebsiteDataManagerExt,
-            WebsiteDataManagerExtManual,
-            WebsiteDataTypes,
-        };
+        use webkit2gtk::{CookieManagerExt, WebContextExt};
 
-        let manager = WebsiteDataManager::new_ephemeral();
+        let inner = self.inner();
 
-        {
-            let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
-            let types = WebsiteDataTypes::ALL - WebsiteDataTypes::COOKIES;
-            let timespan = glib::TimeSpan::from_seconds(0);
-            let cancellable = gio::Cancellable::NONE;
-            let callback = move |result: Result<(), glib::Error>| {
-                tx.send(result).unwrap();
-            };
-            manager.clear(types, timespan, cancellable, callback);
-            rx.attach(None, |result| match result {
-                Ok(()) => glib::Continue(true),
-                Err(error) => {
-                    println!("error calling WebsiteDataManager::clear: {:#?}", error);
-                    glib::Continue(false)
-                },
-            });
-        }
+        let context = inner.context().unwrap();
+        let manager = context.cookie_manager().unwrap();
 
-        {
-            let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
-            let types = WebsiteDataTypes::COOKIES;
-            let cancellable = gio::Cancellable::NONE;
-            let callback = move |result: Result<Vec<WebsiteData>, glib::Error>| {
-                println!("fetch callback");
-                match result {
-                    Ok(data) => {
-                        for datum in data {
-                            let types = datum.types();
-                            println!("name:  {:#?}", datum.name());
-                            println!("size:  {:#?}", datum.size(types));
-                            println!("types: {:#?}", types);
-                        }
-                        tx.send(Ok(())).unwrap();
-                    },
-                    Err(error) => {
-                        tx.send(Err(error)).unwrap();
-                    },
-                }
-            };
-            manager.fetch(types, cancellable, callback);
-            rx.attach(None, |result| match result {
-                Ok(()) => glib::Continue(true),
-                Err(error) => {
-                    println!("error calling WebsiteDataManager::fetch: {:#?}", error);
-                    glib::Continue(false)
-                },
-            });
-        }
+        #[allow(deprecated)]
+        manager.delete_all_cookies();
+        context.clear_cache();
 
         Ok(())
     }
 
-    fn navigate(&self, uri: &str) -> Result<(), Error> {
-        use webkit2gtk::WebViewExt;
+    fn navigate(&self, uri: &str, clear_data: bool) -> Result<(), Error> {
+        if clear_data {
+            self.clear_data();
+        }
         self.inner().load_uri(uri);
         Ok(())
     }
