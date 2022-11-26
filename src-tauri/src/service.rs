@@ -92,14 +92,14 @@ impl PlatformWebviewExt for tauri::window::PlatformWebview {
         unsafe {
             let web_view = controller.CoreWebView2().context(WindowsCoreWebView2Snafu)?;
             web_view
-                .CallDevToolsProtocolMethod(w!("Network.clearBrowserCache"), w!("{}"), None)
-                .context(WindowsWebView2CallDevToolsProtocolMethodSnafu {
-                    method: String::from("Network.clearBrowserCache"),
-                })?;
-            web_view
                 .CallDevToolsProtocolMethod(w!("Network.clearBrowserCookies"), w!("{}"), None)
                 .context(WindowsWebView2CallDevToolsProtocolMethodSnafu {
                     method: String::from("Network.clearBrowserCookies"),
+                })?;
+            web_view
+                .CallDevToolsProtocolMethod(w!("Network.clearBrowserCache"), w!("{}"), None)
+                .context(WindowsWebView2CallDevToolsProtocolMethodSnafu {
+                    method: String::from("Network.clearBrowserCache"),
                 })?;
         }
         Ok(())
