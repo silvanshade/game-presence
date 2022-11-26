@@ -45,7 +45,14 @@ pub enum Error {
 
 trait PlatformWebviewExt {
     fn clear_data(&self) -> Result<(), Error>;
-    fn navigate(&self, uri: &str, clear_data: bool) -> Result<(), Error>;
+    fn load_url(&self, url: url::Url) -> Result<(), Error>;
+    fn navigate(&self, url: url::Url, clear_data: bool) -> Result<(), Error> {
+        if clear_data {
+            self.clear_data()?;
+        }
+        self.load_url(url)?;
+        Ok(())
+    }
 }
 
 #[cfg(target_os = "linux")]
@@ -67,11 +74,8 @@ impl PlatformWebviewExt for tauri::window::PlatformWebview {
         Ok(())
     }
 
-    fn navigate(&self, uri: &str, clear_data: bool) -> Result<(), Error> {
-        if clear_data {
-            self.clear_data()?;
-        }
-        self.inner().load_uri(uri);
+    fn load_url(&self, url: url::Url) -> Result<(), Error> {
+        self.inner().load_uri(url.as_str());
         Ok(())
     }
 }
