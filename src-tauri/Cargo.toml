@@ -34,7 +34,11 @@ triple_accel = { version = "0.4.0", features = [] }
 twitch_api2 = { version = "0.6", features = [] }
 twitch_oauth2 = { version = "0.9", features = [] }
 url = { version = "2.3", features = [] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
 webkit2gtk = { version = "0.18", features = ["v2_16"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "=0.39" }
 
 [features]

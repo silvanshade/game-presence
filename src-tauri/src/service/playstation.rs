@@ -1,20 +1,12 @@
-use snafu::prelude::*;
 use crate::service::PlatformWebviewExt;
+use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    TauriSpawn {
-        source: tauri::Error,
-    },
-    TauriWindowBuilderNew {
-        source: tauri::Error,
-    },
-    TauriWindowClose {
-        source: tauri::Error,
-    },
-    TauriWithWebview {
-        source: tauri::Error,
-    },
+    TauriSpawn { source: tauri::Error },
+    TauriWindowBuilderNew { source: tauri::Error },
+    TauriWindowClose { source: tauri::Error },
+    TauriWithWebview { source: tauri::Error },
     TokioMpscReceive,
     // TokioMpscSend {
     //     source: tokio::sync::mpsc::error::SendError<()>,
@@ -31,9 +23,7 @@ pub enum Error {
     // TwitchAuthorizationFailedWithMissingQuery {
     //     url: String,
     // },
-    UrlParse {
-        source: url::ParseError,
-    },
+    UrlParse { source: url::ParseError },
 }
 
 const AUTHORIZATION_REQUEST_URL: &str = "https://ca.account.sony.com/api/authz/v3/oauth/authorize?response_type=code&app_context=inapp_ios&device_profile=mobile&extraQueryParams=%7B%0A%20%20%20%20PlatformPrivacyWs1%20%3D%20minimal%3B%0A%7D&token_format=jwt&access_type=offline&scope=psn%3Amobile.v1%20psn%3Aclientapp&service_entity=urn%3Aservice-entity%3Apsn&ui=pr&smcid=psapp%253Asettings-entrance&darkmode=true&redirect_uri=com.playstation.PlayStationApp%3A%2F%2Fredirect&support_scheme=sneiprls&client_id=ac8d161a-d966-4728-b0ea-ffec22f69edc&duid=0000000d0004008088347AA0C79542D3B656EBB51CE3EBE1&device_base_font_size=10&elements_visibility=no_aclink&service_logo=ps";
@@ -52,8 +42,6 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
     let (tx_token, mut rx_token) = tokio::sync::mpsc::channel::<Result<String, Error>>(2);
 
     let window = {
-        let label = "twitch-integration-authorization";
-        let url = tauri::WindowUrl::App("/html/empty".into());
         let navigation_handler = move |url: String| {
             if url.starts_with(AUTHORIZATION_REDIRECT_URL) {
                 let result = Ok(url);
@@ -78,16 +66,25 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
             }
             true
         };
-        tauri::WindowBuilder::new(app, label, url)
-            .on_navigation(navigation_handler)
-            .build()
-            .context(TauriWindowBuilderNewSnafu)?
+        tauri::WindowBuilder::new(
+            app,
+            "twitch-integration-authorization",
+            tauri::WindowUrl::App("/html/empty".into()),
+        )
+        .on_navigation(navigation_handler)
+        .build()
+        .context(TauriWindowBuilderNewSnafu)?
     };
-    window.with_webview(move |webview| {
-        let uri = AUTHORIZATION_REQUEST_URL;
-        let clear_data = true;
-        webview.navigate(uri, clear_data).unwrap();
-    }).context(TauriWithWebviewSnafu)?;
+    window
+        .with_webview({
+            // let url = authorization_request_url()?;
+            let url = url::Url::parse("https://google.com").unwrap();
+            move |webview| {
+                let clear_data = true;
+                webview.navigate(url, clear_data).unwrap();
+            }
+        })
+        .context(TauriWithWebviewSnafu)?;
 
     let token_result = rx_token.recv().await.context(TokioMpscReceiveSnafu)?;
     tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })

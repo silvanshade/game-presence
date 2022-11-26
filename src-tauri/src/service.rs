@@ -1,5 +1,4 @@
 use snafu::prelude::*;
-use webkit2gtk::WebViewExt;
 
 pub mod nintendo;
 pub mod playstation;
@@ -39,6 +38,10 @@ pub enum Error {
     },
     #[cfg(target_os = "windows")]
     WindowsWebView2CallDevToolsProtocolMethod {
+        method: String,
+        source: windows::core::Error,
+    },
+    WindowsWebView2Navigate {
         source: windows::core::Error,
     },
 }
@@ -75,6 +78,7 @@ impl PlatformWebviewExt for tauri::window::PlatformWebview {
     }
 
     fn load_url(&self, url: url::Url) -> Result<(), Error> {
+        use webkit2gtk::WebViewExt;
         self.inner().load_uri(url.as_str());
         Ok(())
     }
@@ -86,10 +90,28 @@ impl PlatformWebviewExt for tauri::window::PlatformWebview {
         use windows::w;
         let controller = self.controller();
         unsafe {
-            let web_view = controller.CoreWebView2()?;
-            web_view.CallDevToolsProtocolMethod(w!("Network.clearBrowserCache"), w!("{}"), None)?;
-            web_view.CallDevToolsProtocolMethod(w!("Network.clearBrowserCookies"), w!("{}"), None)?;
+            let web_view = controller.CoreWebView2().context(WindowsCoreWebView2Snafu)?;
+            web_view
+                .CallDevToolsProtocolMethod(w!("Network.clearBrowserCache"), w!("{}"), None)
+                .context(WindowsWebView2CallDevToolsProtocolMethodSnafu {
+                    method: String::from("Network.clearBrowserCache"),
+                })?;
+            web_view
+                .CallDevToolsProtocolMethod(w!("Network.clearBrowserCookies"), w!("{}"), None)
+                .context(WindowsWebView2CallDevToolsProtocolMethodSnafu {
+                    method: String::from("Network.clearBrowserCookies"),
+                })?;
         }
         Ok(())
+    }
+
+    fn load_url(&self, url: url::Url) -> Result<(), Error> {
+        use windows::core::{HSTRING, PCWSTR};
+        let url = PCWSTR::from(&HSTRING::from(url.as_str()));
+        let controller = self.controller();
+        unsafe {
+            let web_view = controller.CoreWebView2().context(WindowsCoreWebView2Snafu)?;
+            web_view.Navigate(url).context(WindowsWebView2NavigateSnafu)
+        }
     }
 }
