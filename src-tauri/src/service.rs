@@ -29,6 +29,10 @@ pub enum Error {
     WebKit2GtkWebsiteDataManagerClear {
         source: webkit2gtk::glib::Error,
     },
+    #[cfg(target_os = "linux")]
+    WebKit2GtkWebviewWebContext,
+    #[cfg(target_os = "linux")]
+    WebKit2GtkWebContextCookieManager,
     #[cfg(target_os = "windows")]
     WindowsCoreWebView2 {
         source: windows::core::Error,
@@ -51,8 +55,10 @@ impl PlatformWebviewExt for tauri::window::PlatformWebview {
 
         let inner = self.inner();
 
-        let context = inner.context().unwrap();
-        let manager = context.cookie_manager().unwrap();
+        let context = inner.context().context(WebKit2GtkWebviewWebContextSnafu)?;
+        let manager = context
+            .cookie_manager()
+            .context(WebKit2GtkWebContextCookieManagerSnafu)?;
 
         #[allow(deprecated)]
         manager.delete_all_cookies();
@@ -63,7 +69,7 @@ impl PlatformWebviewExt for tauri::window::PlatformWebview {
 
     fn navigate(&self, uri: &str, clear_data: bool) -> Result<(), Error> {
         if clear_data {
-            self.clear_data();
+            self.clear_data()?;
         }
         self.inner().load_uri(uri);
         Ok(())
