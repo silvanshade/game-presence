@@ -34,9 +34,9 @@ pub fn authorization_request_url() -> Result<url::Url, Error> {
     url::Url::parse(AUTHORIZATION_REQUEST_URL).context(UrlParseSnafu)
 }
 
-pub fn authorization_redirect_url() -> Result<url::Url, Error> {
-    url::Url::parse(AUTHORIZATION_REQUEST_URL).context(UrlParseSnafu)
-}
+// pub fn authorization_redirect_url() -> Result<url::Url, Error> {
+//     url::Url::parse(AUTHORIZATION_REQUEST_URL).context(UrlParseSnafu)
+// }
 
 pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<(), Error> {
     let (tx_token, mut rx_token) = tokio::sync::mpsc::channel::<Result<String, Error>>(2);

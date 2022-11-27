@@ -93,7 +93,7 @@ pub async fn authorization_flow<R: tauri::Runtime>(app: &tauri::AppHandle<R>) ->
         .context(TauriSpawnSnafu)??;
 
     match token_result {
-        Ok(access_token) => {
+        Ok(_access_token) => {
             println!("got token");
             Ok(())
         },

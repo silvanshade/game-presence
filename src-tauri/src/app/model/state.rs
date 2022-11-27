@@ -18,12 +18,12 @@ impl State {
         config.try_into()
     }
 
-    pub async fn save(self) -> Result<(), Error> {
-        let config = Into::<crate::app::data::Config>::into(self);
-        let handle = tauri::async_runtime::spawn_blocking(move || config.write().context(ConfigWriteSnafu));
-        let result = handle.await.context(TauriSpawnBlockingSnafu)?;
-        result
-    }
+    // pub async fn save(self) -> Result<(), Error> {
+    //     let config = Into::<crate::app::data::Config>::into(self);
+    //     let handle = tauri::async_runtime::spawn_blocking(move ||
+    // config.write().context(ConfigWriteSnafu));     let result =
+    // handle.await.context(TauriSpawnBlockingSnafu)?;     result
+    // }
 }
 
 impl TryFrom<crate::app::data::Config> for State {
