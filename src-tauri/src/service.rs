@@ -88,27 +88,36 @@ impl PlatformWebviewExt for PlatformWebview {
 
 #[cfg(target_os = "linux")]
 impl PlatformWebviewExt for PlatformWebview {
-    fn clear_data(&self) -> Result<(), Error> {
-        use webkit2gtk::{CookieManagerExt, WebContextExt};
+    fn navigate(&self, url: url::Url, clear_data_first: bool) -> Result<(), Error> {
+        fn clear_data(this: &PlatformWebview) -> Result<(), Error> {
+            use webkit2gtk::{CookieManagerExt, WebContextExt, WebViewExt};
 
-        let web_view = self.inner();
+            let web_view = this.inner();
 
-        let context = web_view.context().context(WebKit2GtkWebviewWebContextSnafu)?;
-        let manager = context
-            .cookie_manager()
-            .context(WebKit2GtkWebContextCookieManagerSnafu)?;
+            let context = web_view.context().context(WebKit2GtkWebviewWebContextSnafu)?;
+            let manager = context
+                .cookie_manager()
+                .context(WebKit2GtkWebContextCookieManagerSnafu)?;
 
-        #[allow(deprecated)]
-        manager.delete_all_cookies();
-        context.clear_cache();
+            #[allow(deprecated)]
+            manager.delete_all_cookies();
+            context.clear_cache();
 
-        Ok(())
-    }
+            Ok(())
+        }
 
-    fn load_url(&self, url: url::Url) -> Result<(), Error> {
-        use webkit2gtk::WebViewExt;
-        let web_view = self.inner();
-        web_view.load_uri(url.as_str());
+        fn load_url(this: &PlatformWebview, url: url::Url) -> Result<(), Error> {
+            use webkit2gtk::WebViewExt;
+            let web_view = this.inner();
+            web_view.load_uri(url.as_str());
+            Ok(())
+        }
+
+        if clear_data_first {
+            clear_data(self)?;
+        }
+        load_url(self, url)?;
+
         Ok(())
     }
 }

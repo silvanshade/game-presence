@@ -79,8 +79,8 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
         .with_webview({
             let url = authorization_request_url()?;
             move |webview| {
-                let clear_data = true;
-                webview.navigate(url, clear_data).unwrap();
+                let clear_data_first = true;
+                webview.navigate(url, clear_data_first).unwrap();
             }
         })
         .context(TauriWithWebviewSnafu)?;
