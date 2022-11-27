@@ -26,7 +26,7 @@ serde = { version = "1.0", features = ["derive", "serde_derive", "std"] }
 serde_json = { version = "1.0", features = ["std"] }
 serde_urlencoded = { version = "0.7", features = [] }
 snafu = { version = "0.7", features = ["std"] }
-tauri = { version = "1.2", features = ["compression", "objc-exception", "shell-open", "system-tray", "wry"] }
+tauri = { version = "1.2", features = ["compression", "objc-exception", "reqwest", "shell-open", "system-tray", "wry"] }
 tauri-plugin-graphql-ipc = { version = "0.0", git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc", features = ["async-graphql"] }
 tokio = { version = "1.21", features = ["fs"] }
 tracing = { version = "0.1", features = ["attributes", "std"] }
@@ -39,13 +39,13 @@ url = { version = "2.3", features = [] }
 webkit2gtk = { version = "0.18", features = ["v2_16"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-block = { version = "0.1" }
-objc = { version = "0.2" }
-objc-foundation = { version = "0.1" }
+block = { version = "0.1", features = [] }
+objc = { version = "0.2", features = [] }
+objc-foundation = { version = "0.1", features = [] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows = { version = "=0.39" }
-webview2-com = { version = "=0.19.1" }
+windows = { version = "=0.39", features = [] }
+webview2-com = { version = "=0.19.1", features = [] }
 
 [features]
 default = [ "custom-protocol" ]
