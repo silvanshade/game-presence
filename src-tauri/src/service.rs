@@ -139,14 +139,14 @@ impl PlatformWebviewExt for PlatformWebview {
             if clear_data_first {
                 web_view
                     .CallDevToolsProtocolMethod(
-                        w!("Network.clearBrowserCache"),
+                        w!("Network.clearBrowserCookies"),
                         w!("{}"),
                         &CallDevToolsProtocolMethodCompletedHandler::create(Box::new({
                             let web_view = web_view.clone();
                             move |hresult, _pcwstr| {
                                 hresult?;
                                 web_view.CallDevToolsProtocolMethod(
-                                    w!("Network.clearBrowserCookies"),
+                                    w!("Network.clearBrowserCache"),
                                     w!("{}"),
                                     &CallDevToolsProtocolMethodCompletedHandler::create(Box::new({
                                         let web_view = web_view.clone();
