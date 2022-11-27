@@ -46,12 +46,12 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
             if url.starts_with(AUTHORIZATION_REDIRECT_URL) {
                 let result = Ok(url);
                 // let suffix = &url[AUTHORIZATION_REDIRECT_URL.len() + 1 ..];
-                // if let Ok(query) = serde_urlencoded::from_str::<std::collections::HashMap<String, String>>(suffix) {
-                //     if let (Some(access_token), Some(state)) = (query.get("access_token"), query.get("state")) {
-                //         if csrf_token.secret() == state {
-                //             let access_token = twitch_oauth2::AccessToken::new(access_token.clone());
-                //             result = Ok(access_token);
-                //         } else {
+                // if let Ok(query) = serde_urlencoded::from_str::<std::collections::HashMap<String,
+                // String>>(suffix) {     if let (Some(access_token), Some(state)) =
+                // (query.get("access_token"), query.get("state")) {         if csrf_token.secret()
+                // == state {             let access_token =
+                // twitch_oauth2::AccessToken::new(access_token.clone());             result =
+                // Ok(access_token);         } else {
                 //             let state = state.clone();
                 //             result = Err(Error::TwitchAuthorizationFailedWithInvalidState { state });
                 //         }
@@ -68,7 +68,7 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
         };
         tauri::WindowBuilder::new(
             app,
-            "twitch-integration-authorization",
+            "playstation-service-authorization",
             tauri::WindowUrl::App("/html/empty".into()),
         )
         .on_navigation(navigation_handler)
@@ -77,8 +77,7 @@ pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<()
     };
     window
         .with_webview({
-            // let url = authorization_request_url()?;
-            let url = url::Url::parse("https://google.com").unwrap();
+            let url = authorization_request_url()?;
             move |webview| {
                 let clear_data = true;
                 webview.navigate(url, clear_data).unwrap();

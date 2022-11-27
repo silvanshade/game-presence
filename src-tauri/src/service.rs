@@ -41,77 +41,106 @@ pub enum Error {
         method: String,
         source: windows::core::Error,
     },
+    #[cfg(target_os = "windows")]
     WindowsWebView2Navigate {
         source: windows::core::Error,
     },
 }
 
 trait PlatformWebviewExt {
-    fn clear_data(&self) -> Result<(), Error>;
-    fn load_url(&self, url: url::Url) -> Result<(), Error>;
+    fn navigate(&self, url: url::Url, clear_data: bool) -> Result<(), Error>;
+}
+
+#[cfg(target_os = "macos")]
+impl PlatformWebviewExt for tauri::window::PlatformWebview {
     fn navigate(&self, url: url::Url, clear_data: bool) -> Result<(), Error> {
-        if clear_data {
-            self.clear_data()?;
-        }
-        self.load_url(url)?;
-        Ok(())
-    }
-}
+        use block::ConcreteBlock;
+        use objc::{runtime::Object, *};
+        use objc_foundation::{INSString, NSString};
 
-#[cfg(target_os = "linux")]
-impl PlatformWebviewExt for tauri::window::PlatformWebview {
-    fn clear_data(&self) -> Result<(), Error> {
-        use webkit2gtk::{CookieManagerExt, WebContextExt};
-
-        let inner = self.inner();
-
-        let context = inner.context().context(WebKit2GtkWebviewWebContextSnafu)?;
-        let manager = context
-            .cookie_manager()
-            .context(WebKit2GtkWebContextCookieManagerSnafu)?;
-
-        #[allow(deprecated)]
-        manager.delete_all_cookies();
-        context.clear_cache();
-
-        Ok(())
-    }
-
-    fn load_url(&self, url: url::Url) -> Result<(), Error> {
-        use webkit2gtk::WebViewExt;
-        self.inner().load_uri(url.as_str());
-        Ok(())
-    }
-}
-
-#[cfg(target_os = "windows")]
-impl PlatformWebviewExt for tauri::window::PlatformWebview {
-    fn clear_data(&self) -> Result<(), Error> {
-        use windows::w;
-        let controller = self.controller();
+        let web_view = self.inner();
         unsafe {
-            let web_view = controller.CoreWebView2().context(WindowsCoreWebView2Snafu)?;
-            web_view
-                .CallDevToolsProtocolMethod(w!("Network.clearBrowserCookies"), w!("{}"), None)
-                .context(WindowsWebView2CallDevToolsProtocolMethodSnafu {
-                    method: String::from("Network.clearBrowserCookies"),
-                })?;
-            web_view
-                .CallDevToolsProtocolMethod(w!("Network.clearBrowserCache"), w!("{}"), None)
-                .context(WindowsWebView2CallDevToolsProtocolMethodSnafu {
-                    method: String::from("Network.clearBrowserCache"),
-                })?;
+            let handler = {
+                let block = ConcreteBlock::new(move || {
+                    let string = NSString::from_str(url.as_str());
+                    let url: *mut Object = msg_send![class!(NSURL), URLWithString: string];
+                    let request: *mut Object = msg_send![class!(NSURLRequest), requestWithURL: url];
+                    let _navigation: *mut Object = { msg_send![web_view, loadRequest: request] };
+                });
+                block.copy()
+            };
+
+            if clear_data {
+                let configuration: *mut Object = msg_send![web_view, configuration];
+                let data_store: *mut Object = msg_send![configuration, websiteDataStore];
+                let data_types: *mut Object = msg_send![class!(WKWebsiteDataStore), allWebsiteDataTypes];
+                let date: *mut Object = msg_send![class!(NSDate), distantPast];
+                let _: () =
+                    msg_send![data_store, removeDataOfTypes: data_types modifiedSince: date completionHandler: handler];
+            } else {
+                handler.call(());
+            }
         }
+
         Ok(())
     }
-
-    fn load_url(&self, url: url::Url) -> Result<(), Error> {
-        use windows::core::{HSTRING, PCWSTR};
-        let url = PCWSTR::from(&HSTRING::from(url.as_str()));
-        let controller = self.controller();
-        unsafe {
-            let web_view = controller.CoreWebView2().context(WindowsCoreWebView2Snafu)?;
-            web_view.Navigate(url).context(WindowsWebView2NavigateSnafu)
-        }
-    }
 }
+
+// #[cfg(target_os = "linux")]
+// impl PlatformWebviewExt for tauri::window::PlatformWebview {
+//     fn clear_data(&self) -> Result<(), Error> {
+//         use webkit2gtk::{CookieManagerExt, WebContextExt};
+
+//         let web_view = self.inner();
+
+//         let context = web_view.context().context(WebKit2GtkWebviewWebContextSnafu)?;
+//         let manager = context
+//             .cookie_manager()
+//             .context(WebKit2GtkWebContextCookieManagerSnafu)?;
+
+//         #[allow(deprecated)]
+//         manager.delete_all_cookies();
+//         context.clear_cache();
+
+//         Ok(())
+//     }
+
+//     fn load_url(&self, url: url::Url) -> Result<(), Error> {
+//         use webkit2gtk::WebViewExt;
+//         let web_view = self.inner();
+//         web_view.load_uri(url.as_str());
+//         Ok(())
+//     }
+// }
+
+// #[cfg(target_os = "windows")]
+// impl PlatformWebviewExt for tauri::window::PlatformWebview {
+//     fn clear_data(&self) -> Result<(), Error> {
+//         use windows::w;
+//         let controller = self.controller();
+//         unsafe {
+//             let web_view = controller.CoreWebView2().context(WindowsCoreWebView2Snafu)?;
+//             web_view
+//                 .CallDevToolsProtocolMethod(w!("Network.clearBrowserCookies"), w!("{}"), None)
+//                 .context(WindowsWebView2CallDevToolsProtocolMethodSnafu {
+//                     method: String::from("Network.clearBrowserCookies"),
+//                 })?;
+//             web_view
+//                 .CallDevToolsProtocolMethod(w!("Network.clearBrowserCache"), w!("{}"), None)
+//                 .context(WindowsWebView2CallDevToolsProtocolMethodSnafu {
+//                     method: String::from("Network.clearBrowserCache"),
+//                 })?;
+//         }
+//         Ok(())
+//     }
+
+//     fn load_url(&self, url: url::Url) -> Result<(), Error> {
+//         use windows::core::{HSTRING, PCWSTR};
+//         let url = PCWSTR::from(&HSTRING::from(url.as_str()));
+//         let controller = self.controller();
+//         unsafe {
+//             let web_view = controller.CoreWebView2().context(WindowsCoreWebView2Snafu)?;
+//             web_view.Navigate(url).context(WindowsWebView2NavigateSnafu)
+//         }
+//     }
+// }
