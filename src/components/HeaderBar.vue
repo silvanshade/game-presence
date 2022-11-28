@@ -3,23 +3,7 @@
     dense
     class="bg-grey text-white"
   >
-    <q-btn
-      :icon="symOutlinedSettingsAccountBox"
-      dense
-      push
-      class="q-mr-sm"
-    >
-      <q-tooltip style="white-space: nowrap">add / remove profile</q-tooltip>
-    </q-btn>
-    <q-btn
-      :icon="matSwitchAccount"
-      dense
-      push
-      class="q-mr-sm"
-    >
-      <q-tooltip style="white-space: nowrap"> select profile </q-tooltip>
-    </q-btn>
-    <q-toolbar-title style="font-size: 16px">no profile selected</q-toolbar-title>
+    <q-toolbar-title style="font-size: 16px">Status: </q-toolbar-title>
     <q-space />
     <q-btn-toggle
       v-model="toggleShowHideGameModel"
@@ -57,14 +41,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import {
-  matHideImage,
-  matImage,
-  matSwitchAccount,
-  matVisibility,
-  matVisibilityOff,
-} from "@quasar/extras/material-icons";
-import { symOutlinedSettingsAccountBox } from "@quasar/extras/material-symbols-outlined";
+import { matHideImage, matImage, matVisibility, matVisibilityOff } from "@quasar/extras/material-icons";
 
 export default defineComponent({
   name: "HeaderBar",
@@ -84,10 +61,8 @@ export default defineComponent({
     return {
       matHideImage,
       matImage,
-      matSwitchAccount,
       matVisibility,
       matVisibilityOff,
-      symOutlinedSettingsAccountBox,
       toggleShowHideGameModel,
       toggleShowHideGameOptions,
       toggleShowHideAllModel,
