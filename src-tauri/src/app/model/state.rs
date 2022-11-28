@@ -9,7 +9,9 @@ pub enum Error {
 
 #[derive(Debug)]
 pub struct State {
-    pub profiles: Vec<Profile>,
+    pub services: Services,
+    pub activity: Activity,
+    pub games: Games,
 }
 
 impl State {
@@ -30,29 +32,9 @@ impl TryFrom<crate::app::data::Config> for State {
     type Error = Error;
 
     fn try_from(config: crate::app::data::Config) -> Result<Self, Error> {
-        let profiles = config
-            .profiles
-            .into_iter()
-            .map(TryInto::try_into)
-            .collect::<Result<_, _>>()?;
-        Ok(Self { profiles })
-    }
-}
-
-#[derive(Debug)]
-pub struct Profile {
-    pub services: Services,
-    pub activity: Activity,
-    pub games: Games,
-}
-
-impl TryFrom<crate::app::data::config::Profile> for self::Profile {
-    type Error = Error;
-
-    fn try_from(profile: crate::app::data::config::Profile) -> Result<Self, Error> {
-        let services = profile.services.try_into()?;
-        let activity = profile.activity.try_into()?;
-        let games = profile.games.try_into()?;
+        let services = config.services.try_into()?;
+        let activity = config.activity.try_into()?;
+        let games = config.games.try_into()?;
         Ok(Self {
             services,
             activity,

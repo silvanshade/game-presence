@@ -17,7 +17,9 @@ pub enum Error {
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Config {
-    pub profiles: Vec<Profile>,
+    pub services: Services,
+    pub activity: Activity,
+    pub games: Games,
 }
 
 impl Config {
@@ -92,23 +94,9 @@ impl Config {
 
 impl From<crate::app::model::State> for Config {
     fn from(state: crate::app::model::State) -> Self {
-        let profiles = state.profiles.into_iter().map(Into::into).collect();
-        Self { profiles }
-    }
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Profile {
-    pub services: Services,
-    pub activity: Activity,
-    pub games: Games,
-}
-
-impl From<crate::app::model::state::Profile> for self::Profile {
-    fn from(profile: crate::app::model::state::Profile) -> Self {
-        let services = profile.services.into();
-        let activity = profile.activity.into();
-        let games = profile.games.into();
+        let services = state.services.into();
+        let activity = state.activity.into();
+        let games = state.games.into();
         Self {
             services,
             activity,
@@ -117,7 +105,7 @@ impl From<crate::app::model::state::Profile> for self::Profile {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Services {
     pub nintendo: Option<self::service::Nintendo>,
     pub playstation: Option<self::service::Playstation>,
@@ -196,7 +184,7 @@ pub mod service {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Activity {
     pub discord_display_presence: bool,
     pub twitch_assets_enabled: bool,
@@ -220,7 +208,7 @@ impl From<crate::app::model::state::Activity> for self::Activity {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Games {}
 
 impl From<crate::app::model::state::Games> for self::Games {
