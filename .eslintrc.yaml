@@ -1,6 +1,6 @@
 root: true
 overrides:
-  - files: ["postcss.config.js", "quasar.config.js"]
+  - files: ["postcss.config.js", "quasar.config.js", "scripts/**/*.js"]
     env:
       es2022: true
       node: true
