@@ -77,16 +77,7 @@ export default defineComponent({
       config.activity.discordDisplayPresence = value;
     };
 
-    // eslint-disable-next-line @typescript-eslint/require-await
     const activityTwitchAssetsEnabledToggle: (value: boolean, event: Event) => Promise<void> = async (value, event) => {
-      void event;
-      config.activity.twitchAssetsEnabled = value;
-    };
-
-    const activityGamesRequireWhitelistingToggle: (enable: boolean, event: Event) => Promise<void> = async (
-      value,
-      event,
-    ) => {
       void event;
       if (value) {
         try {
@@ -98,6 +89,15 @@ export default defineComponent({
           config.activity.twitchAssetsEnabled = value;
         }
       }
+    };
+
+    const activityGamesRequireWhitelistingToggle: (enable: boolean, event: Event) => Promise<void> = async (
+      value,
+      event,
+      // eslint-disable-next-line @typescript-eslint/require-await
+    ) => {
+      void event;
+      config.activity.gamesRequireWhitelisting = value;
     };
 
     ctx.expose([]);

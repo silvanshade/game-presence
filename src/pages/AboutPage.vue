@@ -4,7 +4,10 @@
       <div class="text-h3">game presence</div>
       <div class="text-h6">An app for reporting game status as Discord presence</div>
     </div>
+    <div v-if="fetching">« loading »</div>
+    <div v-else-if="error">« error: {{ error }} »</div>
     <div
+      v-else-if="data"
       class="row"
       style="gap: 0rem 1rem; font-family: monospace"
     >
@@ -17,18 +20,20 @@
       </div>
       <div>
         <div>
-          {{ buildInfo.pkgVersion }}::{{ buildInfo.profile }}::{{ buildInfo.gitCommitHash }}::{{ buildInfo.gitDirty }}
+          {{ data.buildInfo.pkgVersion }}::{{ data.buildInfo.profile }}::{{ data.buildInfo.gitCommitHash }}::{{
+            data.buildInfo.gitDirty
+          }}
         </div>
-        <div>{{ buildInfo.target }}::{{ buildInfo.cfgOs }}</div>
-        <div>{{ buildInfo.builtTimeUtc }}</div>
-        <div>{{ buildInfo.pkgLicense }}</div>
+        <div>{{ data.buildInfo.target }}::{{ data.buildInfo.cfgOs }}</div>
+        <div>{{ data.buildInfo.builtTimeUtc }}</div>
+        <div>{{ data.buildInfo.pkgLicense }}</div>
         <div>
           <a
             href="#"
             target="_blank"
             rel="noopener noreferrer"
             @click="openHomePage"
-            >{{ buildInfo.pkgHomepage }}</a
+            >{{ data.buildInfo.pkgHomepage }}</a
           >
         </div>
       </div>
@@ -39,6 +44,8 @@
 <script lang="ts">
 import * as vue from "vue";
 import * as api from "@tauri-apps/api";
+import * as urql from "@urql/vue";
+import { gql } from "@urql/vue";
 
 interface BuildInfo {
   builtTimeUtc: string;
@@ -56,21 +63,43 @@ interface BuildInfo {
 export default vue.defineComponent({
   name: "AboutPage",
   components: {},
-  async setup(_props, ctx) {
-    const buildInfo = await api.tauri.invoke<BuildInfo>("build_info");
+  setup(_props, ctx) {
+    const about = urql.useQuery<{ buildInfo: BuildInfo }>({
+      query: gql`
+        query {
+          buildInfo {
+            builtTimeUtc
+            cfgOs
+            gitCommitHash
+            gitDirty
+            pkgHomepage
+            pkgLicense
+            pkgVersion
+            profile
+            target
+          }
+        }
+      `,
+    });
 
     const openHomePage: () => Promise<void> = async () => {
-      await api.shell.open(buildInfo.pkgHomepage);
+      if (about.data.value != null) {
+        await api.shell.open(about.data.value.buildInfo.pkgHomepage);
+      }
     };
 
     const openIssueTracker: () => Promise<void> = async () => {
-      await api.shell.open(buildInfo.pkgHomepage);
+      if (about.data.value != null) {
+        await api.shell.open(about.data.value.buildInfo.pkgHomepage);
+      }
     };
 
     ctx.expose([]);
 
     return {
-      buildInfo,
+      data: about.data,
+      error: about.error,
+      fetching: about.fetching,
       openHomePage,
       openIssueTracker,
     };

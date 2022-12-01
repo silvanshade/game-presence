@@ -9,6 +9,7 @@ pub enum Error {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Config {
     pub services: Services,
     pub activity: Activity,
@@ -45,6 +46,7 @@ impl TryFrom<crate::app::data::Config> for Config {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Services {
     pub nintendo: Option<self::service::Nintendo>,
     pub playstation: Option<self::service::Playstation>,
@@ -73,6 +75,7 @@ pub mod service {
     use serde::{Deserialize, Serialize};
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
         pub enabled: bool,
     }
@@ -87,6 +90,7 @@ pub mod service {
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
     }
@@ -101,10 +105,10 @@ pub mod service {
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
-        pub id: String,
-        pub key: String,
+        pub data: Option<SteamData>,
     }
 
     impl TryFrom<crate::app::data::config::service::Steam> for self::Steam {
@@ -112,13 +116,30 @@ pub mod service {
 
         fn try_from(steam: crate::app::data::config::service::Steam) -> Result<Self, Self::Error> {
             let enabled = steam.enabled;
-            let id = steam.id;
-            let key = steam.key;
-            Ok(Self { enabled, id, key })
+            let data = steam.data.map(TryInto::try_into).transpose()?;
+            Ok(Self { enabled, data })
         }
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct SteamData {
+        pub id: String,
+        pub key: String,
+    }
+
+    impl TryFrom<crate::app::data::config::service::SteamData> for self::SteamData {
+        type Error = super::Error;
+
+        fn try_from(data: crate::app::data::config::service::SteamData) -> Result<Self, Self::Error> {
+            let id = data.id;
+            let key = data.key;
+            Ok(Self { id, key })
+        }
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
     }
@@ -134,6 +155,7 @@ pub mod service {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Activity {
     pub discord_display_presence: bool,
     pub twitch_assets_enabled: bool,
@@ -159,6 +181,7 @@ impl TryFrom<crate::app::data::config::Activity> for self::Activity {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Games {}
 
 impl TryFrom<crate::app::data::config::Games> for self::Games {

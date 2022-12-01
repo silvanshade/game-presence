@@ -4,8 +4,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { invokeExchange, forwardSubscription } from "@silvanshade/tauri-plugin-graphql-urql";
+// import { invokeExchange, forwardSubscription } from "@silvanshade/tauri-plugin-graphql-urql";
 import * as urql from "@urql/vue";
+import { gql } from "@urql/vue";
 
 import * as stores from "./stores";
 
@@ -15,16 +16,16 @@ export default defineComponent({
   name: "App",
   components: { MainLayout },
   setup(_props, ctx) {
-    const client = urql.createClient({
-      url: "graphql",
-      exchanges: [invokeExchange, urql.subscriptionExchange({ forwardSubscription })],
-    });
-    urql.provideClient(client);
+    const configMutation = urql.useMutation(gql`
+      mutation ($config: JSON) {
+        state(config: $config)
+      }
+    `);
 
-    const config = stores.config.useStore();
-
-    config.$subscribe((mutation, state) => {
-      console.log(JSON.stringify({ mutation, state }, null, 2));
+    stores.config.useStore().$subscribe((mutation, state) => {
+      void mutation;
+      const variables = { config: state };
+      configMutation.executeMutation(variables).catch(console.error);
     });
 
     ctx.expose([]);

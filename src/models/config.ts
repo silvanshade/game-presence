@@ -60,8 +60,7 @@ export namespace service {
 
   export interface Steam {
     enabled: boolean;
-    id?: string;
-    key?: string;
+    data?: SteamData;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -70,6 +69,11 @@ export namespace service {
       const enabled = false;
       return { enabled };
     };
+  }
+
+  export interface SteamData {
+    id: string;
+    key: string;
   }
 
   export interface Xbox {

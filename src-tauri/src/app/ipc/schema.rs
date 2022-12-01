@@ -21,16 +21,13 @@ pub struct Mutation;
 
 #[Object]
 impl Mutation {
-    async fn state<'ctx>(
-        &self,
-        ctx: &Context<'ctx>,
-        config: serde_json::Value,
-    ) -> async_graphql::Result<serde_json::Value> {
+    async fn state<'ctx>(&self, ctx: &Context<'ctx>, config: serde_json::Value) -> async_graphql::Result<bool> {
         let config = serde_json::from_value(config)?;
+        println!("{:#?}", config);
         let state = ctx.data::<crate::app::model::State>()?;
         let channels = state.config.write().await;
         channels.tx.send(config)?;
-        Ok(serde_json::Value::Null)
+        Ok(true)
     }
 }
 

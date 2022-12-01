@@ -16,6 +16,7 @@ pub enum Error {
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Config {
     pub services: Services,
     pub activity: Activity,
@@ -106,6 +107,7 @@ impl From<crate::app::model::Config> for Config {
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Services {
     pub nintendo: Option<self::service::Nintendo>,
     pub playstation: Option<self::service::Playstation>,
@@ -132,6 +134,7 @@ pub mod service {
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
         pub enabled: bool,
     }
@@ -144,6 +147,7 @@ pub mod service {
     }
 
     #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
     }
@@ -156,22 +160,37 @@ pub mod service {
     }
 
     #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
-        pub id: String,
-        pub key: String,
+        pub data: Option<SteamData>,
     }
 
     impl From<crate::app::model::config::service::Steam> for self::Steam {
         fn from(steam: crate::app::model::config::service::Steam) -> Self {
             let enabled = steam.enabled;
-            let id = steam.id;
-            let key = steam.key;
-            Self { enabled, id, key }
+            let data = steam.data.map(Into::into);
+            Self { enabled, data }
         }
     }
 
     #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct SteamData {
+        pub id: String,
+        pub key: String,
+    }
+
+    impl From<crate::app::model::config::service::SteamData> for self::SteamData {
+        fn from(data: crate::app::model::config::service::SteamData) -> Self {
+            let id = data.id;
+            let key = data.key;
+            Self { id, key }
+        }
+    }
+
+    #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
     }
@@ -185,6 +204,7 @@ pub mod service {
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Activity {
     pub discord_display_presence: bool,
     pub twitch_assets_enabled: bool,
@@ -209,6 +229,7 @@ impl From<crate::app::model::config::Activity> for self::Activity {
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Games {}
 
 impl From<crate::app::model::config::Games> for self::Games {
