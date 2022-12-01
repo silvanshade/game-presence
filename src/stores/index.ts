@@ -30,3 +30,5 @@ export default store((/* { ssrContext } */) => {
 
   return pinia;
 });
+
+export * as config from "./config";

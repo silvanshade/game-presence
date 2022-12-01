@@ -11,10 +11,11 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="activityDiscordPresenceEnabled"
+            v-model="config.activity.discordDisplayPresence"
             color="brand-discord"
             size="xl"
             :icon="mdiDiscord"
+            @update:model-value="activityDiscordPresenceToggle"
           />
         </q-item-section>
       </q-item>
@@ -28,11 +29,11 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="activityTwitchIntegrationEnabled"
+            v-model="config.activity.twitchAssetsEnabled"
             color="brand-twitch"
             size="xl"
             :icon="mdiTwitch"
-            @update:model-value="activityTwitchIntegrationToggle"
+            @update:model-value="activityTwitchAssetsEnabledToggle"
           />
         </q-item-section>
       </q-item>
@@ -46,8 +47,9 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="activityRequireGameWhitelisted"
+            v-model="config.activity.gamesRequireWhitelisting"
             size="xl"
+            @update:model-value="activityGamesRequireWhitelistingToggle"
           />
         </q-item-section>
       </q-item>
@@ -56,28 +58,57 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import { mdiDiscord } from "@quasar/extras/mdi-v6";
 import { mdiTwitch } from "@quasar/extras/mdi-v7";
 import * as api from "@tauri-apps/api";
+
+import * as stores from "../stores";
 
 export default defineComponent({
   name: "SettingsPageActivity",
   components: {},
   setup(_props, ctx) {
-    const activityTwitchIntegrationToggle: (value: boolean, event: Event) => Promise<void> = async (value, event) => {
-      console.log(JSON.stringify({ value, event }, null, 2));
-      await api.tauri.invoke("api_twitch_authorization_flow");
+    const config = stores.config.useStore();
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    const activityDiscordPresenceToggle: (value: boolean, event: Event) => Promise<void> = async (value, event) => {
+      void event;
+      config.activity.discordDisplayPresence = value;
+    };
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    const activityTwitchAssetsEnabledToggle: (value: boolean, event: Event) => Promise<void> = async (value, event) => {
+      void event;
+      config.activity.twitchAssetsEnabled = value;
+    };
+
+    const activityGamesRequireWhitelistingToggle: (enable: boolean, event: Event) => Promise<void> = async (
+      value,
+      event,
+    ) => {
+      void event;
+      if (value) {
+        try {
+          await api.tauri.invoke("api_twitch_authorization_flow");
+        } catch (err) {
+          console.error(err);
+          value = false;
+        } finally {
+          config.activity.twitchAssetsEnabled = value;
+        }
+      }
     };
 
     ctx.expose([]);
+
     return {
-      activityDiscordPresenceEnabled: ref(false),
-      activityTwitchIntegrationEnabled: ref(false),
-      activityTwitchIntegrationToggle,
-      activityRequireGameWhitelisted: ref(false),
+      activityDiscordPresenceToggle,
+      activityTwitchAssetsEnabledToggle,
+      activityGamesRequireWhitelistingToggle,
       mdiDiscord,
       mdiTwitch,
+      config,
     };
   },
 });

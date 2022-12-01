@@ -62,14 +62,14 @@ impl Config {
             .context(StdFsOpenOptionsSnafu)?;
         let mut json = String::new();
         file.read_to_string(&mut json).context(StdFsReadToStringSnafu)?;
-        let value = serde_json::from_str::<serde_json::Value>(&json).context(SerdeJsonFromStrSnafu);
+        let value = serde_json::from_str::<Self>(&json);
         let config = match value {
             Err(_) => {
                 let config = Self::default();
                 config.write()?;
                 config
             },
-            Ok(value) => serde_json::from_value::<Config>(value).context(SerdeJsonFromValueSnafu)?,
+            Ok(config) => config,
         };
         Ok(config)
     }
@@ -92,8 +92,8 @@ impl Config {
     }
 }
 
-impl From<crate::app::model::State> for Config {
-    fn from(state: crate::app::model::State) -> Self {
+impl From<crate::app::model::Config> for Config {
+    fn from(state: crate::app::model::Config) -> Self {
         let services = state.services.into();
         let activity = state.activity.into();
         let games = state.games.into();
@@ -113,8 +113,8 @@ pub struct Services {
     pub xbox: Option<self::service::Xbox>,
 }
 
-impl From<crate::app::model::state::Services> for self::Services {
-    fn from(services: crate::app::model::state::Services) -> Self {
+impl From<crate::app::model::config::Services> for self::Services {
+    fn from(services: crate::app::model::config::Services) -> Self {
         let nintendo = services.nintendo.map(Into::into);
         let playstation = services.playstation.map(Into::into);
         let steam = services.steam.map(Into::into);
@@ -136,8 +136,8 @@ pub mod service {
         pub enabled: bool,
     }
 
-    impl From<crate::app::model::state::service::Nintendo> for self::Nintendo {
-        fn from(nintendo: crate::app::model::state::service::Nintendo) -> Self {
+    impl From<crate::app::model::config::service::Nintendo> for self::Nintendo {
+        fn from(nintendo: crate::app::model::config::service::Nintendo) -> Self {
             let enabled = nintendo.enabled;
             Self { enabled }
         }
@@ -148,8 +148,8 @@ pub mod service {
         pub enabled: bool,
     }
 
-    impl From<crate::app::model::state::service::Playstation> for self::Playstation {
-        fn from(playstation: crate::app::model::state::service::Playstation) -> Self {
+    impl From<crate::app::model::config::service::Playstation> for self::Playstation {
+        fn from(playstation: crate::app::model::config::service::Playstation) -> Self {
             let enabled = playstation.enabled;
             Self { enabled }
         }
@@ -162,8 +162,8 @@ pub mod service {
         pub key: String,
     }
 
-    impl From<crate::app::model::state::service::Steam> for self::Steam {
-        fn from(steam: crate::app::model::state::service::Steam) -> Self {
+    impl From<crate::app::model::config::service::Steam> for self::Steam {
+        fn from(steam: crate::app::model::config::service::Steam) -> Self {
             let enabled = steam.enabled;
             let id = steam.id;
             let key = steam.key;
@@ -176,8 +176,8 @@ pub mod service {
         pub enabled: bool,
     }
 
-    impl From<crate::app::model::state::service::Xbox> for self::Xbox {
-        fn from(xbox: crate::app::model::state::service::Xbox) -> Self {
+    impl From<crate::app::model::config::service::Xbox> for self::Xbox {
+        fn from(xbox: crate::app::model::config::service::Xbox) -> Self {
             let enabled = xbox.enabled;
             Self { enabled }
         }
@@ -193,8 +193,8 @@ pub struct Activity {
     pub games_require_whitelisting: bool,
 }
 
-impl From<crate::app::model::state::Activity> for self::Activity {
-    fn from(activity: crate::app::model::state::Activity) -> Self {
+impl From<crate::app::model::config::Activity> for self::Activity {
+    fn from(activity: crate::app::model::config::Activity) -> Self {
         let discord_display_presence = activity.discord_display_presence;
         let twitch_assets_enabled = activity.twitch_assets_enabled;
         let twitch_access_token = activity.twitch_access_token;
@@ -211,8 +211,8 @@ impl From<crate::app::model::state::Activity> for self::Activity {
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Games {}
 
-impl From<crate::app::model::state::Games> for self::Games {
-    fn from(_games: crate::app::model::state::Games) -> Self {
+impl From<crate::app::model::config::Games> for self::Games {
+    fn from(_games: crate::app::model::config::Games) -> Self {
         Self {}
     }
 }

@@ -1,3 +1,4 @@
+use async_graphql::*;
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 
@@ -11,7 +12,7 @@ pub mod metadata {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }
 
-#[derive(Debug, Deserialize, Serialize, async_graphql::SimpleObject)]
+#[derive(Debug, Deserialize, Serialize, SimpleObject)]
 #[serde(rename_all = "camelCase")]
 pub struct BuildInfo {
     pub built_time_utc: &'static str,

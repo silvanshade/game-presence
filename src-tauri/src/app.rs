@@ -3,6 +3,7 @@ use snafu::prelude::*;
 pub mod command;
 pub mod data;
 mod handler;
+pub mod ipc;
 pub mod model;
 mod tray;
 
@@ -45,15 +46,18 @@ pub(crate) fn init() -> Result<(), Error> {
     // handle system tray events
     let builder = builder.on_system_tray_event(handler::system_tray());
 
-    // configure the app state
-    let builder = {
-        let state = crate::app::model::State::load().context(StateInitSnafu)?;
-        builder.manage(state)
-    };
+    // initialize the state structure
+    let state = crate::app::model::State::init().context(StateInitSnafu)?;
 
-    let builder = builder.on_page_load(|window, payload| {
-        println!("on_page_load: {}@{}", window.label(), payload.url());
-    });
+    // configure the app state
+    let builder = builder.manage(state.clone());
+
+    // configure tauri plugins
+    let builder = {
+        let schema = crate::app::ipc::schema(state);
+        let plugin = tauri_plugin_graphql_ipc::init(schema);
+        builder.plugin(plugin)
+    };
 
     // build the tauri app
     let app = builder.build(context).context(TauriBuildSnafu)?;
