@@ -52,6 +52,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } from "@quasar/extras/mdi-v7";
+
 import SettingsPageServicesNintendo from "./SettingsPageServicesNintendo.vue";
 import SettingsPageServicesPlaystation from "./SettingsPageServicesPlaystation.vue";
 import SettingsPageServicesSteam from "./SettingsPageServicesSteam.vue";

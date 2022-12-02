@@ -21,12 +21,11 @@ pub struct Mutation;
 
 #[Object]
 impl Mutation {
-    async fn state<'ctx>(&self, ctx: &Context<'ctx>, config: serde_json::Value) -> async_graphql::Result<bool> {
-        let config = serde_json::from_value(config)?;
-        println!("{:#?}", config);
+    async fn state<'ctx>(&self, ctx: &Context<'ctx>, data: serde_json::Value) -> async_graphql::Result<bool> {
+        let data = serde_json::from_value(data)?;
+        let config = crate::app::ipc::Payload::from_frontend(data);
         let state = ctx.data::<crate::app::model::State>()?;
-        let channels = state.config.write().await;
-        channels.tx.send(config)?;
+        state.config.tx.lock().await.send(config)?;
         Ok(true)
     }
 }
@@ -43,10 +42,12 @@ impl Subscription {
         let state = ctx.data::<crate::app::model::State>()?;
         let stream = async_stream::try_stream! {
             loop {
-                let mut channels = state.config.write().await;
-                channels.rx.changed().await?;
-                let config = channels.rx.borrow().clone();
-                yield serde_json::to_value(config)?;
+                let mut rx = state.config.rx.write().await;
+                rx.changed().await?;
+                if rx.borrow().is_from_backend() {
+                    let data = rx.borrow().data.clone();
+                    yield serde_json::to_value(data)?;
+                }
             }
         };
         Ok(stream)

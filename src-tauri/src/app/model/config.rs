@@ -1,5 +1,11 @@
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
+use std::sync::Arc;
+use tokio::sync::{
+    watch::{Receiver, Sender},
+    Mutex,
+    RwLock,
+};
 
 #[derive(Debug, Snafu)]
 pub enum Error {
@@ -192,15 +198,20 @@ impl TryFrom<crate::app::data::config::Games> for self::Games {
     }
 }
 
+#[derive(Clone)]
 pub struct Channels {
-    pub tx: tokio::sync::watch::Sender<Config>,
-    pub rx: tokio::sync::watch::Receiver<Config>,
+    pub tx: Arc<Mutex<Sender<crate::app::ipc::Payload<Config>>>>,
+    pub rx: Arc<RwLock<Receiver<crate::app::ipc::Payload<Config>>>>,
 }
 
 impl Channels {
     pub fn init() -> Result<Self, Error> {
-        let init = Config::load()?;
+        let init = {
+            let data = Config::load()?;
+            crate::app::ipc::Payload::from_backend(data)
+        };
         let (tx, rx) = tokio::sync::watch::channel(init);
+        let (tx, rx) = (Arc::new(Mutex::new(tx)), Arc::new(RwLock::new(rx)));
         Ok(Self { tx, rx })
     }
 }

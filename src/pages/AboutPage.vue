@@ -4,8 +4,18 @@
       <div class="text-h3">game presence</div>
       <div class="text-h6">An app for reporting game status as Discord presence</div>
     </div>
-    <div v-if="fetching">« loading »</div>
-    <div v-else-if="error">« error: {{ error }} »</div>
+    <div
+      v-if="fetching"
+      class="text-warning"
+    >
+      « loading »
+    </div>
+    <div
+      v-else-if="error"
+      class="text-negative"
+    >
+      « error: {{ error }} »
+    </div>
     <div
       v-else-if="data"
       class="row"
