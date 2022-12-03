@@ -12,21 +12,6 @@ pub enum Error {
     TauriWindowClose { source: tauri::Error },
     TauriWithWebview { source: tauri::Error },
     TokioMpscReceive,
-    // TokioMpscSend {
-    //     source: tokio::sync::mpsc::error::SendError<()>,
-    // },
-    // TokioOneShotReceive {
-    //     source: tokio::sync::oneshot::error::RecvError,
-    // },
-    // TwitchAuthorizationFailedWithInvalidQuery {
-    //     query: std::collections::HashMap<String, String>,
-    // },
-    // TwitchAuthorizationFailedWithInvalidState {
-    //     state: String,
-    // },
-    // TwitchAuthorizationFailedWithMissingQuery {
-    //     url: String,
-    // },
     UrlParse { source: url::ParseError },
     UrlQuery,
 }
@@ -96,13 +81,11 @@ async fn request_authorize(app: &tauri::AppHandle<tauri::Wry>) -> Result<Respons
     let redirect = url::Url::parse(&response).context(UrlParseSnafu)?;
     let query = redirect.query().context(UrlQuerySnafu)?;
     let response_authorize = serde_urlencoded::from_str::<ResponseAuthorize>(query).context(SerdeUrlEncodedSnafu)?;
-    println!("{:#?}", response_authorize);
     Ok(response_authorize)
 }
 
 async fn request_token(response_authorize: ResponseAuthorize) -> Result<ResponseToken, Error> {
     let client = reqwest::Client::new();
-    println!("requesting token");
     let request = client
         .post(ENDPOINT_TOKEN)
         .header("Authorization", format!("Basic {}", CLIENT_AUTHORIZATION))
@@ -126,14 +109,11 @@ async fn request_token(response_authorize: ResponseAuthorize) -> Result<Response
             .into_iter()
             .collect::<std::collections::HashMap<&str, &str>>(),
         );
-    println!("request: {:#?}", request);
     let response = request.send().await.context(ReqwestRequestSendSnafu)?;
-    println!("response: {:#?}", response);
     let response_token = response
         .json::<ResponseToken>()
         .await
         .context(ReqwestRequestJsonSnafu)?;
-    println!("{:#?}", response_token);
     Ok(response_token)
 }
 

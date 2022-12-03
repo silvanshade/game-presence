@@ -86,7 +86,7 @@ impl Config {
             .truncate(true)
             .open(path)
             .context(StdFsOpenOptionsSnafu)?;
-        let json = serde_json::to_vec(self).context(SerdeJsonToVecSnafu)?;
+        let json = serde_json::to_vec_pretty(self).context(SerdeJsonToVecSnafu)?;
         file.write_all(&json).context(StdIoWriteAllSnafu)?;
         file.sync_all().context(StdFsSyncAllSnafu)?;
         Ok(())

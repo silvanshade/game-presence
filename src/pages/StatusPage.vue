@@ -1,10 +1,10 @@
 <template>
   <div
-    class="fit flex-center row bg-blue"
+    class="fit flex-center row"
     style="gap: 0rem 1rem"
   >
     <div
-      class="relative-position bg-red"
+      class="relative-position"
       style="height: 352px; width: 264px"
     >
       <div
