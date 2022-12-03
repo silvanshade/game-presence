@@ -109,9 +109,13 @@ impl From<crate::app::model::Config> for Config {
 #[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Services {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub nintendo: Option<self::service::Nintendo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub playstation: Option<self::service::Playstation>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub steam: Option<self::service::Steam>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub xbox: Option<self::service::Xbox>,
 }
 
