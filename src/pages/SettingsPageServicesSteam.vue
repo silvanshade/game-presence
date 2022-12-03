@@ -38,9 +38,8 @@
       <q-item
         v-ripple
         tag="label"
-        class="no-padding q-mr-md justify-end"
+        class="no-padding q-mr-md justify-end no-pointer-events"
       >
-        <q-tooltip>Automatically set after login</q-tooltip>
         <q-input
           v-model="servicesSteamId"
           filled
@@ -56,6 +55,14 @@
               unelevated
               disable
             />
+          </template>
+          <template #append>
+            <q-icon
+              :name="matInfo"
+              class="all-pointer-events cursor-pointer"
+            >
+              <q-tooltip>Automatically set after login</q-tooltip>
+            </q-icon>
           </template>
           <template #after>
             <q-btn
@@ -87,6 +94,14 @@
               disable
             />
           </template>
+          <template #append>
+            <q-icon
+              :name="matContentPasteSearch"
+              class="cursor-pointer"
+            >
+              <q-tooltip>Click to open API key page</q-tooltip>
+            </q-icon>
+          </template>
           <template #after>
             <q-btn
               :icon="matSaveAs"
@@ -101,7 +116,14 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { matBadge, matCloudSync, matSaveAs, matVpnKey } from "@quasar/extras/material-icons";
+import {
+  matBadge,
+  matCloudSync,
+  matContentPasteSearch,
+  matInfo,
+  matSaveAs,
+  matVpnKey,
+} from "@quasar/extras/material-icons";
 import { mdiSteam } from "@quasar/extras/mdi-v7";
 
 export default defineComponent({
@@ -112,6 +134,8 @@ export default defineComponent({
     return {
       matBadge,
       matCloudSync,
+      matContentPasteSearch,
+      matInfo,
       matSaveAs,
       matVpnKey,
       mdiSteam,
