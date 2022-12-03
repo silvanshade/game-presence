@@ -1,1 +1,2 @@
+- Switch using channels only for updating subscription (use app handle otherwise)
 - Fix blurry icon on windows
