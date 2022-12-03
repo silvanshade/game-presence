@@ -21,16 +21,28 @@
           />
         </q-item-section>
       </q-item>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Manually reauthorize account</q-item-label>
+          <q-item-label caption>Use this to change user account</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-btn label="reauthorize" />
+        </q-item-section>
+      </q-item>
       <q-separator />
       <q-item
         v-ripple
         tag="label"
         class="no-padding q-mr-md justify-end"
       >
+        <q-tooltip>Automatically set after login</q-tooltip>
         <q-input
           v-model="servicesSteamId"
           filled
           dense
+          class="no-pointer-events non-selectable"
+          disable
         >
           <template #before>
             <q-btn
@@ -38,10 +50,52 @@
               :icon-right="matBadge"
               class="no-pointer-events non-selectable"
               unelevated
+              disable
+            />
+          </template>
+          <template #after>
+            <q-btn
+              :icon="matCloudSync"
+              class="no-pointer-events non-selectable"
+              unelevated
+              disable
             />
           </template>
         </q-input>
       </q-item>
+      <q-item
+        v-ripple
+        tag="label"
+        class="no-padding q-mr-md justify-end"
+      >
+        <q-tooltip>Automatically set after login</q-tooltip>
+        <q-input
+          v-model="servicesSteamId"
+          filled
+          dense
+          class="no-pointer-events non-selectable"
+          disable
+        >
+          <template #before>
+            <q-btn
+              label="steam id"
+              :icon-right="matPin"
+              class="no-pointer-events non-selectable"
+              unelevated
+              disable
+            />
+          </template>
+          <template #after>
+            <q-btn
+              :icon="matCloudSync"
+              class="no-pointer-events non-selectable"
+              unelevated
+              disable
+            />
+          </template>
+        </q-input>
+      </q-item>
+
       <q-item
         v-ripple
         tag="label"
@@ -58,21 +112,13 @@
               :icon-right="matVpnKey"
               class="no-pointer-events non-selectable"
               unelevated
+              disable
             />
           </template>
+          <template #after>
+            <q-btn :icon="matSaveAs" />
+          </template>
         </q-input>
-      </q-item>
-      <q-item>
-        <q-item-section>
-          <q-item-label>Manually reauthorize account</q-item-label>
-          <q-item-label caption>Use this to change user account</q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
-          <q-btn
-            label="reauthorize"
-            :icon-right="matLockReset"
-          />
-        </q-item-section>
       </q-item>
     </q-list>
   </div>
@@ -80,7 +126,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { matBadge, matLockReset, matVpnKey } from "@quasar/extras/material-icons";
+import { matBadge, matCloudSync, matPin, matSaveAs, matVpnKey } from "@quasar/extras/material-icons";
 import { mdiSteam } from "@quasar/extras/mdi-v7";
 
 export default defineComponent({
@@ -88,7 +134,16 @@ export default defineComponent({
   components: {},
   setup(_props, ctx) {
     ctx.expose([]);
-    return { matBadge, matLockReset, matVpnKey, mdiSteam, servicesSteamEnabled: ref(false), servicesSteamId: ref("") };
+    return {
+      matBadge,
+      matCloudSync,
+      matPin,
+      matSaveAs,
+      matVpnKey,
+      mdiSteam,
+      servicesSteamEnabled: ref(false),
+      servicesSteamId: ref(""),
+    };
   },
 });
 </script>
