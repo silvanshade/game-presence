@@ -40,7 +40,9 @@
       <q-item
         v-ripple
         tag="label"
+        disable
       >
+        <q-tooltip>Not yet implemented</q-tooltip>
         <q-item-section>
           <q-item-label>Require each game to be whitelisted for displaying status</q-item-label>
           <q-item-label caption>Games will not be shown unless individually whitelisted</q-item-label>
@@ -49,6 +51,7 @@
           <q-toggle
             v-model="config.activity.gamesRequireWhitelisting"
             size="xl"
+            :icon="matFactCheck"
             @update:model-value="activityGamesRequireWhitelistingToggle"
           />
         </q-item-section>
@@ -59,6 +62,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { matFactCheck } from "@quasar/extras/material-icons";
 import { mdiDiscord } from "@quasar/extras/mdi-v6";
 import { mdiTwitch } from "@quasar/extras/mdi-v7";
 import * as api from "@tauri-apps/api";
@@ -106,6 +110,7 @@ export default defineComponent({
       activityDiscordPresenceToggle,
       activityTwitchAssetsEnabledToggle,
       activityGamesRequireWhitelistingToggle,
+      matFactCheck,
       mdiDiscord,
       mdiTwitch,
       config,
