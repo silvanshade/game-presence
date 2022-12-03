@@ -2,8 +2,8 @@
   <div class="fit column no-wrap">
     <q-tabs
       v-model="tab"
-      dense
       inline-label
+      dense
       class="row"
     >
       <q-tab
@@ -25,6 +25,7 @@
         <q-tooltip>Not yet implemented</q-tooltip>
       </q-tab>
     </q-tabs>
+    <q-separator inset />
     <q-tab-panels
       v-model="tab"
       animated

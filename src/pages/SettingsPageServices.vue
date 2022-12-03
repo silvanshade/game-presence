@@ -40,6 +40,7 @@
         </div>
       </div>
     </q-tabs>
+    <q-separator vertical />
     <q-tab-panels
       v-model="tab"
       animated
