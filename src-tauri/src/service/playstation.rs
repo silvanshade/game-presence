@@ -32,14 +32,37 @@ struct ResponseToken {
 
 const CLIENT_AUTHORIZATION: &str = "YWM4ZDE2MWEtZDk2Ni00NzI4LWIwZWEtZmZlYzIyZjY5ZWRjOkRFaXhFcVhYQ2RYZHdqMHY=";
 
-const ENDPOINT_AUTHORIZE: &str = "https://ca.account.sony.com/api/authz/v3/oauth/authorize?response_type=code&app_context=inapp_ios&device_profile=mobile&extraQueryParams=%7B%0A%20%20%20%20PlatformPrivacyWs1%20%3D%20minimal%3B%0A%7D&token_format=jwt&access_type=offline&scope=psn%3Amobile.v1%20psn%3Aclientapp&service_entity=urn%3Aservice-entity%3Apsn&ui=pr&smcid=psapp%253Asettings-entrance&darkmode=true&redirect_uri=com.playstation.PlayStationApp%3A%2F%2Fredirect&support_scheme=sneiprls&client_id=ac8d161a-d966-4728-b0ea-ffec22f69edc&duid=0000000d0004008088347AA0C79542D3B656EBB51CE3EBE1&device_base_font_size=10&elements_visibility=no_aclink&service_logo=ps";
+const ENDPOINT_AUTHORIZE: &str = "https://ca.account.sony.com/api/authz/v3/oauth/authorize";
 
 const ENDPOINT_TOKEN: &str = "https://ca.account.sony.com/api/authz/v3/oauth/token";
 
 const REDIRECT_URI: &str = "com.playstation.playstationapp://redirect";
 
 pub fn endpoint_authorize_url() -> Result<url::Url, Error> {
-    url::Url::parse(ENDPOINT_AUTHORIZE).context(UrlParseSnafu)
+    url::Url::parse_with_params(ENDPOINT_AUTHORIZE, &[
+        ("response_type", "code"),
+        ("app_context", "inapp_ios"),
+        ("device_profile", "mobile"),
+        (
+            "extraQueryParams",
+            "%7B%0A%20%20%20%20PlatformPrivacyWs1%20%3D%20minimal%3B%0A%7D",
+        ),
+        ("token_format", "jwt"),
+        ("access_type", "offline"),
+        ("scope", "psn%3Amobile.v1%20psn%3Aclientapp"),
+        ("service_entity", "urn%3Aservice-entity%3Apsn"),
+        ("ui", "pr"),
+        ("smcid", "psapp%253Asettings-entrance"),
+        ("darkmode", "true"),
+        ("redirect_uri", "com.playstation.PlayStationApp%3A%2F%2Fredirect"),
+        ("support_scheme", "sneiprls"),
+        ("client_id", "ac8d161a-d966-4728-b0ea-ffec22f69edc"),
+        ("duid", "0000000d0004008088347AA0C79542D3B656EBB51CE3EBE1"),
+        ("device_base_font_size", "10"),
+        ("elements_visibility", "no_aclink"),
+        ("service_logo", "ps"),
+    ])
+    .context(UrlParseSnafu)
 }
 
 async fn request_authorize(app: &tauri::AppHandle<tauri::Wry>) -> Result<ResponseAuthorize, Error> {
