@@ -10,6 +10,7 @@
       >
         <q-item-section>
           <q-item-label>Enable Steam integration</q-item-label>
+          <q-item-label caption>Enable reporting Steam activity as discord status</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
@@ -24,10 +25,13 @@
       <q-item>
         <q-item-section>
           <q-item-label>Manually reauthorize account</q-item-label>
-          <q-item-label caption>Use this to change user account</q-item-label>
+          <q-item-label caption>Manually reconnect or change associated account</q-item-label>
         </q-item-section>
         <q-item-section avatar>
-          <q-btn label="reauthorize" />
+          <q-btn
+            label="reauthorize"
+            push
+          />
         </q-item-section>
       </q-item>
       <q-separator />
@@ -57,45 +61,13 @@
             <q-btn
               :icon="matCloudSync"
               class="no-pointer-events non-selectable"
+              size="md"
               unelevated
               disable
             />
           </template>
         </q-input>
       </q-item>
-      <q-item
-        v-ripple
-        tag="label"
-        class="no-padding q-mr-md justify-end"
-      >
-        <q-tooltip>Automatically set after login</q-tooltip>
-        <q-input
-          v-model="servicesSteamId"
-          filled
-          dense
-          class="no-pointer-events non-selectable"
-          disable
-        >
-          <template #before>
-            <q-btn
-              label="steam id"
-              :icon-right="matPin"
-              class="no-pointer-events non-selectable"
-              unelevated
-              disable
-            />
-          </template>
-          <template #after>
-            <q-btn
-              :icon="matCloudSync"
-              class="no-pointer-events non-selectable"
-              unelevated
-              disable
-            />
-          </template>
-        </q-input>
-      </q-item>
-
       <q-item
         v-ripple
         tag="label"
@@ -116,7 +88,10 @@
             />
           </template>
           <template #after>
-            <q-btn :icon="matSaveAs" />
+            <q-btn
+              :icon="matSaveAs"
+              color="positive"
+            />
           </template>
         </q-input>
       </q-item>
@@ -126,7 +101,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { matBadge, matCloudSync, matPin, matSaveAs, matVpnKey } from "@quasar/extras/material-icons";
+import { matBadge, matCloudSync, matSaveAs, matVpnKey } from "@quasar/extras/material-icons";
 import { mdiSteam } from "@quasar/extras/mdi-v7";
 
 export default defineComponent({
@@ -137,7 +112,6 @@ export default defineComponent({
     return {
       matBadge,
       matCloudSync,
-      matPin,
       matSaveAs,
       matVpnKey,
       mdiSteam,
