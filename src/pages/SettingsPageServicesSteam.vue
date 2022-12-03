@@ -1,5 +1,5 @@
 <template>
-  <div class="fit flex-center column">
+  <div class="fit column flex-center">
     <q-list
       class="q-gutter-sm"
       dense

@@ -10,7 +10,7 @@
       :breakpoint="0"
       side="left"
       :width="100"
-      class="flex-center column"
+      class="column flex-center"
     >
       <SideBar />
     </q-drawer>

@@ -2,44 +2,49 @@
   <div class="row full-width">
     <q-tabs
       v-model="tab"
-      dense
-      inline-label
       vertical
+      inline-label
+      dense
       class="col-auto"
     >
-      <q-tab
-        name="nintendo"
-        label="nintendo"
-        :icon="mdiNintendoSwitch"
-        class="text-brand-nintendo"
-        style="justify-content: initial"
-      />
-      <q-tab
-        name="playstation"
-        label="playstation"
-        :icon="mdiSonyPlaystation"
-        class="text-brand-playstation"
-        style="justify-content: initial"
-      />
-      <q-tab
-        name="steam"
-        label="steam"
-        :icon="mdiSteam"
-        class="text-brand-steam"
-        style="justify-content: initial"
-      />
-      <q-tab
-        name="xbox"
-        label="xbox"
-        :icon="mdiMicrosoftXbox"
-        class="text-brand-xbox"
-        style="justify-content: initial"
-      />
+      <div class="column fit flex-center">
+        <div>
+          <q-tab
+            name="nintendo"
+            label="nintendo"
+            :icon="mdiNintendoSwitch"
+            class="text-brand-nintendo"
+            style="justify-content: initial"
+          />
+          <q-tab
+            name="playstation"
+            label="playstation"
+            :icon="mdiSonyPlaystation"
+            class="text-brand-playstation"
+            style="justify-content: initial"
+          />
+          <q-tab
+            name="steam"
+            label="steam"
+            :icon="mdiSteam"
+            class="text-brand-steam"
+            style="justify-content: initial"
+          />
+          <q-tab
+            name="xbox"
+            label="xbox"
+            :icon="mdiMicrosoftXbox"
+            class="text-brand-xbox"
+            style="justify-content: initial"
+          />
+        </div>
+      </div>
     </q-tabs>
     <q-tab-panels
       v-model="tab"
       animated
       class="col"
+      style="min-height: 226px"
     >
       <q-tab-panel name="nintendo"><SettingsPageServicesNintendo /></q-tab-panel>
       <q-tab-panel name="playstation"><SettingsPageServicesPlaystation /></q-tab-panel>

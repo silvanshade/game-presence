@@ -59,10 +59,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 510,
+        "height": 330,
         "resizable": false,
         "title": "game-presence",
-        "width": 700
+        "width": 800
       }
     ]
   }

@@ -25,8 +25,9 @@ pub fn run() -> impl FnMut(&tauri::AppHandle<tauri::Wry>, tauri::RunEvent) {
     use tauri::{RunEvent, WindowEvent};
     |app, run_event| match run_event {
         RunEvent::Ready => {
-            let app = app.clone();
-            tauri::async_runtime::spawn(async move { crate::service::nintendo::authorization_flow(&app).await });
+            // let app = app.clone();
+            // tauri::async_runtime::spawn(async move {
+            // crate::service::nintendo::authorization_flow(&app).await });
         },
         RunEvent::WindowEvent {
             label,
