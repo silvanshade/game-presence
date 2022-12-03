@@ -36,33 +36,27 @@ const ENDPOINT_AUTHORIZE: &str = "https://ca.account.sony.com/api/authz/v3/oauth
 
 const ENDPOINT_TOKEN: &str = "https://ca.account.sony.com/api/authz/v3/oauth/token";
 
-const REDIRECT_URI: &str = "com.playstation.playstationapp://redirect";
+const REDIRECT_URI: &str = "com.playstation.PlayStationApp://redirect";
 
 pub fn endpoint_authorize_url() -> Result<url::Url, Error> {
     url::Url::parse_with_params(ENDPOINT_AUTHORIZE, &[
-        ("response_type", "code"),
-        ("app_context", "inapp_ios"),
-        ("device_profile", "mobile"),
-        (
-            "extraQueryParams",
-            // "%7B%0A%20%20%20%20PlatformPrivacyWs1%20%3D%20minimal%3B%0A%7D",
-            "{ PlatformPrivacyWs1 = minimal }",
-        ),
-        ("token_format", "jwt"),
         ("access_type", "offline"),
-        ("scope", "psn:mobile.v1 psn:clientapp"),
-        ("service_entity", "urn:service-entity:psn"),
-        ("ui", "pr"),
-        // ("smcid", "psapp%3Asettings-entrance"),
-        ("smcid", "psapp:settings-entrance"),
+        ("app_context", "inapp_ios"),
         ("darkmode", "true"),
-        ("redirect_uri", "com.playstation.PlayStationApp://redirect"),
+        ("device_profile", "mobile"),
+        ("elements_visibility", "no_aclink"),
+        ("service_entity", "urn:service-entity:psn"),
+        ("service_logo", "ps"),
+        ("smcid", "psapp:settings-entrance"),
         ("support_scheme", "sneiprls"),
+        ("token_format", "jwt"),
+        ("ui", "pr"),
+        ("extraQueryParams", "{ PlatformPrivacyWs1 = minimal }"),
+        ("response_type", "code"),
+        ("scope", "psn:mobile.v1 psn:clientapp"),
         ("client_id", "ac8d161a-d966-4728-b0ea-ffec22f69edc"),
         ("duid", "0000000d0004008088347AA0C79542D3B656EBB51CE3EBE1"),
-        ("device_base_font_size", "10"),
-        ("elements_visibility", "no_aclink"),
-        ("service_logo", "ps"),
+        ("redirect_uri", REDIRECT_URI),
     ])
     .context(UrlParseSnafu)
 }
@@ -72,7 +66,7 @@ async fn request_authorize(app: &tauri::AppHandle<tauri::Wry>) -> Result<Respons
 
     let window = {
         let navigation_handler = move |url: String| {
-            if url.starts_with(REDIRECT_URI) {
+            if url.starts_with(&REDIRECT_URI.to_ascii_lowercase()) {
                 tx_response.blocking_send(url).unwrap();
                 return false;
             }
@@ -116,20 +110,20 @@ async fn request_token(response_authorize: ResponseAuthorize) -> Result<Response
         .header("Authorization", format!("Basic {}", CLIENT_AUTHORIZATION))
         .form(
             &[
-                ("smcid", "psapp%3Asettings-entrance"),
                 ("access_type", "offline"),
-                ("code", response_authorize.code.as_str()),
-                ("service_logo", "ps"),
-                ("ui", "pr"),
-                ("elements_visibility", "no_aclink"),
-                ("redirect_uri", REDIRECT_URI),
-                ("support_scheme", "sneiprls"),
-                ("grant_type", "authorization_code"),
-                ("darkmode", "true"),
-                ("token_format", "jwt"),
-                ("device_profile", "mobile"),
                 ("app_context", "inapp_ios"),
+                ("darkmode", "true"),
+                ("device_profile", "mobile"),
+                ("elements_visibility", "no_aclink"),
+                ("service_logo", "ps"),
+                ("smcid", "psapp:settings-entrance"),
+                ("support_scheme", "sneiprls"),
+                ("token_format", "jwt"),
+                ("ui", "pr"),
                 ("extraQueryParams", "{ PlatformPrivacyWs1 = minimal; }"),
+                ("grant_type", "authorization_code"),
+                ("code", response_authorize.code.as_str()),
+                ("redirect_uri", REDIRECT_URI),
             ]
             .into_iter()
             .collect::<std::collections::HashMap<&str, &str>>(),
@@ -145,5 +139,6 @@ async fn request_token(response_authorize: ResponseAuthorize) -> Result<Response
 pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<(), Error> {
     let response_authorize = request_authorize(app).await?;
     let response_token = request_token(response_authorize).await?;
+    println!("{:#?}", response_token);
     Ok(())
 }
