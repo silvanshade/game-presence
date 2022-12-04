@@ -38,26 +38,35 @@ const ENDPOINT_TOKEN: &str = "https://ca.account.sony.com/api/authz/v3/oauth/tok
 
 const REDIRECT_URI: &str = "com.playstation.PlayStationApp://redirect";
 
-pub fn endpoint_authorize_url() -> Result<url::Url, Error> {
-    url::Url::parse_with_params(ENDPOINT_AUTHORIZE, &[
+fn psn_common_params<'a, 'b>() -> impl Iterator<Item = (&'a str, &'b str)> {
+    [
         ("access_type", "offline"),
         ("app_context", "inapp_ios"),
         ("darkmode", "true"),
         ("device_profile", "mobile"),
-        ("elements_visibility", "no_aclink"),
-        ("service_entity", "urn:service-entity:psn"),
-        ("service_logo", "ps"),
         ("smcid", "psapp:settings-entrance"),
         ("support_scheme", "sneiprls"),
         ("token_format", "jwt"),
         ("ui", "pr"),
-        ("extraQueryParams", "{ PlatformPrivacyWs1 = minimal }"),
-        ("response_type", "code"),
-        ("scope", "psn:mobile.v1 psn:clientapp"),
-        ("client_id", "ac8d161a-d966-4728-b0ea-ffec22f69edc"),
-        ("duid", "0000000d0004008088347AA0C79542D3B656EBB51CE3EBE1"),
+        ("extraQueryParams", "{ PlatformPrivacyWs1 = minimal; }"),
         ("redirect_uri", REDIRECT_URI),
-    ])
+    ]
+    .into_iter()
+}
+
+pub fn endpoint_authorize_url() -> Result<url::Url, Error> {
+    url::Url::parse_with_params(
+        ENDPOINT_AUTHORIZE,
+        psn_common_params().chain(
+            [
+                ("response_type", "code"),
+                ("scope", "psn:mobile.v1 psn:clientapp"),
+                ("client_id", "ac8d161a-d966-4728-b0ea-ffec22f69edc"),
+                ("duid", "0000000d0004008088347AA0C79542D3B656EBB51CE3EBE1"),
+            ]
+            .into_iter(),
+        ),
+    )
     .context(UrlParseSnafu)
 }
 
@@ -109,24 +118,16 @@ async fn request_token(response_authorize: ResponseAuthorize) -> Result<Response
         .post(ENDPOINT_TOKEN)
         .header("Authorization", format!("Basic {}", CLIENT_AUTHORIZATION))
         .form(
-            &[
-                ("access_type", "offline"),
-                ("app_context", "inapp_ios"),
-                ("darkmode", "true"),
-                ("device_profile", "mobile"),
-                ("elements_visibility", "no_aclink"),
-                ("service_logo", "ps"),
-                ("smcid", "psapp:settings-entrance"),
-                ("support_scheme", "sneiprls"),
-                ("token_format", "jwt"),
-                ("ui", "pr"),
-                ("extraQueryParams", "{ PlatformPrivacyWs1 = minimal; }"),
-                ("grant_type", "authorization_code"),
-                ("code", response_authorize.code.as_str()),
-                ("redirect_uri", REDIRECT_URI),
-            ]
-            .into_iter()
-            .collect::<std::collections::HashMap<&str, &str>>(),
+            &psn_common_params()
+                .chain(
+                    [
+                        ("grant_type", "authorization_code"),
+                        ("code", response_authorize.code.as_str()),
+                        ("redirect_uri", REDIRECT_URI),
+                    ]
+                    .into_iter(),
+                )
+                .collect::<std::collections::HashMap<&str, &str>>(),
         );
     let response = request.send().await.context(ReqwestRequestSendSnafu)?;
     let response_token = response
