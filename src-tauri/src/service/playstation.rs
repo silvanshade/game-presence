@@ -42,7 +42,6 @@ fn psn_common_params<'a, 'b>() -> impl Iterator<Item = (&'a str, &'b str)> {
     [
         ("access_type", "offline"),
         ("app_context", "inapp_ios"),
-        ("darkmode", "true"),
         ("device_profile", "mobile"),
         ("smcid", "psapp:settings-entrance"),
         ("support_scheme", "sneiprls"),
@@ -94,7 +93,7 @@ async fn request_authorize(app: &tauri::AppHandle<tauri::Wry>) -> Result<Respons
         .with_webview({
             let url = endpoint_authorize_url()?;
             move |webview| {
-                let clear_data_first = true;
+                let clear_data_first = false;
                 webview.navigate(url, clear_data_first).unwrap();
             }
         })
