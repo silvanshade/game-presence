@@ -38,25 +38,27 @@ const ENDPOINT_TOKEN: &str = "https://ca.account.sony.com/api/authz/v3/oauth/tok
 
 const REDIRECT_URI: &str = "com.playstation.PlayStationApp://redirect";
 
-fn psn_common_params<'a, 'b>() -> impl Iterator<Item = (&'a str, &'b str)> {
-    [
-        ("access_type", "offline"),
-        ("app_context", "inapp_ios"),
-        ("device_profile", "mobile"),
-        ("smcid", "psapp:settings-entrance"),
-        ("support_scheme", "sneiprls"),
-        ("token_format", "jwt"),
-        ("ui", "pr"),
-        ("extraQueryParams", "{ PlatformPrivacyWs1 = minimal; }"),
-        ("redirect_uri", REDIRECT_URI),
-    ]
-    .into_iter()
+mod params {
+    pub fn common<'a, 'b>() -> impl Iterator<Item = (&'a str, &'b str)> {
+        [
+            ("access_type", "offline"),
+            ("app_context", "inapp_ios"),
+            ("device_profile", "mobile"),
+            ("smcid", "psapp:settings-entrance"),
+            ("support_scheme", "sneiprls"),
+            ("token_format", "jwt"),
+            ("ui", "pr"),
+            ("extraQueryParams", "{ PlatformPrivacyWs1 = minimal; }"),
+            ("redirect_uri", super::REDIRECT_URI),
+        ]
+        .into_iter()
+    }
 }
 
 pub fn endpoint_authorize_url() -> Result<url::Url, Error> {
     url::Url::parse_with_params(
         ENDPOINT_AUTHORIZE,
-        psn_common_params().chain(
+        params::common().chain(
             [
                 ("response_type", "code"),
                 ("scope", "psn:mobile.v1 psn:clientapp"),
@@ -117,7 +119,7 @@ async fn request_token(response_authorize: ResponseAuthorize) -> Result<Response
         .post(ENDPOINT_TOKEN)
         .header("Authorization", format!("Basic {}", CLIENT_AUTHORIZATION))
         .form(
-            &psn_common_params()
+            &params::common()
                 .chain(
                     [
                         ("grant_type", "authorization_code"),
