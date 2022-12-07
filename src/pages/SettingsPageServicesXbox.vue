@@ -26,7 +26,7 @@ import { defineComponent, ref } from "vue";
 import { mdiMicrosoftXbox } from "@quasar/extras/mdi-v7";
 
 export default defineComponent({
-  name: "SettingsPageServicesPlaystation",
+  name: "SettingsPageServicesXbox",
   components: {},
   setup(_props, ctx) {
     ctx.expose([]);

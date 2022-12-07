@@ -70,7 +70,7 @@ overrides:
         - error
         - groups: ["props", "data", "computed", "methods", "setup"]
           deepData: true
-      vue/no-unused-refs: error
+      vue/no-unused-refs: off
       vue/no-useless-mustaches: error
       vue/no-useless-v-bind: error
       vue/no-v-text: error
