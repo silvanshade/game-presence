@@ -14,18 +14,18 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="servicesSteamEnableSteamIntegration.modelValue.value"
+            v-model="servicesSteamEnableIntegration.modelValue.value"
             :icon="mdiSteam"
             color="brand-steam"
             dense
             size="xl"
-            @update:model-value="servicesSteamEnableSteamIntegration.eventUpdate"
+            @update:model-value="servicesSteamEnableIntegration.eventUpdate"
           />
         </q-item-section>
       </q-item>
       <q-item>
         <q-item-section>
-          <q-item-label>Manually reauthorize account</q-item-label>
+          <q-item-label>Manually reauthorize Steam account</q-item-label>
           <q-item-label caption>Manually reconnect or change associated account</q-item-label>
         </q-item-section>
         <q-item-section avatar>
@@ -187,12 +187,12 @@ export default vue.defineComponent({
       };
       readonly slotBefore = {};
     })();
-    const servicesSteamApiKeyRef = vue.ref<QInput | null>(null);
+    const servicesSteamApiKeyRef = vue.ref<QInput>();
 
-    const servicesSteamEnableSteamIntegration = new (class {
+    const servicesSteamEnableIntegration = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
         void event;
-        console.debug("servicesSteamEnableSteamIntegration.toggle.@update(" + value.toString() + ")");
+        console.debug("servicesSteamEnableIntegration.toggle.@update(" + value.toString() + ")");
       };
       readonly modelValue = vue.ref(false);
     })();
@@ -211,6 +211,9 @@ export default vue.defineComponent({
     };
 
     ctx.expose([]);
+
+    void servicesSteamApiKeyRef.value;
+
     return {
       matBadge,
       matCloudSync,
@@ -219,10 +222,9 @@ export default vue.defineComponent({
       matSaveAs,
       matVpnKey,
       mdiSteam,
-      servicesSteamEnabled: vue.ref(false),
       servicesSteamApiKey,
       servicesSteamApiKeyRef,
-      servicesSteamEnableSteamIntegration,
+      servicesSteamEnableIntegration,
       servicesSteamManuallyReauthorizeAccount,
       servicesSteamUsername,
     };

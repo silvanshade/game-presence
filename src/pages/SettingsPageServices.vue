@@ -31,6 +31,13 @@
             style="justify-content: initial"
           />
           <q-tab
+            name="twitch"
+            label="twitch"
+            :icon="mdiTwitch"
+            class="text-brand-twitch"
+            style="justify-content: initial"
+          />
+          <q-tab
             name="xbox"
             label="xbox"
             :icon="mdiMicrosoftXbox"
@@ -50,35 +57,39 @@
       <q-tab-panel name="nintendo"><SettingsPageServicesNintendo /></q-tab-panel>
       <q-tab-panel name="playstation"><SettingsPageServicesPlaystation /></q-tab-panel>
       <q-tab-panel name="steam"><SettingsPageServicesSteam /></q-tab-panel>
+      <q-tab-panel name="twitch"><SettingsPageServicesTwitch /></q-tab-panel>
       <q-tab-panel name="xbox"><SettingsPageServicesXbox /></q-tab-panel>
     </q-tab-panels>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
-import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } from "@quasar/extras/mdi-v7";
+import * as vue from "vue";
+import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam, mdiTwitch } from "@quasar/extras/mdi-v7";
 
 import SettingsPageServicesNintendo from "./SettingsPageServicesNintendo.vue";
 import SettingsPageServicesPlaystation from "./SettingsPageServicesPlaystation.vue";
 import SettingsPageServicesSteam from "./SettingsPageServicesSteam.vue";
+import SettingsPageServicesTwitch from "./SettingsPageServicesTwitch.vue";
 import SettingsPageServicesXbox from "./SettingsPageServicesXbox.vue";
 
-export default defineComponent({
+export default vue.defineComponent({
   name: "SettingsPageServices",
   components: {
     SettingsPageServicesNintendo,
     SettingsPageServicesPlaystation,
     SettingsPageServicesSteam,
+    SettingsPageServicesTwitch,
     SettingsPageServicesXbox,
   },
   setup(_props, ctx) {
-    const tab = ref<"nintendo" | "playstation" | "steam" | "xbox">("steam");
+    const tab = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("steam");
     ctx.expose([]);
     return {
       mdiNintendoSwitch,
       mdiSonyPlaystation,
       mdiSteam,
+      mdiTwitch,
       mdiMicrosoftXbox,
       tab,
     };

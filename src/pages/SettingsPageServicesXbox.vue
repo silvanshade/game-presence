@@ -22,15 +22,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import * as vue from "vue";
 import { mdiMicrosoftXbox } from "@quasar/extras/mdi-v7";
 
-export default defineComponent({
+export default vue.defineComponent({
   name: "SettingsPageServicesXbox",
   components: {},
   setup(_props, ctx) {
     ctx.expose([]);
-    return { mdiMicrosoftXbox, servicesXboxEnabled: ref(false) };
+    return { mdiMicrosoftXbox, servicesXboxEnabled: vue.ref(false) };
   },
 });
 </script>

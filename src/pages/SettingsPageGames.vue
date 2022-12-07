@@ -46,15 +46,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import * as vue from "vue";
 
-export default defineComponent({
+export default vue.defineComponent({
   name: "SettingsPageGames",
   components: {},
   setup(_props, ctx) {
     ctx.expose([]);
     return {
-      notifications: ref(["friend"]),
+      notifications: vue.ref(["friend"]),
     };
   },
 });

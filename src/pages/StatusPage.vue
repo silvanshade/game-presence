@@ -32,9 +32,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import * as vue from "vue";
 
-export default defineComponent({
+export default vue.defineComponent({
   name: "StatusPage",
   components: {},
   setup(_props, ctx) {

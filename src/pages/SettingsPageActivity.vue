@@ -22,24 +22,6 @@
       <q-item
         v-ripple
         tag="label"
-      >
-        <q-item-section>
-          <q-item-label>Enable Twitch integration for game assets</q-item-label>
-          <q-item-label caption>Support fetching assets from Twitch instead of game service</q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
-          <q-toggle
-            v-model="config.activity.twitchAssetsEnabled"
-            color="brand-twitch"
-            size="xl"
-            :icon="mdiTwitch"
-            @update:model-value="activityTwitchAssetsEnabledToggle"
-          />
-        </q-item-section>
-      </q-item>
-      <q-item
-        v-ripple
-        tag="label"
         disable
       >
         <q-tooltip>Not yet implemented</q-tooltip>
@@ -61,15 +43,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import * as vue from "vue";
 import { matFactCheck } from "@quasar/extras/material-icons";
 import { mdiDiscord } from "@quasar/extras/mdi-v6";
-import { mdiTwitch } from "@quasar/extras/mdi-v7";
-import * as api from "@tauri-apps/api";
+// import * as api from "@tauri-apps/api";
 
 import * as stores from "../stores";
 
-export default defineComponent({
+export default vue.defineComponent({
   name: "SettingsPageActivity",
   components: {},
   setup(_props, ctx) {
@@ -79,20 +60,6 @@ export default defineComponent({
     const activityDiscordPresenceToggle: (value: boolean, event: Event) => Promise<void> = async (value, event) => {
       void event;
       config.activity.discordDisplayPresence = value;
-    };
-
-    const activityTwitchAssetsEnabledToggle: (value: boolean, event: Event) => Promise<void> = async (value, event) => {
-      void event;
-      if (value) {
-        try {
-          await api.tauri.invoke("api_twitch_authorization_flow");
-        } catch (err) {
-          console.error(err);
-          value = false;
-        } finally {
-          config.activity.twitchAssetsEnabled = value;
-        }
-      }
     };
 
     const activityGamesRequireWhitelistingToggle: (enable: boolean, event: Event) => Promise<void> = async (
@@ -108,11 +75,9 @@ export default defineComponent({
 
     return {
       activityDiscordPresenceToggle,
-      activityTwitchAssetsEnabledToggle,
       activityGamesRequireWhitelistingToggle,
       matFactCheck,
       mdiDiscord,
-      mdiTwitch,
       config,
     };
   },
