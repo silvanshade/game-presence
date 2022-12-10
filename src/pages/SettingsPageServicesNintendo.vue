@@ -6,11 +6,13 @@
     >
       <q-item>
         <q-item-section>
-          <q-item-label>Acknowledge the disclaimer about enabling Nintendo integration</q-item-label>
+          <q-item-label>Acknowledge disclaimer about enabling Nintendo integration</q-item-label>
+          <q-item-label caption>Toggle to read and acknowledge disclaimer to allow Nintendo integration</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
             v-model="servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
+            :icon="matPrivacyTip"
             dense
             size="xl"
             @update:model-value="servicesNintendoIntegrationDisclaimerAcknowledged.eventUpdate"
@@ -93,7 +95,7 @@
 
 <script lang="ts">
 import * as vue from "vue";
-import { matBadge, matCloudSync, matInfo } from "@quasar/extras/material-icons";
+import { matBadge, matCloudSync, matInfo, matPrivacyTip } from "@quasar/extras/material-icons";
 import { mdiNintendoSwitch } from "@quasar/extras/mdi-v7";
 
 export default vue.defineComponent({
@@ -134,6 +136,7 @@ export default vue.defineComponent({
       matBadge,
       matCloudSync,
       matInfo,
+      matPrivacyTip,
       mdiNintendoSwitch,
       servicesNintendoEnableIntegration,
       servicesNintendoIntegrationDisclaimerAcknowledged,

@@ -140,13 +140,34 @@ pub mod service {
     #[derive(Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
+        pub disclaimer_acknowledged: bool,
         pub enabled: bool,
+        pub data: Option<NintendoData>,
     }
 
     impl From<crate::app::model::config::service::Nintendo> for self::Nintendo {
         fn from(nintendo: crate::app::model::config::service::Nintendo) -> Self {
+            let disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
             let enabled = nintendo.enabled;
-            Self { enabled }
+            let data = nintendo.data.map(Into::into);
+            Self {
+                disclaimer_acknowledged,
+                enabled,
+                data,
+            }
+        }
+    }
+
+    #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct NintendoData {
+        pub username: Option<String>,
+    }
+
+    impl From<crate::app::model::config::service::NintendoData> for self::NintendoData {
+        fn from(data: crate::app::model::config::service::NintendoData) -> Self {
+            let username = data.username;
+            Self { username }
         }
     }
 
@@ -154,12 +175,27 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
+        pub data: Option<PlaystationData>,
     }
 
     impl From<crate::app::model::config::service::Playstation> for self::Playstation {
         fn from(playstation: crate::app::model::config::service::Playstation) -> Self {
             let enabled = playstation.enabled;
-            Self { enabled }
+            let data = playstation.data.map(Into::into);
+            Self { enabled, data }
+        }
+    }
+
+    #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PlaystationData {
+        pub username: Option<String>,
+    }
+
+    impl From<crate::app::model::config::service::PlaystationData> for self::PlaystationData {
+        fn from(data: crate::app::model::config::service::PlaystationData) -> Self {
+            let username = data.username;
+            Self { username }
         }
     }
 
@@ -183,13 +219,15 @@ pub mod service {
     pub struct SteamData {
         pub id: String,
         pub key: String,
+        pub username: String,
     }
 
     impl From<crate::app::model::config::service::SteamData> for self::SteamData {
         fn from(data: crate::app::model::config::service::SteamData) -> Self {
             let id = data.id;
             let key = data.key;
-            Self { id, key }
+            let username = data.username;
+            Self { id, key, username }
         }
     }
 
@@ -197,12 +235,27 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
+        pub data: Option<XboxData>,
     }
 
     impl From<crate::app::model::config::service::Xbox> for self::Xbox {
         fn from(xbox: crate::app::model::config::service::Xbox) -> Self {
             let enabled = xbox.enabled;
-            Self { enabled }
+            let data = xbox.data.map(Into::into);
+            Self { enabled, data }
+        }
+    }
+
+    #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct XboxData {
+        pub username: Option<String>,
+    }
+
+    impl From<crate::app::model::config::service::XboxData> for self::XboxData {
+        fn from(data: crate::app::model::config::service::XboxData) -> Self {
+            let username = data.username;
+            Self { username }
         }
     }
 }

@@ -87,15 +87,38 @@ pub mod service {
     #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
+        pub disclaimer_acknowledged: bool,
         pub enabled: bool,
+        pub data: Option<NintendoData>,
     }
 
     impl TryFrom<crate::app::data::config::service::Nintendo> for self::Nintendo {
         type Error = super::Error;
 
         fn try_from(nintendo: crate::app::data::config::service::Nintendo) -> Result<Self, Self::Error> {
+            let disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
             let enabled = nintendo.enabled;
-            Ok(Self { enabled })
+            let data = nintendo.data.map(TryInto::try_into).transpose()?;
+            Ok(Self {
+                disclaimer_acknowledged,
+                enabled,
+                data,
+            })
+        }
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct NintendoData {
+        pub username: Option<String>,
+    }
+
+    impl TryFrom<crate::app::data::config::service::NintendoData> for self::NintendoData {
+        type Error = super::Error;
+
+        fn try_from(data: crate::app::data::config::service::NintendoData) -> Result<Self, Self::Error> {
+            let username = data.username;
+            Ok(Self { username })
         }
     }
 
@@ -103,6 +126,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
+        pub data: Option<PlaystationData>,
     }
 
     impl TryFrom<crate::app::data::config::service::Playstation> for self::Playstation {
@@ -110,7 +134,23 @@ pub mod service {
 
         fn try_from(playstation: crate::app::data::config::service::Playstation) -> Result<Self, Self::Error> {
             let enabled = playstation.enabled;
-            Ok(Self { enabled })
+            let data = playstation.data.map(TryInto::try_into).transpose()?;
+            Ok(Self { enabled, data })
+        }
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PlaystationData {
+        pub username: Option<String>,
+    }
+
+    impl TryFrom<crate::app::data::config::service::PlaystationData> for self::PlaystationData {
+        type Error = super::Error;
+
+        fn try_from(data: crate::app::data::config::service::PlaystationData) -> Result<Self, Self::Error> {
+            let username = data.username;
+            Ok(Self { username })
         }
     }
 
@@ -136,6 +176,7 @@ pub mod service {
     pub struct SteamData {
         pub id: String,
         pub key: String,
+        pub username: String,
     }
 
     impl TryFrom<crate::app::data::config::service::SteamData> for self::SteamData {
@@ -144,7 +185,8 @@ pub mod service {
         fn try_from(data: crate::app::data::config::service::SteamData) -> Result<Self, Self::Error> {
             let id = data.id;
             let key = data.key;
-            Ok(Self { id, key })
+            let username = data.username;
+            Ok(Self { id, key, username })
         }
     }
 
@@ -152,6 +194,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
+        pub data: Option<XboxData>,
     }
 
     impl TryFrom<crate::app::data::config::service::Xbox> for self::Xbox {
@@ -159,7 +202,23 @@ pub mod service {
 
         fn try_from(xbox: crate::app::data::config::service::Xbox) -> Result<Self, Self::Error> {
             let enabled = xbox.enabled;
-            Ok(Self { enabled })
+            let data = xbox.data.map(TryInto::try_into).transpose()?;
+            Ok(Self { enabled, data })
+        }
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct XboxData {
+        pub username: Option<String>,
+    }
+
+    impl TryFrom<crate::app::data::config::service::XboxData> for self::XboxData {
+        type Error = super::Error;
+
+        fn try_from(data: crate::app::data::config::service::XboxData) -> Result<Self, Self::Error> {
+            let username = data.username;
+            Ok(Self { username })
         }
     }
 }
