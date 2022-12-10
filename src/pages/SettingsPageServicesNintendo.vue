@@ -4,10 +4,21 @@
       class="q-gutter-sm"
       dense
     >
-      <q-item
-        v-ripple
-        tag="label"
-      >
+      <q-item>
+        <q-item-section>
+          <q-item-label>Acknowledge the disclaimer about enabling Nintendo integration</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-toggle
+            v-model="servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
+            dense
+            size="xl"
+            @update:model-value="servicesNintendoIntegrationDisclaimerAcknowledged.eventUpdate"
+          />
+        </q-item-section>
+      </q-item>
+      <q-separator />
+      <q-item :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value">
         <q-item-section>
           <q-item-label>Enable Nintendo integration</q-item-label>
           <q-item-label caption>Enable reporting Nintendo activity as discord status</q-item-label>
@@ -23,7 +34,7 @@
           />
         </q-item-section>
       </q-item>
-      <q-item>
+      <q-item :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value">
         <q-item-section>
           <q-item-label>Manually reauthorize Nintendo account</q-item-label>
           <q-item-label caption>Manually reconnect or change associated account</q-item-label>
@@ -38,8 +49,7 @@
       </q-item>
       <q-separator />
       <q-item
-        v-ripple
-        tag="label"
+        :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
         class="no-padding q-mr-md justify-end no-pointer-events"
       >
         <q-input
@@ -90,6 +100,14 @@ export default vue.defineComponent({
   name: "SettingsPageServicesNintendo",
   components: {},
   setup(_props, ctx) {
+    const servicesNintendoIntegrationDisclaimerAcknowledged = new (class {
+      readonly eventUpdate = (value: boolean, event: Event) => {
+        void event;
+        console.debug("servicesNintendoIntegrationDisclaimerAcknowledged.toggle.@update(" + value.toString() + ")");
+      };
+      readonly modelValue = vue.ref(false);
+    })();
+
     const servicesNintendoEnableIntegration = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
         void event;
@@ -118,6 +136,7 @@ export default vue.defineComponent({
       matInfo,
       mdiNintendoSwitch,
       servicesNintendoEnableIntegration,
+      servicesNintendoIntegrationDisclaimerAcknowledged,
       servicesNintendoManuallyReauthorizeAccount,
       servicesNintendoUsername,
     };

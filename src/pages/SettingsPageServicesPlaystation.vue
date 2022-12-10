@@ -4,10 +4,7 @@
       class="q-gutter-sm"
       dense
     >
-      <q-item
-        v-ripple
-        tag="label"
-      >
+      <q-item>
         <q-item-section>
           <q-item-label>Enable Playstation integration</q-item-label>
           <q-item-label caption>Enable reporting Playstation activity as discord status</q-item-label>
@@ -37,11 +34,7 @@
         </q-item-section>
       </q-item>
       <q-separator />
-      <q-item
-        v-ripple
-        tag="label"
-        class="no-padding q-mr-md justify-end no-pointer-events"
-      >
+      <q-item class="no-padding q-mr-md justify-end no-pointer-events">
         <q-input
           v-model="servicesPlaystationUsername.modelValue.value"
           class="no-pointer-events non-selectable"

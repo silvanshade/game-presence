@@ -1,10 +1,7 @@
 <template>
   <div>
     <q-list>
-      <q-item
-        v-ripple
-        tag="label"
-      >
+      <q-item>
         <q-item-section>
           <q-item-label>Enable Discord Rich Presence</q-item-label>
           <q-item-label caption>Toggle to control showing game activity on Discord</q-item-label>

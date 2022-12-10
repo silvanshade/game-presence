@@ -1,10 +1,7 @@
 <template>
   <div class="fit flex-center column">
     <q-list dense>
-      <q-item
-        v-ripple
-        tag="label"
-      >
+      <q-item>
         <q-item-section>
           <q-item-label>Display status as Discord presence</q-item-label>
           <q-item-label caption>Toggle to control displaying game activity on Discord</q-item-label>
@@ -19,11 +16,7 @@
           />
         </q-item-section>
       </q-item>
-      <q-item
-        v-ripple
-        tag="label"
-        disable
-      >
+      <q-item disable>
         <q-tooltip>Not yet implemented</q-tooltip>
         <q-item-section>
           <q-item-label>Require each game to be whitelisted for displaying status</q-item-label>
