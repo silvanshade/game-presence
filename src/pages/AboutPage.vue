@@ -5,19 +5,6 @@
       <div class="text-h6">An app for reporting game status as Discord presence</div>
     </div>
     <div
-      v-if="fetching"
-      class="text-warning"
-    >
-      « loading »
-    </div>
-    <div
-      v-else-if="error"
-      class="text-negative"
-    >
-      « error: {{ error }} »
-    </div>
-    <div
-      v-else-if="data"
       class="row"
       style="gap: 0rem 1rem; font-family: monospace"
     >
@@ -29,21 +16,17 @@
         <div>homepage 🏠</div>
       </div>
       <div>
-        <div>
-          {{ data.buildInfo.pkgVersion }}::{{ data.buildInfo.profile }}::{{ data.buildInfo.gitCommitHash }}::{{
-            data.buildInfo.gitDirty
-          }}
-        </div>
-        <div>{{ data.buildInfo.target }}::{{ data.buildInfo.cfgOs }}</div>
-        <div>{{ data.buildInfo.builtTimeUtc }}</div>
-        <div>{{ data.buildInfo.pkgLicense }}</div>
+        <div>{{ about.build }}</div>
+        <div>{{ about.platform }}</div>
+        <div>{{ about.timestamp }}</div>
+        <div>{{ about.license }}</div>
         <div>
           <a
             href="#"
             target="_blank"
             rel="noopener noreferrer"
             @click="openHomePage"
-            >{{ data.buildInfo.pkgHomepage }}</a
+            >{{ about.homepage }}</a
           >
         </div>
       </div>
@@ -73,8 +56,8 @@ interface BuildInfo {
 export default vue.defineComponent({
   name: "AboutPage",
   components: {},
-  setup(_props, ctx) {
-    const about = urql.useQuery<{ buildInfo: BuildInfo }>({
+  async setup(_props, ctx) {
+    const result = await urql.useQuery<{ buildInfo: BuildInfo }>({
       query: gql`
         query {
           buildInfo {
@@ -93,23 +76,54 @@ export default vue.defineComponent({
     });
 
     const openHomePage: () => Promise<void> = async () => {
-      if (about.data.value != null) {
-        await api.shell.open(about.data.value.buildInfo.pkgHomepage);
+      if (result.data.value != null) {
+        await api.shell.open(result.data.value.buildInfo.pkgHomepage);
       }
     };
 
     const openIssueTracker: () => Promise<void> = async () => {
-      if (about.data.value != null) {
-        await api.shell.open(about.data.value.buildInfo.pkgHomepage);
+      if (result.data.value != null) {
+        await api.shell.open(result.data.value.buildInfo.pkgHomepage);
       }
     };
+
+    const about = (() => {
+      if (result.data.value) {
+        const {
+          buildInfo: {
+            builtTimeUtc,
+            cfgOs,
+            gitCommitHash,
+            gitDirty,
+            pkgHomepage,
+            pkgLicense,
+            pkgVersion,
+            profile,
+            target,
+          },
+        } = result.data.value;
+        return {
+          build: `${pkgVersion}::${profile}::${gitCommitHash}::${gitDirty}`,
+          platform: `${target}::${cfgOs}`,
+          timestamp: `${builtTimeUtc}`,
+          license: `${pkgLicense}`,
+          homepage: `${pkgHomepage}`,
+        };
+      } else {
+        return {
+          build: "unknown",
+          platform: "unknown",
+          timestamp: "unknown",
+          license: "unknown",
+          homepage: "unknown",
+        };
+      }
+    })();
 
     ctx.expose([]);
 
     return {
-      data: about.data,
-      error: about.error,
-      fetching: about.fetching,
+      about,
       openHomePage,
       openIssueTracker,
     };
