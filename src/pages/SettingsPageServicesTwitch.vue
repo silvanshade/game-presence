@@ -35,6 +35,7 @@
             />
           </q-item-section>
         </q-item>
+        <q-separator />
         <q-item class="no-padding q-mr-md justify-end no-pointer-events">
           <q-input
             v-model="servicesTwitchUsername.modelValue.value"

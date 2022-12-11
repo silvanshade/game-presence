@@ -35,6 +35,7 @@
             />
           </q-item-section>
         </q-item>
+        <q-separator />
         <q-item class="no-padding q-mr-md justify-end no-pointer-events">
           <q-input
             v-model="servicesSteamUsername.modelValue.value"
@@ -77,6 +78,7 @@
             v-model="servicesSteamApiKey.modelValue.value"
             dense
             filled
+            hide-bottom-space
             no-error-icon
             :rules="servicesSteamApiKey.behaviorRules"
             @update:model-value="servicesSteamApiKey.eventUpdate"
