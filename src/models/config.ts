@@ -35,19 +35,27 @@ export namespace Services {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace service {
   export interface Nintendo {
+    disclaimerAcknowledged: boolean;
     enabled: boolean;
+    data?: NintendoData;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
   export namespace Nintendo {
     export const make: () => Nintendo = () => {
+      const disclaimerAcknowledged = false;
       const enabled = false;
-      return { enabled };
+      return { disclaimerAcknowledged, enabled };
     };
+  }
+
+  export interface NintendoData {
+    username: string;
   }
 
   export interface Playstation {
     enabled: boolean;
+    data?: PlaystationData;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -56,6 +64,10 @@ export namespace service {
       const enabled = false;
       return { enabled };
     };
+  }
+
+  export interface PlaystationData {
+    username: string;
   }
 
   export interface Steam {
@@ -74,10 +86,12 @@ export namespace service {
   export interface SteamData {
     id: string;
     key: string;
+    username: string;
   }
 
   export interface Xbox {
     enabled: boolean;
+    data?: XboxData;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -86,6 +100,10 @@ export namespace service {
       const enabled = false;
       return { enabled };
     };
+  }
+
+  export interface XboxData {
+    username: string;
   }
 }
 

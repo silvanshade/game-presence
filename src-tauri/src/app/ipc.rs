@@ -15,21 +15,11 @@ pub struct Payload<T> {
 }
 
 impl<T> Payload<T> {
-    pub fn from_backend(data: T) -> Self {
-        let provenience = Provenience::Backend;
-        Self { provenience, data }
-    }
-
-    pub fn from_frontend(data: T) -> Self {
-        let provenience = Provenience::Frontend;
-        Self { provenience, data }
-    }
-
     pub fn is_from_backend(&self) -> bool {
         self.provenience == Provenience::Backend
     }
 
-    pub fn is_from_frontend(&self) -> bool {
-        self.provenience == Provenience::Frontend
-    }
+    // pub fn is_from_frontend(&self) -> bool {
+    //     self.provenience == Provenience::Frontend
+    // }
 }

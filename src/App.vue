@@ -4,6 +4,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import * as api from "@tauri-apps/api";
 import * as urql from "@urql/vue";
 import { gql } from "@urql/vue";
 
@@ -16,7 +17,7 @@ export default defineComponent({
   name: "App",
   components: { MainLayout },
   setup(_props, ctx) {
-    const store = stores.config.useStore();
+    const config = stores.config.useStore();
 
     const configMutation = urql.useMutation(gql`
       mutation ($data: JSON) {
@@ -24,7 +25,7 @@ export default defineComponent({
       }
     `);
 
-    urql.useSubscription<models.Config, models.Config>(
+    urql.useSubscription<{ state: models.Config }, { state: models.Config }>(
       {
         query: gql`
           subscription {
@@ -32,18 +33,21 @@ export default defineComponent({
           }
         `,
       },
-      (prev = models.Config.make(), data) => {
+      (prev = { state: models.Config.make() }, data) => {
         console.debug("subscription", { prev, data });
+        config.$patch(data.state);
         return data;
       },
     );
 
-    store.$subscribe((mutation, state) => {
+    config.$subscribe((mutation, state) => {
       console.debug("mutation", { mutation, state });
       void mutation;
       const variables = { data: state };
       configMutation.executeMutation(variables).catch(console.error);
     });
+
+    api.tauri.invoke("config_load").catch(console.error);
 
     ctx.expose([]);
 

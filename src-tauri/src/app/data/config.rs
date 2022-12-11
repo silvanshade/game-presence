@@ -9,10 +9,10 @@ pub enum Error {
     SerdeJsonToVec { source: serde_json::Error },
     StdFsCreateDirAll { source: std::io::Error },
     StdFsMetadata { source: std::io::Error },
-    StdFsOpenOptions { source: std::io::Error },
-    StdFsReadToString { source: std::io::Error },
+    TokioFsOpenOptions { source: std::io::Error },
+    TokioIoReadToString { source: std::io::Error },
     StdFsSyncAll { source: std::io::Error },
-    StdIoWriteAll { source: std::io::Error },
+    TokioIoWriteAll { source: std::io::Error },
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
@@ -26,8 +26,8 @@ pub struct Config {
 impl Config {
     const FILE_NAME: &str = "config.json";
 
-    pub fn init() -> Result<Self, Error> {
-        let config = Self::read()?;
+    pub async fn init() -> Result<Self, Error> {
+        let config = Self::read().await?;
         Ok(config)
     }
 
@@ -50,24 +50,25 @@ impl Config {
         Ok(path)
     }
 
-    pub fn read() -> Result<Self, Error> {
-        use std::io::Read;
+    pub async fn read() -> Result<Self, Error> {
+        use tokio::io::AsyncReadExt;
         Self::file_base_create()?;
         let path = Self::file_path()?;
         let path = path.as_path();
-        let mut file = std::fs::OpenOptions::new()
+        let mut file = tokio::fs::OpenOptions::new()
             .write(true)
             .create(true)
             .read(true)
             .open(path)
-            .context(StdFsOpenOptionsSnafu)?;
+            .await
+            .context(TokioFsOpenOptionsSnafu)?;
         let mut json = String::new();
-        file.read_to_string(&mut json).context(StdFsReadToStringSnafu)?;
+        file.read_to_string(&mut json).await.context(TokioIoReadToStringSnafu)?;
         let value = serde_json::from_str::<Self>(&json);
         let config = match value {
             Err(_) => {
                 let config = Self::default();
-                config.write()?;
+                config.write().await?;
                 config
             },
             Ok(config) => config,
@@ -75,20 +76,21 @@ impl Config {
         Ok(config)
     }
 
-    pub fn write(&self) -> Result<(), Error> {
-        use std::io::Write;
+    pub async fn write(&self) -> Result<(), Error> {
+        use tokio::io::AsyncWriteExt;
         Self::file_base_create()?;
         let path = Self::file_path()?;
         let path = path.as_path();
-        let mut file = std::fs::OpenOptions::new()
+        let mut file = tokio::fs::OpenOptions::new()
             .create(true)
             .write(true)
             .truncate(true)
             .open(path)
-            .context(StdFsOpenOptionsSnafu)?;
+            .await
+            .context(TokioFsOpenOptionsSnafu)?;
         let json = serde_json::to_vec_pretty(self).context(SerdeJsonToVecSnafu)?;
-        file.write_all(&json).context(StdIoWriteAllSnafu)?;
-        file.sync_all().context(StdFsSyncAllSnafu)?;
+        file.write_all(&json).await.context(TokioIoWriteAllSnafu)?;
+        file.sync_all().await.context(StdFsSyncAllSnafu)?;
         Ok(())
     }
 }

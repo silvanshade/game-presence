@@ -1,4 +1,4 @@
-use async_graphql::{futures_util::*, types::*, *};
+use async_graphql::{futures_util::*, *};
 use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
@@ -22,10 +22,9 @@ pub struct Mutation;
 #[Object]
 impl Mutation {
     async fn state<'ctx>(&self, ctx: &Context<'ctx>, data: serde_json::Value) -> async_graphql::Result<bool> {
-        let data = serde_json::from_value(data)?;
-        let config = crate::app::ipc::Payload::from_frontend(data);
+        let config = serde_json::from_value(data)?;
         let state = ctx.data::<crate::app::model::State>()?;
-        state.config.tx.lock().await.send(config)?;
+        state.update_without_rebroadcast(config).await?;
         Ok(true)
     }
 }

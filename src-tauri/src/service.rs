@@ -1,7 +1,7 @@
 use snafu::prelude::*;
 use tauri::window::PlatformWebview;
 
-pub mod nintendo;
+// pub mod nintendo;
 pub mod playstation;
 pub mod steam;
 pub mod xbox;

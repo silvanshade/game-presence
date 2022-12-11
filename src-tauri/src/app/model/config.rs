@@ -14,7 +14,7 @@ pub enum Error {
     TauriSpawnBlocking { source: tauri::Error },
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub services: Services,
@@ -23,8 +23,8 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn load() -> Result<Self, Error> {
-        let config = crate::app::data::Config::init().context(ConfigInitSnafu)?;
+    pub async fn load() -> Result<Self, Error> {
+        let config = crate::app::data::Config::init().await.context(ConfigInitSnafu)?;
         config.try_into()
     }
 
@@ -51,7 +51,7 @@ impl TryFrom<crate::app::data::Config> for Config {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Services {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -223,7 +223,7 @@ pub mod service {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
     pub discord_display_presence: bool,
@@ -249,7 +249,7 @@ impl TryFrom<crate::app::data::config::Activity> for self::Activity {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {}
 
@@ -269,11 +269,12 @@ pub struct Channels {
 
 impl Channels {
     pub fn init() -> Result<Self, Error> {
-        let init = {
-            let data = Config::load()?;
-            crate::app::ipc::Payload::from_backend(data)
+        let payload = {
+            let provenience = crate::app::ipc::Provenience::Backend;
+            let data = Config::default();
+            crate::app::ipc::Payload { provenience, data }
         };
-        let (tx, rx) = tokio::sync::watch::channel(init);
+        let (tx, rx) = tokio::sync::watch::channel(payload);
         let (tx, rx) = (Arc::new(Mutex::new(tx)), Arc::new(RwLock::new(rx)));
         Ok(Self { tx, rx })
     }

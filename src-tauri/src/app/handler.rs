@@ -18,19 +18,14 @@ fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(),
 
 pub fn invoke<R: tauri::Runtime>() -> impl Fn(tauri::Invoke<R>) {
     use crate::app::command;
-    tauri::generate_handler![command::build_info, command::api::twitch::authorization_flow]
+    tauri::generate_handler![command::config_load, command::api::twitch::authorization_flow]
 }
 
 pub fn run() -> impl FnMut(&tauri::AppHandle<tauri::Wry>, tauri::RunEvent) {
     use tauri::{RunEvent, WindowEvent};
     |app, run_event| match run_event {
         RunEvent::Ready => {
-            // let app = app.clone();
-            // tauri::async_runtime::spawn(async move {
-            // crate::service::nintendo::authorization_flow(&app).await });
-
-            let app = app.clone();
-            tauri::async_runtime::spawn(async move { crate::service::playstation::authorization_flow(&app).await });
+            // noop
         },
         RunEvent::WindowEvent {
             label,
