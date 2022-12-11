@@ -111,26 +111,25 @@ impl From<crate::app::model::Config> for Config {
 #[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Services {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub nintendo: Option<self::service::Nintendo>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub playstation: Option<self::service::Playstation>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub steam: Option<self::service::Steam>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub xbox: Option<self::service::Xbox>,
+    pub nintendo: self::service::Nintendo,
+    pub playstation: self::service::Playstation,
+    pub steam: self::service::Steam,
+    pub twitch: self::service::Twitch,
+    pub xbox: self::service::Xbox,
 }
 
 impl From<crate::app::model::config::Services> for self::Services {
     fn from(services: crate::app::model::config::Services) -> Self {
-        let nintendo = services.nintendo.map(Into::into);
-        let playstation = services.playstation.map(Into::into);
-        let steam = services.steam.map(Into::into);
-        let xbox = services.xbox.map(Into::into);
+        let nintendo = services.nintendo.into();
+        let playstation = services.playstation.into();
+        let steam = services.steam.into();
+        let twitch = services.twitch.into();
+        let xbox = services.xbox.into();
         Self {
             nintendo,
             playstation,
             steam,
+            twitch,
             xbox,
         }
     }
@@ -139,12 +138,13 @@ impl From<crate::app::model::config::Services> for self::Services {
 pub mod service {
     use serde::{Deserialize, Serialize};
 
-    #[derive(Debug, Deserialize, Serialize)]
+    #[derive(Debug, Default, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
         pub disclaimer_acknowledged: bool,
         pub enabled: bool,
-        pub data: Option<NintendoData>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub data: Option<self::nintendo::Data>,
     }
 
     impl From<crate::app::model::config::service::Nintendo> for self::Nintendo {
@@ -160,24 +160,29 @@ pub mod service {
         }
     }
 
-    #[derive(Debug, Deserialize, Serialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct NintendoData {
-        pub username: Option<String>,
-    }
+    pub mod nintendo {
+        use serde::{Deserialize, Serialize};
 
-    impl From<crate::app::model::config::service::NintendoData> for self::NintendoData {
-        fn from(data: crate::app::model::config::service::NintendoData) -> Self {
-            let username = data.username;
-            Self { username }
+        #[derive(Debug, Deserialize, Serialize)]
+        #[serde(rename_all = "camelCase")]
+        pub struct Data {
+            pub username: Option<String>,
+        }
+
+        impl From<crate::app::model::config::service::nintendo::Data> for self::Data {
+            fn from(data: crate::app::model::config::service::nintendo::Data) -> Self {
+                let username = data.username;
+                Self { username }
+            }
         }
     }
 
-    #[derive(Debug, Deserialize, Serialize)]
+    #[derive(Debug, Default, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
-        pub data: Option<PlaystationData>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub data: Option<self::playstation::Data>,
     }
 
     impl From<crate::app::model::config::service::Playstation> for self::Playstation {
@@ -188,24 +193,29 @@ pub mod service {
         }
     }
 
-    #[derive(Debug, Deserialize, Serialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PlaystationData {
-        pub username: Option<String>,
-    }
+    pub mod playstation {
+        use serde::{Deserialize, Serialize};
 
-    impl From<crate::app::model::config::service::PlaystationData> for self::PlaystationData {
-        fn from(data: crate::app::model::config::service::PlaystationData) -> Self {
-            let username = data.username;
-            Self { username }
+        #[derive(Debug, Deserialize, Serialize)]
+        #[serde(rename_all = "camelCase")]
+        pub struct Data {
+            pub username: Option<String>,
+        }
+
+        impl From<crate::app::model::config::service::playstation::Data> for self::Data {
+            fn from(data: crate::app::model::config::service::playstation::Data) -> Self {
+                let username = data.username;
+                Self { username }
+            }
         }
     }
 
-    #[derive(Debug, Deserialize, Serialize)]
+    #[derive(Debug, Default, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
-        pub data: Option<SteamData>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub data: Option<self::steam::Data>,
     }
 
     impl From<crate::app::model::config::service::Steam> for self::Steam {
@@ -216,28 +226,66 @@ pub mod service {
         }
     }
 
-    #[derive(Debug, Deserialize, Serialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct SteamData {
-        pub id: String,
-        pub key: String,
-        pub username: String,
-    }
+    pub mod steam {
+        use serde::{Deserialize, Serialize};
 
-    impl From<crate::app::model::config::service::SteamData> for self::SteamData {
-        fn from(data: crate::app::model::config::service::SteamData) -> Self {
-            let id = data.id;
-            let key = data.key;
-            let username = data.username;
-            Self { id, key, username }
+        #[derive(Debug, Deserialize, Serialize)]
+        #[serde(rename_all = "camelCase")]
+        pub struct Data {
+            pub id: String,
+            pub key: String,
+            pub username: String,
+        }
+
+        impl From<crate::app::model::config::service::steam::Data> for self::Data {
+            fn from(data: crate::app::model::config::service::steam::Data) -> Self {
+                let id = data.id;
+                let key = data.key;
+                let username = data.username;
+                Self { id, key, username }
+            }
         }
     }
 
-    #[derive(Debug, Deserialize, Serialize)]
+    #[derive(Debug, Default, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct Twitch {
+        pub enabled: bool,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub data: Option<self::twitch::Data>,
+    }
+
+    impl From<crate::app::model::config::service::Twitch> for self::Twitch {
+        fn from(twitch: crate::app::model::config::service::Twitch) -> Self {
+            let enabled = twitch.enabled;
+            let data = twitch.data.map(Into::into);
+            Self { enabled, data }
+        }
+    }
+
+    pub mod twitch {
+        use serde::{Deserialize, Serialize};
+
+        #[derive(Debug, Deserialize, Serialize)]
+        #[serde(rename_all = "camelCase")]
+        pub struct Data {
+            pub username: String,
+        }
+
+        impl From<crate::app::model::config::service::twitch::Data> for self::Data {
+            fn from(data: crate::app::model::config::service::twitch::Data) -> Self {
+                let username = data.username;
+                Self { username }
+            }
+        }
+    }
+
+    #[derive(Debug, Default, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
-        pub data: Option<XboxData>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub data: Option<self::xbox::Data>,
     }
 
     impl From<crate::app::model::config::service::Xbox> for self::Xbox {
@@ -248,16 +296,20 @@ pub mod service {
         }
     }
 
-    #[derive(Debug, Deserialize, Serialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct XboxData {
-        pub username: Option<String>,
-    }
+    pub mod xbox {
+        use serde::{Deserialize, Serialize};
 
-    impl From<crate::app::model::config::service::XboxData> for self::XboxData {
-        fn from(data: crate::app::model::config::service::XboxData) -> Self {
-            let username = data.username;
-            Self { username }
+        #[derive(Debug, Deserialize, Serialize)]
+        #[serde(rename_all = "camelCase")]
+        pub struct Data {
+            pub username: Option<String>,
+        }
+
+        impl From<crate::app::model::config::service::xbox::Data> for self::Data {
+            fn from(data: crate::app::model::config::service::xbox::Data) -> Self {
+                let username = data.username;
+                Self { username }
+            }
         }
     }
 }
@@ -266,22 +318,15 @@ pub mod service {
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
     pub discord_display_presence: bool,
-    pub twitch_assets_enabled: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub twitch_access_token: Option<String>,
     pub games_require_whitelisting: bool,
 }
 
 impl From<crate::app::model::config::Activity> for self::Activity {
     fn from(activity: crate::app::model::config::Activity) -> Self {
         let discord_display_presence = activity.discord_display_presence;
-        let twitch_assets_enabled = activity.twitch_assets_enabled;
-        let twitch_access_token = activity.twitch_access_token;
         let games_require_whitelisting = activity.games_require_whitelisting;
         Self {
             discord_display_presence,
-            twitch_assets_enabled,
-            twitch_access_token,
             games_require_whitelisting,
         }
     }

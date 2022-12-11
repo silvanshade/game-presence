@@ -15,10 +15,11 @@ export namespace Config {
 }
 
 export interface Services {
-  nintendo?: service.Nintendo;
-  playstation?: service.Playstation;
-  steam?: service.Steam;
-  xbox?: service.Xbox;
+  nintendo: service.Nintendo;
+  playstation: service.Playstation;
+  steam: service.Steam;
+  twitch: service.Twitch;
+  xbox: service.Xbox;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -27,8 +28,9 @@ export namespace Services {
     const nintendo = service.Nintendo.make();
     const playstation = service.Playstation.make();
     const steam = service.Steam.make();
+    const twitch = service.Twitch.make();
     const xbox = service.Xbox.make();
-    return { nintendo, playstation, steam, xbox };
+    return { nintendo, playstation, steam, twitch, xbox };
   };
 }
 
@@ -37,7 +39,7 @@ export namespace service {
   export interface Nintendo {
     disclaimerAcknowledged: boolean;
     enabled: boolean;
-    data?: NintendoData;
+    data?: Nintendo.Data;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -47,15 +49,15 @@ export namespace service {
       const enabled = false;
       return { disclaimerAcknowledged, enabled };
     };
-  }
 
-  export interface NintendoData {
-    username: string;
+    export interface Data {
+      username: string;
+    }
   }
 
   export interface Playstation {
     enabled: boolean;
-    data?: PlaystationData;
+    data?: Playstation.Data;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -64,15 +66,15 @@ export namespace service {
       const enabled = false;
       return { enabled };
     };
-  }
 
-  export interface PlaystationData {
-    username: string;
+    export interface Data {
+      username: string;
+    }
   }
 
   export interface Steam {
     enabled: boolean;
-    data?: SteamData;
+    data?: Steam.Data;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -81,17 +83,34 @@ export namespace service {
       const enabled = false;
       return { enabled };
     };
+
+    export interface Data {
+      id: string;
+      key: string;
+      username: string;
+    }
   }
 
-  export interface SteamData {
-    id: string;
-    key: string;
-    username: string;
+  export interface Twitch {
+    enabled: boolean;
+    data?: Twitch.Data;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  export namespace Twitch {
+    export const make: () => Twitch = () => {
+      const enabled = false;
+      return { enabled };
+    };
+
+    export interface Data {
+      username: string;
+    }
   }
 
   export interface Xbox {
     enabled: boolean;
-    data?: XboxData;
+    data?: Xbox.Data;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -100,17 +119,15 @@ export namespace service {
       const enabled = false;
       return { enabled };
     };
-  }
 
-  export interface XboxData {
-    username: string;
+    export interface Data {
+      username: string;
+    }
   }
 }
 
 export interface Activity {
   discordDisplayPresence: boolean;
-  twitchAssetsEnabled: boolean;
-  twitchAccessToken?: string;
   gamesRequireWhitelisting: boolean;
 }
 
@@ -118,9 +135,8 @@ export interface Activity {
 export namespace Activity {
   export const make: () => Activity = () => {
     const discordDisplayPresence = false;
-    const twitchAssetsEnabled = false;
     const gamesRequireWhitelisting = false;
-    return { discordDisplayPresence, twitchAssetsEnabled, gamesRequireWhitelisting };
+    return { discordDisplayPresence, gamesRequireWhitelisting };
   };
 }
 

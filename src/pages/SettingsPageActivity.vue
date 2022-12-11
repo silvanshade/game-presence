@@ -12,7 +12,6 @@
             color="brand-discord"
             size="xl"
             :icon="mdiDiscord"
-            @update:model-value="activityDiscordPresenceToggle"
           />
         </q-item-section>
       </q-item>
@@ -27,7 +26,6 @@
             v-model="config.activity.gamesRequireWhitelisting"
             size="xl"
             :icon="matFactCheck"
-            @update:model-value="activityGamesRequireWhitelistingToggle"
           />
         </q-item-section>
       </q-item>
@@ -49,26 +47,9 @@ export default vue.defineComponent({
   setup(_props, ctx) {
     const config = stores.config.useStore();
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    const activityDiscordPresenceToggle: (value: boolean, event: Event) => Promise<void> = async (value, event) => {
-      void event;
-      config.activity.discordDisplayPresence = value;
-    };
-
-    const activityGamesRequireWhitelistingToggle: (enable: boolean, event: Event) => Promise<void> = async (
-      value,
-      event,
-      // eslint-disable-next-line @typescript-eslint/require-await
-    ) => {
-      void event;
-      config.activity.gamesRequireWhitelisting = value;
-    };
-
     ctx.expose([]);
 
     return {
-      activityDiscordPresenceToggle,
-      activityGamesRequireWhitelistingToggle,
       matFactCheck,
       mdiDiscord,
       config,

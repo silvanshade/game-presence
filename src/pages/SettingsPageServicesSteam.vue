@@ -20,94 +20,96 @@
           />
         </q-item-section>
       </q-item>
-      <q-item>
-        <q-item-section>
-          <q-item-label>Manually reauthorize Steam account</q-item-label>
-          <q-item-label caption>Manually reconnect or change associated account</q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
-          <q-btn
-            label="reauthorize"
-            push
-            @click="servicesSteamManuallyReauthorizeAccount.button.eventClick"
-          />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item class="no-padding q-mr-md justify-end no-pointer-events">
-        <q-input
-          v-model="servicesSteamUsername.modelValue.value"
-          class="no-pointer-events non-selectable"
-          dense
-          filled
-          disable
-        >
-          <template #before>
+      <template v-if="config.services.steam.data">
+        <q-separator />
+        <q-item>
+          <q-item-section>
+            <q-item-label>Manually reauthorize Steam account</q-item-label>
+            <q-item-label caption>Manually reconnect or change associated account</q-item-label>
+          </q-item-section>
+          <q-item-section avatar>
             <q-btn
-              :icon-right="matBadge"
-              label="steam username"
-              unelevated
-              class="no-pointer-events non-selectable"
-              disable
+              label="reauthorize"
+              push
+              @click="servicesSteamManuallyReauthorizeAccount.button.eventClick"
             />
-          </template>
-          <template #prepend>
-            <q-icon
-              :name="matInfo"
-              class="all-pointer-events cursor-pointer"
-            >
-              <q-tooltip>Steam username is set automatically after connecting your account</q-tooltip>
-            </q-icon>
-          </template>
-          <template #after>
-            <q-btn
-              :icon="matCloudSync"
-              size="md"
-              unelevated
-              class="no-pointer-events non-selectable"
-              disable
-            />
-          </template>
-        </q-input>
-      </q-item>
-      <q-item class="no-padding q-mr-md justify-end">
-        <q-input
-          ref="servicesSteamApiKeyRef"
-          v-model="servicesSteamApiKey.modelValue.value"
-          dense
-          filled
-          no-error-icon
-          :rules="servicesSteamApiKey.behaviorRules"
-          @update:model-value="servicesSteamApiKey.eventUpdate"
-        >
-          <template #before>
-            <q-btn
-              :icon-right="matVpnKey"
-              label="steam api key"
-              unelevated
-              class="no-pointer-events non-selectable"
-              disable
-            />
-          </template>
-          <template #prepend>
-            <q-icon
-              :name="matContentPasteSearch"
-              class="cursor-pointer"
-              @click="servicesSteamApiKey.slotAppend.icon.eventClick"
-            >
-              <q-tooltip>Click to open API key page then paste the key here and click the save button</q-tooltip>
-            </q-icon>
-          </template>
-          <template #after>
-            <q-btn
-              :color="servicesSteamApiKey.slotAfter.btn.color.value"
-              :disable="servicesSteamApiKey.slotAfter.btn.disable.value"
-              :icon="matSaveAs"
-              @click="servicesSteamApiKey.slotAfter.btn.eventClick"
-            />
-          </template>
-        </q-input>
-      </q-item>
+          </q-item-section>
+        </q-item>
+        <q-item class="no-padding q-mr-md justify-end no-pointer-events">
+          <q-input
+            v-model="servicesSteamUsername.modelValue.value"
+            class="no-pointer-events non-selectable"
+            dense
+            filled
+            disable
+          >
+            <template #before>
+              <q-btn
+                :icon-right="matBadge"
+                label="steam username"
+                unelevated
+                class="no-pointer-events non-selectable"
+                disable
+              />
+            </template>
+            <template #prepend>
+              <q-icon
+                :name="matInfo"
+                class="all-pointer-events cursor-pointer"
+              >
+                <q-tooltip>Steam username is set automatically after connecting your account</q-tooltip>
+              </q-icon>
+            </template>
+            <template #after>
+              <q-btn
+                :icon="matCloudSync"
+                size="md"
+                unelevated
+                class="no-pointer-events non-selectable"
+                disable
+              />
+            </template>
+          </q-input>
+        </q-item>
+        <q-item class="no-padding q-mr-md justify-end">
+          <q-input
+            ref="servicesSteamApiKeyRef"
+            v-model="servicesSteamApiKey.modelValue.value"
+            dense
+            filled
+            no-error-icon
+            :rules="servicesSteamApiKey.behaviorRules"
+            @update:model-value="servicesSteamApiKey.eventUpdate"
+          >
+            <template #before>
+              <q-btn
+                :icon-right="matVpnKey"
+                label="steam api key"
+                unelevated
+                class="no-pointer-events non-selectable"
+                disable
+              />
+            </template>
+            <template #prepend>
+              <q-icon
+                :name="matContentPasteSearch"
+                class="cursor-pointer"
+                @click="servicesSteamApiKey.slotAppend.icon.eventClick"
+              >
+                <q-tooltip>Click to open API key page then paste the key here and click the save button</q-tooltip>
+              </q-icon>
+            </template>
+            <template #after>
+              <q-btn
+                :color="servicesSteamApiKey.slotAfter.btn.color.value"
+                :disable="servicesSteamApiKey.slotAfter.btn.disable.value"
+                :icon="matSaveAs"
+                @click="servicesSteamApiKey.slotAfter.btn.eventClick"
+              />
+            </template>
+          </q-input>
+        </q-item>
+      </template>
     </q-list>
   </div>
 </template>
@@ -126,10 +128,14 @@ import {
 import { mdiSteam } from "@quasar/extras/mdi-v7";
 import * as api from "@tauri-apps/api";
 
+import * as stores from "../stores";
+
 export default vue.defineComponent({
   name: "SettingsPageServicesSteam",
   components: {},
   setup(_props, ctx) {
+    const config = stores.config.useStore();
+
     const servicesSteamApiKey = new (class {
       readonly behaviorRules = [(value: string) => /^[0-9A-Z]{32}$/.test(value)];
       readonly eventUpdate = (value: string, event: Event) => {
@@ -204,6 +210,7 @@ export default vue.defineComponent({
     void servicesSteamApiKeyRef.value;
 
     return {
+      config,
       matBadge,
       matCloudSync,
       matContentPasteSearch,
