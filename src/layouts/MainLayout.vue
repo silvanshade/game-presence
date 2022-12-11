@@ -22,17 +22,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import * as vue from "vue";
 
 import HeaderBar from "../components/HeaderBar.vue";
 import SideBar from "../components/SideBar.vue";
 
-export default defineComponent({
+export default vue.defineComponent({
   name: "MainLayout",
   components: { HeaderBar, SideBar },
   setup(_props, ctx) {
     ctx.expose([]);
-    const leftDrawerOpen = ref(true);
+    const leftDrawerOpen = vue.ref(true);
     return {
       leftDrawerOpen,
     };

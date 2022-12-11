@@ -94,7 +94,14 @@ export default vue.defineComponent({
         void event;
         console.debug("servicesTwitchEnableIntegration.toggle.@update(" + value.toString() + ")");
       };
-      readonly modelValue = vue.ref(false);
+      readonly modelValue = vue.computed({
+        get: () => {
+          return config.services.twitch.enabled;
+        },
+        set: (value) => {
+          config.services.twitch.enabled = value;
+        },
+      });
     })();
 
     const servicesTwitchManuallyReauthorizeAccount = {

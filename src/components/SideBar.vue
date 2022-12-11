@@ -21,10 +21,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import * as vue from "vue";
 import { matContactSupport, matDisplaySettings, matMms } from "@quasar/extras/material-icons";
 
-export default defineComponent({
+export default vue.defineComponent({
   name: "SideBar",
   components: {},
   setup(_props, ctx) {

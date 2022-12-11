@@ -94,7 +94,14 @@ export default vue.defineComponent({
         void event;
         console.debug("servicesXboxEnableIntegration.toggle.@update(" + value.toString() + ")");
       };
-      readonly modelValue = vue.ref(false);
+      readonly modelValue = vue.computed({
+        get: () => {
+          return config.services.xbox.enabled;
+        },
+        set: (value) => {
+          config.services.xbox.enabled = value;
+        },
+      });
     })();
 
     const servicesXboxManuallyReauthorizeAccount = {

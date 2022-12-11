@@ -16,7 +16,6 @@
             color="brand-playstation"
             dense
             size="xl"
-            @update:model-value="servicesPlaystationEnableIntegration.eventUpdate"
           />
         </q-item-section>
       </q-item>
@@ -94,7 +93,14 @@ export default vue.defineComponent({
         void event;
         console.debug("servicesPlaystationEnableIntegration.toggle.@update(" + value.toString() + ")");
       };
-      readonly modelValue = vue.ref(false);
+      readonly modelValue = vue.computed({
+        get: () => {
+          return config.services.playstation.enabled;
+        },
+        set: (value) => {
+          config.services.playstation.enabled = value;
+        },
+      });
     })();
 
     const servicesPlaystationManuallyReauthorizeAccount = {

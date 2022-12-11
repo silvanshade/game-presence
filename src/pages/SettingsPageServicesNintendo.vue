@@ -26,11 +26,12 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="config.services.nintendo.enabled"
+            v-model="servicesNintendoEnableIntegration.modelValue.value"
             :icon="mdiNintendoSwitch"
             color="brand-nintendo"
             dense
             size="xl"
+            @update:model-value="servicesNintendoEnableIntegration.eventUpdate"
           />
         </q-item-section>
       </q-item>
@@ -122,6 +123,21 @@ export default vue.defineComponent({
       });
     })();
 
+    const servicesNintendoEnableIntegration = new (class {
+      readonly eventUpdate = (value: boolean, event: Event) => {
+        void event;
+        console.debug("servicesNintendoEnableIntegration.toggle.@update(" + value.toString() + ")");
+      };
+      readonly modelValue = vue.computed({
+        get: () => {
+          return config.services.nintendo.enabled;
+        },
+        set: (value) => {
+          config.services.nintendo.enabled = value;
+        },
+      });
+    })();
+
     const servicesNintendoManuallyReauthorizeAccount = {
       button: new (class {
         readonly eventClick = (event: Event) => {
@@ -143,6 +159,7 @@ export default vue.defineComponent({
       matInfo,
       matPrivacyTip,
       mdiNintendoSwitch,
+      servicesNintendoEnableIntegration,
       servicesNintendoIntegrationDisclaimerAcknowledged,
       servicesNintendoManuallyReauthorizeAccount,
       servicesNintendoUsername,

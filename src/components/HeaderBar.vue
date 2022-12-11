@@ -40,20 +40,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import * as vue from "vue";
 import { matHideImage, matImage, matVisibility, matVisibilityOff } from "@quasar/extras/material-icons";
 
-export default defineComponent({
+export default vue.defineComponent({
   name: "HeaderBar",
   components: {},
   setup(_props, ctx) {
-    const toggleShowHideGameModel = ref<"show" | "hide">("hide");
-    const toggleShowHideGameOptions = ref<{ value: string; slot: string }[]>([
+    const toggleShowHideGameModel = vue.ref<"show" | "hide">("hide");
+    const toggleShowHideGameOptions = vue.ref<{ value: string; slot: string }[]>([
       { value: "show", slot: "show" },
       { value: "hide", slot: "hide" },
     ]);
-    const toggleShowHideAllModel = ref<"show" | "hide">("show");
-    const toggleShowHideAllOptions = ref<{ value: string; slot: string }[]>([
+    const toggleShowHideAllModel = vue.ref<"show" | "hide">("show");
+    const toggleShowHideAllOptions = vue.ref<{ value: string; slot: string }[]>([
       { value: "show", slot: "show" },
       { value: "hide", slot: "hide" },
     ]);

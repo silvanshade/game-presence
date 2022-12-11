@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import * as vue from "vue";
 import * as api from "@tauri-apps/api";
 import * as urql from "@urql/vue";
 import { gql } from "@urql/vue";
@@ -13,7 +13,7 @@ import MainLayout from "layouts/MainLayout.vue";
 import * as models from "./models";
 import * as stores from "./stores";
 
-export default defineComponent({
+export default vue.defineComponent({
   name: "App",
   components: { MainLayout },
   setup(_props, ctx) {
@@ -47,7 +47,9 @@ export default defineComponent({
       configMutation.executeMutation(variables).catch(console.error);
     });
 
-    api.tauri.invoke("config_load").catch(console.error);
+    vue.onBeforeMount(async () => {
+      await api.tauri.invoke("config_load").catch(console.error);
+    });
 
     ctx.expose([]);
 

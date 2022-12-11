@@ -136,6 +136,34 @@ export default vue.defineComponent({
   setup(_props, ctx) {
     const config = stores.config.useStore();
 
+    const servicesSteamEnableIntegration = new (class {
+      readonly eventUpdate = (value: boolean, event: Event) => {
+        void event;
+        console.debug("servicesSteamEnableIntegration.toggle.@update(" + value.toString() + ")");
+      };
+      readonly modelValue = vue.computed({
+        get: () => {
+          return config.services.steam.enabled;
+        },
+        set: (value) => {
+          config.services.steam.enabled = value;
+        },
+      });
+    })();
+
+    const servicesSteamManuallyReauthorizeAccount = {
+      button: new (class {
+        readonly eventClick = (event: Event) => {
+          void event;
+          console.debug("servicesSteamManuallyReauthorizeAccount.button.@click");
+        };
+      })(),
+    };
+
+    const servicesSteamUsername = {
+      modelValue: vue.ref("servicesSteamUsername"),
+    };
+
     const servicesSteamApiKey = new (class {
       readonly behaviorRules = [(value: string) => /^[0-9A-Z]{32}$/.test(value)];
       readonly eventUpdate = (value: string, event: Event) => {
@@ -184,30 +212,7 @@ export default vue.defineComponent({
     })();
     const servicesSteamApiKeyRef = vue.ref<QInput>();
 
-    const servicesSteamEnableIntegration = new (class {
-      readonly eventUpdate = (value: boolean, event: Event) => {
-        void event;
-        console.debug("servicesSteamEnableIntegration.toggle.@update(" + value.toString() + ")");
-      };
-      readonly modelValue = vue.ref(false);
-    })();
-
-    const servicesSteamManuallyReauthorizeAccount = {
-      button: new (class {
-        readonly eventClick = (event: Event) => {
-          void event;
-          console.debug("servicesSteamManuallyReauthorizeAccount.button.@click");
-        };
-      })(),
-    };
-
-    const servicesSteamUsername = {
-      modelValue: vue.ref("servicesSteamUsername"),
-    };
-
     ctx.expose([]);
-
-    void servicesSteamApiKeyRef.value;
 
     return {
       config,
