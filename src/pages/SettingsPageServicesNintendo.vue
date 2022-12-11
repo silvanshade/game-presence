@@ -1,5 +1,5 @@
 <template>
-  <div class="fit column flex-center">
+  <div class="fit column items-center">
     <q-list
       class="q-gutter-sm"
       dense
@@ -7,7 +7,7 @@
       <q-item>
         <q-item-section>
           <q-item-label>Acknowledge disclaimer about enabling Nintendo integration</q-item-label>
-          <q-item-label caption>Toggle to read and acknowledge disclaimer to allow Nintendo integration</q-item-label>
+          <q-item-label caption>Toggle to read and acknowledge disclaimer</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-toggle

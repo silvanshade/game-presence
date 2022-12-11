@@ -38,16 +38,10 @@
       >
         <SettingsPageServices />
       </q-tab-panel>
-      <q-tab-panel
-        name="activity"
-        class=""
-      >
+      <q-tab-panel name="activity">
         <SettingsPageActivity />
       </q-tab-panel>
-      <q-tab-panel
-        name="games"
-        class=""
-      ></q-tab-panel>
+      <q-tab-panel name="games"></q-tab-panel>
     </q-tab-panels>
   </div>
 </template>

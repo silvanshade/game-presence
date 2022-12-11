@@ -1,5 +1,5 @@
 <template>
-  <div class="row full-width">
+  <div class="row fit">
     <q-tabs
       v-model="tab"
       vertical
@@ -52,7 +52,6 @@
       v-model="tab"
       animated
       class="col"
-      style="min-height: 226px"
     >
       <q-tab-panel name="nintendo"><SettingsPageServicesNintendo /></q-tab-panel>
       <q-tab-panel name="playstation"><SettingsPageServicesPlaystation /></q-tab-panel>
