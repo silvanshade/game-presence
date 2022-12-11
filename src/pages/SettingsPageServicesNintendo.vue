@@ -3,6 +3,7 @@
     <q-list
       class="q-gutter-sm"
       dense
+      seperator
     >
       <q-item>
         <q-item-section>
@@ -19,7 +20,7 @@
           />
         </q-item-section>
       </q-item>
-      <q-item :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue">
+      <q-item :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value">
         <q-item-section>
           <q-item-label>Enable Nintendo integration</q-item-label>
           <q-item-label caption>Enable reporting Nintendo activity as discord status</q-item-label>
@@ -27,6 +28,7 @@
         <q-item-section avatar>
           <q-toggle
             v-model="servicesNintendoEnableIntegration.modelValue.value"
+            :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
             :icon="mdiNintendoSwitch"
             color="brand-nintendo"
             dense
