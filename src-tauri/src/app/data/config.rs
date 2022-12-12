@@ -34,7 +34,7 @@ impl Config {
     fn file_base() -> Result<std::path::PathBuf, Error> {
         let base = directories::BaseDirs::new().context(DirectoriesBaseDirsNewSnafu)?;
         let mut path = base.config_dir().to_path_buf();
-        path.push("Game Presence");
+        path.push("game-presence");
         Ok(path)
     }
 
