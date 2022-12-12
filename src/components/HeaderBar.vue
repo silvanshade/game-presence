@@ -3,17 +3,40 @@
     dense
     class="bg-black text-white q-pr-none"
   >
-    <q-toolbar-title style="font-size: 16px">Status: </q-toolbar-title>
-    <q-space />
+    <q-toolbar-title
+      shrink
+      class="q-pr-sm"
+      style="font-size: 18px; font-variant: small-caps"
+    >
+      status
+    </q-toolbar-title>
+    <q-separator
+      dark
+      inset
+      vertical
+      class="q-px-none"
+    />
+    <q-toolbar-title
+      class="q-px-sm"
+      style="font-size: 16px"
+    >
+      « no active presence data »
+    </q-toolbar-title>
     <q-card class="q-my-xs q-mr-xs">
       <q-card-section
         horizontal
         class="bg-brand-discord"
       >
-        <q-card-section class="text-white column flex-center q-pl-sm q-pr-none q-py-sm">
-          <div style="font-size: 16px">Visibility:</div>
+        <q-card-section class="text-white column flex-center q-pa-sm">
+          <div style="font-size: 18px; font-variant: small-caps">visibility</div>
         </q-card-section>
-        <q-card-section class="text-black q-pr-sm q-py-sm">
+        <q-separator
+          dark
+          inset
+          vertical
+          class="q-px-none"
+        />
+        <q-card-section class="text-black q-pa-sm">
           <q-btn-toggle
             v-model="showHideGame.model.value"
             :options="showHideGame.options"
