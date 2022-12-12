@@ -1,11 +1,5 @@
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
-use std::sync::Arc;
-use tokio::sync::{
-    watch::{Receiver, Sender},
-    Mutex,
-    RwLock,
-};
 
 #[derive(Debug, Snafu)]
 pub enum Error {
@@ -131,6 +125,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
+        pub game_asset_sources: Vec<crate::app::data::config::AssetSource>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::playstation::Data>,
     }
@@ -140,8 +135,13 @@ pub mod service {
 
         fn try_from(playstation: crate::app::data::config::service::Playstation) -> Result<Self, Self::Error> {
             let enabled = playstation.enabled;
+            let game_asset_sources = playstation.game_asset_sources;
             let data = playstation.data.map(TryInto::try_into).transpose()?;
-            Ok(Self { enabled, data })
+            Ok(Self {
+                enabled,
+                game_asset_sources,
+                data,
+            })
         }
     }
 
@@ -168,6 +168,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
+        pub game_asset_sources: Vec<crate::app::data::config::AssetSource>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::steam::Data>,
     }
@@ -177,8 +178,13 @@ pub mod service {
 
         fn try_from(steam: crate::app::data::config::service::Steam) -> Result<Self, Self::Error> {
             let enabled = steam.enabled;
+            let game_asset_sources = steam.game_asset_sources;
             let data = steam.data.map(TryInto::try_into).transpose()?;
-            Ok(Self { enabled, data })
+            Ok(Self {
+                enabled,
+                game_asset_sources,
+                data,
+            })
         }
     }
 
@@ -246,6 +252,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
+        pub game_asset_sources: Vec<crate::app::data::config::AssetSource>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::xbox::Data>,
     }
@@ -255,8 +262,13 @@ pub mod service {
 
         fn try_from(xbox: crate::app::data::config::service::Xbox) -> Result<Self, Self::Error> {
             let enabled = xbox.enabled;
+            let game_asset_sources = xbox.game_asset_sources;
             let data = xbox.data.map(TryInto::try_into).transpose()?;
-            Ok(Self { enabled, data })
+            Ok(Self {
+                enabled,
+                game_asset_sources,
+                data,
+            })
         }
     }
 

@@ -3,7 +3,6 @@
     <q-list
       class="q-gutter-sm"
       dense
-      seperator
     >
       <q-item>
         <q-item-section>

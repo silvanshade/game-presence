@@ -199,6 +199,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
+        pub game_asset_sources: Vec<super::AssetSource>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::playstation::Data>,
     }
@@ -206,8 +207,13 @@ pub mod service {
     impl From<crate::app::model::config::service::Playstation> for self::Playstation {
         fn from(playstation: crate::app::model::config::service::Playstation) -> Self {
             let enabled = playstation.enabled;
+            let game_asset_sources = playstation.game_asset_sources;
             let data = playstation.data.map(Into::into);
-            Self { enabled, data }
+            Self {
+                enabled,
+                game_asset_sources,
+                data,
+            }
         }
     }
 
@@ -232,6 +238,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
+        pub game_asset_sources: Vec<super::AssetSource>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::steam::Data>,
     }
@@ -239,8 +246,13 @@ pub mod service {
     impl From<crate::app::model::config::service::Steam> for self::Steam {
         fn from(steam: crate::app::model::config::service::Steam) -> Self {
             let enabled = steam.enabled;
+            let game_asset_sources = steam.game_asset_sources;
             let data = steam.data.map(Into::into);
-            Self { enabled, data }
+            Self {
+                enabled,
+                game_asset_sources,
+                data,
+            }
         }
     }
 
@@ -302,6 +314,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
+        pub game_asset_sources: Vec<super::AssetSource>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::xbox::Data>,
     }
@@ -309,8 +322,13 @@ pub mod service {
     impl From<crate::app::model::config::service::Xbox> for self::Xbox {
         fn from(xbox: crate::app::model::config::service::Xbox) -> Self {
             let enabled = xbox.enabled;
+            let game_asset_sources = xbox.game_asset_sources;
             let data = xbox.data.map(Into::into);
-            Self { enabled, data }
+            Self {
+                enabled,
+                game_asset_sources,
+                data,
+            }
         }
     }
 

@@ -1,6 +1,9 @@
 <template>
-  <div class="fit flex-center column">
-    <q-list dense>
+  <div class="fit column items-center">
+    <q-list
+      class="q-gutter-sm"
+      dense
+    >
       <q-item>
         <q-item-section>
           <q-item-label>Display status as Discord presence</q-item-label>
@@ -10,6 +13,7 @@
           <q-toggle
             v-model="config.activity.discordDisplayPresence"
             color="brand-discord"
+            dense
             size="xl"
             :icon="mdiDiscord"
           />
@@ -24,6 +28,7 @@
         <q-item-section avatar>
           <q-toggle
             v-model="config.activity.gamesRequireWhitelisting"
+            dense
             size="xl"
             :icon="matFactCheck"
           />
@@ -37,7 +42,6 @@
 import * as vue from "vue";
 import { matFactCheck } from "@quasar/extras/material-icons";
 import { mdiDiscord } from "@quasar/extras/mdi-v6";
-// import * as api from "@tauri-apps/api";
 
 import * as stores from "../stores";
 
