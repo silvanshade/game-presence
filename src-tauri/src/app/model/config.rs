@@ -311,8 +311,8 @@ impl TryFrom<crate::app::data::config::Games> for self::Games {
 
 #[derive(Clone)]
 pub struct Channels {
-    pub tx: Arc<Mutex<Sender<crate::app::ipc::Payload<Config>>>>,
-    pub rx: Arc<RwLock<Receiver<crate::app::ipc::Payload<Config>>>>,
+    pub tx: Arc<Mutex<Sender<crate::app::ipc::Payload>>>,
+    pub rx: Arc<RwLock<Receiver<crate::app::ipc::Payload>>>,
 }
 
 impl Channels {
@@ -320,7 +320,10 @@ impl Channels {
         let payload = {
             let provenience = crate::app::ipc::Provenience::Backend;
             let data = Config::default();
-            crate::app::ipc::Payload { provenience, data }
+            crate::app::ipc::Payload {
+                provenience,
+                config: data,
+            }
         };
         let (tx, rx) = tokio::sync::watch::channel(payload);
         let (tx, rx) = (Arc::new(Mutex::new(tx)), Arc::new(RwLock::new(rx)));

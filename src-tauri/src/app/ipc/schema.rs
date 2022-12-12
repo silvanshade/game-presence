@@ -41,11 +41,11 @@ impl Subscription {
         let state = ctx.data::<crate::app::model::State>()?;
         let stream = async_stream::try_stream! {
             loop {
-                let mut rx = state.config.rx.write().await;
+                let mut rx = state.rx.write().await;
                 rx.changed().await?;
-                if rx.borrow().is_from_backend() {
-                    let data = rx.borrow().data.clone();
-                    yield serde_json::to_value(data)?;
+                if rx.borrow().provenience == crate::app::ipc::Provenience::Backend {
+                    let config = rx.borrow().config.clone();
+                    yield serde_json::to_value(config)?;
                 }
             }
         };

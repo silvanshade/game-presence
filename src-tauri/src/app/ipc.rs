@@ -2,24 +2,15 @@ mod schema;
 
 pub use schema::schema;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub enum Provenience {
+    #[default]
     Backend,
     Frontend,
 }
 
-#[derive(Debug)]
-pub struct Payload<T> {
+#[derive(Debug, Default)]
+pub struct Payload {
     pub provenience: Provenience,
-    pub data: T,
-}
-
-impl<T> Payload<T> {
-    pub fn is_from_backend(&self) -> bool {
-        self.provenience == Provenience::Backend
-    }
-
-    // pub fn is_from_frontend(&self) -> bool {
-    //     self.provenience == Provenience::Frontend
-    // }
+    pub config: crate::app::model::Config,
 }

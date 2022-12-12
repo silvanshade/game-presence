@@ -1,8 +1,15 @@
 use snafu::prelude::*;
+use std::sync::Arc;
+use tokio::sync::{
+    watch::{Receiver, Sender},
+    Mutex,
+    RwLock,
+};
 
 #[derive(Clone)]
 pub struct State {
-    pub config: crate::app::model::config::Channels,
+    pub tx: Arc<Mutex<Sender<crate::app::ipc::Payload>>>,
+    pub rx: Arc<RwLock<Receiver<crate::app::ipc::Payload>>>,
 }
 
 #[derive(Debug, Snafu)]
@@ -17,14 +24,18 @@ pub enum Error {
         source: crate::app::model::config::Error,
     },
     TokioWatchSend {
-        source: tokio::sync::watch::error::SendError<crate::app::ipc::Payload<crate::app::model::Config>>,
+        source: tokio::sync::watch::error::SendError<crate::app::ipc::Payload>,
     },
 }
 
 impl State {
-    pub fn init() -> Result<Self, Error> {
-        let config = crate::app::model::config::Channels::init().context(ConfigChannelsInitSnafu)?;
-        Ok(Self { config })
+    pub async fn init() -> Result<Self, Error> {
+        let (tx, rx) = tokio::sync::watch::channel(crate::app::ipc::Payload::default());
+        let (tx, rx) = (Arc::new(Mutex::new(tx)), Arc::new(RwLock::new(rx)));
+        let state = Self { tx, rx };
+        let config = crate::app::model::Config::load().await.context(ConfigLoadSnafu)?;
+        state.update_with_broadcast(config).await?;
+        Ok(state)
     }
 
     async fn update(
@@ -33,8 +44,11 @@ impl State {
         provenience: crate::app::ipc::Provenience,
     ) -> Result<(), Error> {
         data.save().await.context(ConfigSaveSnafu)?;
-        let payload = crate::app::ipc::Payload { provenience, data };
-        self.config.tx.lock().await.send(payload).context(TokioWatchSendSnafu)?;
+        let payload = crate::app::ipc::Payload {
+            provenience,
+            config: data,
+        };
+        self.tx.lock().await.send(payload).context(TokioWatchSendSnafu)?;
         Ok(())
     }
 

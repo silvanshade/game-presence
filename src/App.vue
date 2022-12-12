@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import * as vue from "vue";
-import * as api from "@tauri-apps/api";
+// import * as api from "@tauri-apps/api";
 import * as urql from "@urql/vue";
 import { gql } from "@urql/vue";
 
@@ -45,10 +45,6 @@ export default vue.defineComponent({
       void mutation;
       const variables = { data: state };
       configMutation.executeMutation(variables).catch(console.error);
-    });
-
-    vue.onBeforeMount(async () => {
-      await api.tauri.invoke("config_load").catch(console.error);
     });
 
     ctx.expose([]);

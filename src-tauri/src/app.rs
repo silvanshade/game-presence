@@ -9,7 +9,6 @@ mod tray;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    StateInit { source: crate::app::model::state::Error },
     TauriBuild { source: tauri::Error },
     TauriMenuItemSetTitle { source: tauri::Error },
     TauriWindowHide { source: tauri::Error },
@@ -31,7 +30,7 @@ fn make_system_tray() -> tauri::SystemTray {
     tauri::SystemTray::new().with_menu(system_tray_menu)
 }
 
-pub(crate) fn init() -> Result<(), Error> {
+pub(crate) fn init(state: crate::app::model::State) -> Result<(), Error> {
     let context = tauri::generate_context!();
 
     // create the default builder
@@ -45,9 +44,6 @@ pub(crate) fn init() -> Result<(), Error> {
 
     // handle system tray events
     let builder = builder.on_system_tray_event(handler::system_tray());
-
-    // initialize the state structure
-    let state = crate::app::model::State::init().context(StateInitSnafu)?;
 
     // configure the app state
     let builder = builder.manage(state.clone());
