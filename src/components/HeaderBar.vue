@@ -42,7 +42,7 @@
       class="q-pa-none text-center"
       style="font-size: 16px"
     >
-      Sekiro: Shadows Die Twice Sekiro: Shadows Die Twice Sekiro: Shadows Die Twice
+      Sekiro: Shadows Die Twice
     </q-toolbar-title>
     <q-card class="q-ma-xs q-ml-sm">
       <q-card-section
