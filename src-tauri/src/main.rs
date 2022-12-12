@@ -9,7 +9,9 @@ enum Error {
     AppInit { source: crate::app::Error },
 }
 
-fn main() -> Result<(), Error> {
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    tauri::async_runtime::set(tokio::runtime::Handle::current());
     crate::app::init().context(AppInitSnafu)?;
     Ok(())
 }
