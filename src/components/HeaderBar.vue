@@ -38,26 +38,11 @@
         </q-card-section>
       </q-card-section>
     </q-card>
-    <!--
-      <q-toolbar-title
-      shrink
-      class="q-pa-none q-pl-sm"
-      style="font-size: 18px; font-variant: small-caps"
-      >
-      status
-      </q-toolbar-title>
-      <q-separator
-      dark
-      inset
-      vertical
-      class="q-mx-xs"
-      />
-    -->
     <q-toolbar-title
       class="q-pa-none text-center"
       style="font-size: 16px"
     >
-      Sekiro: Shadows Die Twice
+      Sekiro: Shadows Die Twice Sekiro: Shadows Die Twice Sekiro: Shadows Die Twice
     </q-toolbar-title>
     <q-card class="q-ma-xs q-ml-sm">
       <q-card-section
