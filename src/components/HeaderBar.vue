@@ -1,7 +1,7 @@
 <template>
   <q-toolbar
     dense
-    class="bg-black text-white q-px-none"
+    class="q-px-none bg-black text-white"
   >
     <q-card class="q-ma-xs q-mr-sm">
       <q-card-section
@@ -12,25 +12,26 @@
           <div style="font-size: 18px; font-variant: small-caps">activity</div>
         </q-card-section>
         <q-separator
+          dark
           inset
           vertical
           class="q-px-none"
         />
         <q-card-section class="q-pa-sm">
           <q-btn-toggle
-            v-model="hideShowAll.model.value"
-            :options="hideShowAll.options"
-            :toggle-color="hideShowAll.toggleColor.value"
+            v-model="pausePlayActivity.model.value"
+            :options="pausePlayActivity.options"
+            :toggle-color="pausePlayActivity.toggleColor.value"
             dense
             push
             size="md"
             class="bg-white text-black"
           >
-            <template #hide>
+            <template #pause>
               <q-icon :name="symOutlinedAutoReadPause" />
               <q-tooltip style="white-space: nowrap"> pause activity polling </q-tooltip>
             </template>
-            <template #show>
+            <template #play>
               <q-icon :name="symOutlinedAutoReadPlay" />
               <q-tooltip style="white-space: nowrap"> continue activity polling </q-tooltip>
             </template>
@@ -39,7 +40,7 @@
       </q-card-section>
     </q-card>
     <q-toolbar-title
-      class="q-pa-none text-center"
+      class="text-center q-pa-none"
       style="font-size: 16px"
     >
       Sekiro: Shadows Die Twice
@@ -49,7 +50,7 @@
         horizontal
         class="bg-brand-discord"
       >
-        <q-card-section class="text-white column flex-center q-pa-sm">
+        <q-card-section class="column flex-center q-pa-sm text-white">
           <div style="font-size: 18px; font-variant: small-caps">visibility</div>
         </q-card-section>
         <q-separator
@@ -58,7 +59,7 @@
           vertical
           class="q-px-none"
         />
-        <q-card-section class="text-black q-pa-sm">
+        <q-card-section class="q-pa-sm text-black">
           <q-btn-toggle
             v-model="hideShowGame.model.value"
             :options="hideShowGame.options"
@@ -116,6 +117,45 @@ export default vue.defineComponent({
   components: {},
   setup(_props, ctx) {
     const config = stores.config.useStore();
+
+    const pausePlayActivity = new (class {
+      readonly model = vue.computed({
+        get: () => {
+          switch (config.activity.pollingActive) {
+            case false:
+              return "pause";
+            case true:
+              return "play";
+            default:
+              return undefined as never;
+          }
+        },
+        set: (value: "pause" | "play") => {
+          switch (value) {
+            case "pause":
+              config.activity.pollingActive = false;
+              break;
+            case "play":
+              config.activity.pollingActive = true;
+              break;
+          }
+        },
+      });
+      readonly options: quasar.QBtnToggleProps["options"] = [
+        { value: "pause", slot: "pause" },
+        { value: "play", slot: "play" },
+      ];
+      readonly toggleColor = vue.computed<"negative" | "positive">(() => {
+        switch (this.model.value) {
+          case "pause":
+            return "negative";
+          case "play":
+            return "positive";
+          default:
+            return undefined as never;
+        }
+      });
+    })();
 
     const hideShowGame = new (class {
       readonly model = vue.ref<"hide" | "show">("hide");
@@ -184,6 +224,7 @@ export default vue.defineComponent({
       matImage,
       matVisibility,
       matVisibilityOff,
+      pausePlayActivity,
       symOutlinedAutoReadPause,
       symOutlinedAutoReadPlay,
     };

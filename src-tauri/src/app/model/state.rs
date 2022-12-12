@@ -30,11 +30,17 @@ pub enum Error {
 
 impl State {
     pub async fn init() -> Result<Self, Error> {
-        let (tx, rx) = tokio::sync::watch::channel(crate::app::ipc::Payload::default());
-        let (tx, rx) = (Arc::new(Mutex::new(tx)), Arc::new(RwLock::new(rx)));
-        let state = Self { tx, rx };
-        let config = crate::app::model::Config::load().await.context(ConfigLoadSnafu)?;
-        state.update_with_broadcast(config).await?;
+        let payload = {
+            let provenience = crate::app::ipc::Provenience::default();
+            let config = crate::app::model::Config::load().await.context(ConfigLoadSnafu)?;
+            crate::app::ipc::Payload { provenience, config }
+        };
+        let state = {
+            let (tx, rx) = tokio::sync::watch::channel(payload.clone());
+            let (tx, rx) = (Arc::new(Mutex::new(tx)), Arc::new(RwLock::new(rx)));
+            Self { tx, rx }
+        };
+        state.tx.lock().await.send(payload).context(TokioWatchSendSnafu)?;
         Ok(state)
     }
 

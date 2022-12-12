@@ -138,23 +138,41 @@ impl From<crate::app::model::config::Services> for self::Services {
 pub mod service {
     use serde::{Deserialize, Serialize};
 
-    #[derive(Debug, Default, Deserialize, Serialize)]
+    #[derive(Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
         pub disclaimer_acknowledged: bool,
         pub enabled: bool,
+        pub game_asset_sources: Vec<super::AssetSource>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::nintendo::Data>,
+    }
+
+    impl Default for self::Nintendo {
+        fn default() -> Self {
+            let disclaimer_acknowledged = bool::default();
+            let enabled = bool::default();
+            let game_asset_sources = vec![super::AssetSource::default()];
+            let data = Option::default();
+            Self {
+                disclaimer_acknowledged,
+                enabled,
+                game_asset_sources,
+                data,
+            }
+        }
     }
 
     impl From<crate::app::model::config::service::Nintendo> for self::Nintendo {
         fn from(nintendo: crate::app::model::config::service::Nintendo) -> Self {
             let disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
             let enabled = nintendo.enabled;
+            let game_asset_sources = nintendo.game_asset_sources;
             let data = nintendo.data.map(Into::into);
             Self {
                 disclaimer_acknowledged,
                 enabled,
+                game_asset_sources,
                 data,
             }
         }
@@ -314,18 +332,28 @@ pub mod service {
     }
 }
 
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize)]
+pub enum AssetSource {
+    #[default]
+    Native,
+    Twitch,
+}
+
 #[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
+    pub polling_active: bool,
     pub discord_display_presence: bool,
     pub games_require_whitelisting: bool,
 }
 
 impl From<crate::app::model::config::Activity> for self::Activity {
     fn from(activity: crate::app::model::config::Activity) -> Self {
+        let polling_active = activity.polling_active;
         let discord_display_presence = activity.discord_display_presence;
         let games_require_whitelisting = activity.games_require_whitelisting;
         Self {
+            polling_active,
             discord_display_presence,
             games_require_whitelisting,
         }

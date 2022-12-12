@@ -127,6 +127,7 @@ export namespace service {
 }
 
 export interface Activity {
+  pollingActive: boolean;
   discordDisplayPresence: boolean;
   gamesRequireWhitelisting: boolean;
 }
@@ -134,9 +135,10 @@ export interface Activity {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Activity {
   export const make: () => Activity = () => {
+    const pollingActive = false;
     const discordDisplayPresence = false;
     const gamesRequireWhitelisting = false;
-    return { discordDisplayPresence, gamesRequireWhitelisting };
+    return { pollingActive, discordDisplayPresence, gamesRequireWhitelisting };
   };
 }
 

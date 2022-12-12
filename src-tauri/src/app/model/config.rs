@@ -14,7 +14,7 @@ pub enum Error {
     TauriSpawnBlocking { source: tauri::Error },
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub services: Services,
@@ -49,7 +49,7 @@ impl TryFrom<crate::app::data::Config> for Config {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Services {
     pub nintendo: self::service::Nintendo,
@@ -81,11 +81,12 @@ impl TryFrom<crate::app::data::config::Services> for self::Services {
 pub mod service {
     use serde::{Deserialize, Serialize};
 
-    #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+    #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
         pub disclaimer_acknowledged: bool,
         pub enabled: bool,
+        pub game_asset_sources: Vec<crate::app::data::config::AssetSource>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::nintendo::Data>,
     }
@@ -96,10 +97,12 @@ pub mod service {
         fn try_from(nintendo: crate::app::data::config::service::Nintendo) -> Result<Self, Self::Error> {
             let disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
             let enabled = nintendo.enabled;
+            let game_asset_sources = nintendo.game_asset_sources;
             let data = nintendo.data.map(TryInto::try_into).transpose()?;
             Ok(Self {
                 disclaimer_acknowledged,
                 enabled,
+                game_asset_sources,
                 data,
             })
         }
@@ -108,7 +111,7 @@ pub mod service {
     pub mod nintendo {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+        #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {
             pub username: Option<String>,
@@ -124,7 +127,7 @@ pub mod service {
         }
     }
 
-    #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+    #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
@@ -161,7 +164,7 @@ pub mod service {
         }
     }
 
-    #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+    #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
@@ -202,7 +205,7 @@ pub mod service {
         }
     }
 
-    #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+    #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Twitch {
         pub enabled: bool,
@@ -239,7 +242,7 @@ pub mod service {
         }
     }
 
-    #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+    #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
@@ -277,9 +280,10 @@ pub mod service {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
+    pub polling_active: bool,
     pub discord_display_presence: bool,
     pub games_require_whitelisting: bool,
 }
@@ -288,16 +292,18 @@ impl TryFrom<crate::app::data::config::Activity> for self::Activity {
     type Error = Error;
 
     fn try_from(activity: crate::app::data::config::Activity) -> Result<Self, Error> {
+        let polling_active = activity.polling_active;
         let discord_display_presence = activity.discord_display_presence;
         let games_require_whitelisting = activity.games_require_whitelisting;
         Ok(Self {
+            polling_active,
             discord_display_presence,
             games_require_whitelisting,
         })
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {}
 
@@ -306,27 +312,5 @@ impl TryFrom<crate::app::data::config::Games> for self::Games {
 
     fn try_from(_games: crate::app::data::config::Games) -> Result<Self, Error> {
         Ok(Self {})
-    }
-}
-
-#[derive(Clone)]
-pub struct Channels {
-    pub tx: Arc<Mutex<Sender<crate::app::ipc::Payload>>>,
-    pub rx: Arc<RwLock<Receiver<crate::app::ipc::Payload>>>,
-}
-
-impl Channels {
-    pub fn init() -> Result<Self, Error> {
-        let payload = {
-            let provenience = crate::app::ipc::Provenience::Backend;
-            let data = Config::default();
-            crate::app::ipc::Payload {
-                provenience,
-                config: data,
-            }
-        };
-        let (tx, rx) = tokio::sync::watch::channel(payload);
-        let (tx, rx) = (Arc::new(Mutex::new(tx)), Arc::new(RwLock::new(rx)));
-        Ok(Self { tx, rx })
     }
 }
