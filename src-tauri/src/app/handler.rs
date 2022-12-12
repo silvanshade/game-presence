@@ -1,4 +1,4 @@
-use snafu::prelude::*;
+pub use snafu::prelude::*;
 
 fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(), crate::app::Error> {
     use tauri::Manager;
