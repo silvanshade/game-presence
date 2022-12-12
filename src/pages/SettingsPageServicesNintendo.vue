@@ -14,6 +14,7 @@
           <q-toggle
             v-model="servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
             :icon="matPrivacyTip"
+            color="warning"
             dense
             size="xl"
             @update:model-value="servicesNintendoIntegrationDisclaimerAcknowledged.eventUpdate"
@@ -46,6 +47,7 @@
           </q-item-section>
           <q-item-section avatar>
             <q-btn
+              :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
               label="reauthorize"
               push
               @click="servicesNintendoManuallyReauthorizeAccount.button.eventClick"

@@ -81,7 +81,10 @@ overrides:
       vue/require-emit-validator: error
       vue/require-expose: error
       vue/require-name-property: error
-      vue/script-indent: error
+      vue/script-indent:
+        - error
+        - 2
+        - switchCase: 1
       # vue/sort-keys: error
       # vue/static-class-names-order: error
       vue/v-for-delimiter-style: error
