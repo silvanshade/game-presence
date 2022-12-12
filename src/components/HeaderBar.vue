@@ -1,51 +1,56 @@
 <template>
   <q-toolbar
     dense
-    class="bg-black text-white"
+    class="bg-black text-white q-pr-none"
   >
     <q-toolbar-title style="font-size: 16px">Status: </q-toolbar-title>
     <q-space />
-    <q-card
-      flat
-      class="q-my-sm"
-    >
-      <q-card-section class="bg-brand-discord text-black q-px-sm q-py-sm">
-        <q-btn-toggle
-          v-model="showHideGame.model.value"
-          :options="showHideGame.options"
-          :toggle-color="showHideGame.toggleColor.value"
-          dense
-          push
-          size="md"
-          class="q-mr-sm bg-white text-black"
-        >
-          <template #show>
-            <q-icon :name="matImage" />
-            <q-tooltip style="white-space: nowrap"> show this game as presence </q-tooltip>
-          </template>
-          <template #hide>
-            <q-icon :name="matHideImage" />
-            <q-tooltip style="white-space: nowrap"> hide this game as presence </q-tooltip>
-          </template>
-        </q-btn-toggle>
-        <q-btn-toggle
-          v-model="showHideAll.model.value"
-          :options="showHideAll.options"
-          :toggle-color="showHideAll.toggleColor.value"
-          dense
-          push
-          size="md"
-          class="bg-white text-black"
-        >
-          <template #show>
-            <q-icon :name="matVisibility" />
-            <q-tooltip style="white-space: nowrap"> enable presence </q-tooltip>
-          </template>
-          <template #hide>
-            <q-icon :name="matVisibilityOff" />
-            <q-tooltip style="white-space: nowrap"> disable presence </q-tooltip>
-          </template>
-        </q-btn-toggle>
+    <q-card class="q-my-xs q-mr-xs">
+      <q-card-section
+        horizontal
+        class="bg-brand-discord"
+      >
+        <q-card-section class="text-white column flex-center q-pl-sm q-pr-none q-py-sm">
+          <div style="font-size: 16px">Visibility:</div>
+        </q-card-section>
+        <q-card-section class="text-black q-pr-sm q-py-sm">
+          <q-btn-toggle
+            v-model="showHideGame.model.value"
+            :options="showHideGame.options"
+            :toggle-color="showHideGame.toggleColor.value"
+            dense
+            push
+            size="md"
+            class="q-mr-sm bg-white text-black"
+          >
+            <template #show>
+              <q-icon :name="matImage" />
+              <q-tooltip style="white-space: nowrap"> show this game as presence </q-tooltip>
+            </template>
+            <template #hide>
+              <q-icon :name="matHideImage" />
+              <q-tooltip style="white-space: nowrap"> hide this game as presence </q-tooltip>
+            </template>
+          </q-btn-toggle>
+          <q-btn-toggle
+            v-model="showHideAll.model.value"
+            :options="showHideAll.options"
+            :toggle-color="showHideAll.toggleColor.value"
+            dense
+            push
+            size="md"
+            class="bg-white text-black"
+          >
+            <template #show>
+              <q-icon :name="matVisibility" />
+              <q-tooltip style="white-space: nowrap"> enable presence </q-tooltip>
+            </template>
+            <template #hide>
+              <q-icon :name="matVisibilityOff" />
+              <q-tooltip style="white-space: nowrap"> disable presence </q-tooltip>
+            </template>
+          </q-btn-toggle>
+        </q-card-section>
       </q-card-section>
     </q-card>
   </q-toolbar>
@@ -61,10 +66,10 @@ export default vue.defineComponent({
   components: {},
   setup(_props, ctx) {
     const showHideGame = new (class {
-      readonly model = vue.ref<"show" | "hide">("hide");
+      readonly model = vue.ref<"hide" | "show">("hide");
       readonly options: quasar.QBtnToggleProps["options"] = [
-        { value: "show", slot: "show" },
         { value: "hide", slot: "hide" },
+        { value: "show", slot: "show" },
       ];
       readonly toggleColor = vue.computed(() => {
         let color = "primary";
@@ -80,10 +85,10 @@ export default vue.defineComponent({
     })();
 
     const showHideAll = new (class {
-      readonly model = vue.ref<"show" | "hide">("show");
+      readonly model = vue.ref<"hide" | "show">("show");
       readonly options: { value: string; slot: string }[] = [
-        { value: "show", slot: "show" },
         { value: "hide", slot: "hide" },
+        { value: "show", slot: "show" },
       ];
       readonly toggleColor = vue.computed(() => {
         let color = "primary";
