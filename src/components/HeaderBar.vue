@@ -1,28 +1,65 @@
 <template>
   <q-toolbar
     dense
-    class="bg-black text-white q-pr-none"
+    class="bg-black text-white q-px-none"
   >
-    <q-toolbar-title
+    <q-card class="q-ma-xs q-mr-sm">
+      <q-card-section
+        horizontal
+        class="bg-warning text-white"
+      >
+        <q-card-section class="column flex-center q-pa-sm">
+          <div style="font-size: 18px; font-variant: small-caps">activity</div>
+        </q-card-section>
+        <q-separator
+          inset
+          vertical
+          class="q-px-none"
+        />
+        <q-card-section class="q-pa-sm">
+          <q-btn-toggle
+            v-model="hideShowAll.model.value"
+            :options="hideShowAll.options"
+            :toggle-color="hideShowAll.toggleColor.value"
+            dense
+            push
+            size="md"
+            class="bg-white text-black"
+          >
+            <template #hide>
+              <q-icon :name="symOutlinedAutoReadPause" />
+              <q-tooltip style="white-space: nowrap"> pause activity polling </q-tooltip>
+            </template>
+            <template #show>
+              <q-icon :name="symOutlinedAutoReadPlay" />
+              <q-tooltip style="white-space: nowrap"> continue activity polling </q-tooltip>
+            </template>
+          </q-btn-toggle>
+        </q-card-section>
+      </q-card-section>
+    </q-card>
+    <!--
+      <q-toolbar-title
       shrink
-      class="q-pr-sm"
+      class="q-pa-none q-pl-sm"
       style="font-size: 18px; font-variant: small-caps"
-    >
+      >
       status
-    </q-toolbar-title>
-    <q-separator
+      </q-toolbar-title>
+      <q-separator
       dark
       inset
       vertical
-      class="q-px-none"
-    />
+      class="q-mx-xs"
+      />
+    -->
     <q-toolbar-title
-      class="q-px-sm"
+      class="q-pa-none text-center"
       style="font-size: 16px"
     >
-      « no active presence data »
+      Sekiro: Shadows Die Twice
     </q-toolbar-title>
-    <q-card class="q-my-xs q-mr-xs">
+    <q-card class="q-ma-xs q-ml-sm">
       <q-card-section
         horizontal
         class="bg-brand-discord"
@@ -38,9 +75,9 @@
         />
         <q-card-section class="text-black q-pa-sm">
           <q-btn-toggle
-            v-model="showHideGame.model.value"
-            :options="showHideGame.options"
-            :toggle-color="showHideGame.toggleColor.value"
+            v-model="hideShowGame.model.value"
+            :options="hideShowGame.options"
+            :toggle-color="hideShowGame.toggleColor.value"
             dense
             push
             disable
@@ -48,19 +85,19 @@
             class="q-mr-sm bg-white text-black"
           >
             <q-tooltip>not yet implemented</q-tooltip>
-            <template #show>
-              <q-icon :name="matImage" />
-              <q-tooltip style="white-space: nowrap"> show this game as presence </q-tooltip>
-            </template>
             <template #hide>
               <q-icon :name="matHideImage" />
               <q-tooltip style="white-space: nowrap"> hide this game as presence </q-tooltip>
             </template>
+            <template #show>
+              <q-icon :name="matImage" />
+              <q-tooltip style="white-space: nowrap"> show this game as presence </q-tooltip>
+            </template>
           </q-btn-toggle>
           <q-btn-toggle
-            v-model="showHideAll.model.value"
-            :options="showHideAll.options"
-            :toggle-color="showHideAll.toggleColor.value"
+            v-model="hideShowAll.model.value"
+            :options="hideShowAll.options"
+            :toggle-color="hideShowAll.toggleColor.value"
             dense
             push
             size="md"
@@ -85,6 +122,7 @@
 import * as vue from "vue";
 import type * as quasar from "quasar";
 import { matHideImage, matImage, matVisibility, matVisibilityOff } from "@quasar/extras/material-icons";
+import { symOutlinedAutoReadPause, symOutlinedAutoReadPlay } from "@quasar/extras/material-symbols-outlined";
 
 import * as stores from "../stores";
 
@@ -94,7 +132,7 @@ export default vue.defineComponent({
   setup(_props, ctx) {
     const config = stores.config.useStore();
 
-    const showHideGame = new (class {
+    const hideShowGame = new (class {
       readonly model = vue.ref<"hide" | "show">("hide");
       readonly options: quasar.QBtnToggleProps["options"] = [
         { value: "hide", slot: "hide" },
@@ -112,7 +150,7 @@ export default vue.defineComponent({
       });
     })();
 
-    const showHideAll = new (class {
+    const hideShowAll = new (class {
       readonly model = vue.computed({
         get: () => {
           switch (config.activity.discordDisplayPresence) {
@@ -155,12 +193,14 @@ export default vue.defineComponent({
     ctx.expose([]);
 
     return {
+      hideShowAll,
+      hideShowGame,
       matHideImage,
       matImage,
       matVisibility,
       matVisibilityOff,
-      showHideAll,
-      showHideGame,
+      symOutlinedAutoReadPause,
+      symOutlinedAutoReadPlay,
     };
   },
 });
