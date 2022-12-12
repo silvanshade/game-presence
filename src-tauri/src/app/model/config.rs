@@ -28,12 +28,10 @@ impl Config {
         config.try_into()
     }
 
-    // pub async fn save(self) -> Result<(), Error> {
-    //     let config = Into::<crate::app::data::Config>::into(self);
-    //     let handle = tauri::async_runtime::spawn_blocking(move ||
-    // config.write().context(ConfigWriteSnafu));     let result =
-    // handle.await.context(TauriSpawnBlockingSnafu)?;     result
-    // }
+    pub async fn save(&self) -> Result<(), Error> {
+        let config = crate::app::data::Config::from(self.clone());
+        config.write().await.context(ConfigWriteSnafu)
+    }
 }
 
 impl TryFrom<crate::app::data::Config> for Config {

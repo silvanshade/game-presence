@@ -13,8 +13,8 @@ pub enum Error {
     ConfigLoad {
         source: crate::app::model::config::Error,
     },
-    ConfigWrite {
-        source: crate::app::data::config::Error,
+    ConfigSave {
+        source: crate::app::model::config::Error,
     },
     TokioWatchSend {
         source: tokio::sync::watch::error::SendError<crate::app::ipc::Payload<crate::app::model::Config>>,
@@ -32,10 +32,7 @@ impl State {
         data: crate::app::model::Config,
         provenience: crate::app::ipc::Provenience,
     ) -> Result<(), Error> {
-        crate::app::data::Config::from(data.clone())
-            .write()
-            .await
-            .context(ConfigWriteSnafu)?;
+        data.save().await.context(ConfigSaveSnafu)?;
         let payload = crate::app::ipc::Payload { provenience, data };
         self.config.tx.lock().await.send(payload).context(TokioWatchSendSnafu)?;
         Ok(())
