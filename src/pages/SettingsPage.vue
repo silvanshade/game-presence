@@ -22,7 +22,7 @@
         label="games"
         disable
       >
-        <q-tooltip>Not yet implemented</q-tooltip>
+        <q-tooltip>not yet implemented</q-tooltip>
       </q-tab>
     </q-tabs>
     <q-separator inset />

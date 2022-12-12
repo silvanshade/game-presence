@@ -16,7 +16,7 @@
         </q-item-section>
       </q-item>
       <q-item disable>
-        <q-tooltip>Not yet implemented</q-tooltip>
+        <q-tooltip>not yet implemented</q-tooltip>
         <q-item-section>
           <q-item-label>Require each game to be whitelisted for displaying status</q-item-label>
           <q-item-label caption>Games will not be shown unless individually whitelisted</q-item-label>
