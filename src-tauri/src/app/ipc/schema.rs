@@ -11,8 +11,8 @@ pub struct Query;
 
 #[Object]
 impl Query {
-    async fn build_info(&self) -> async_graphql::Result<crate::app::data::BuildInfo> {
-        crate::app::data::BuildInfo::collect().map_err(Into::into)
+    async fn build_info(&self) -> async_graphql::Result<crate::app::model::BuildInfo> {
+        crate::app::model::BuildInfo::collect().map_err(Into::into)
     }
 }
 
