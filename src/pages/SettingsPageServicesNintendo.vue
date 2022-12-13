@@ -157,16 +157,16 @@ export default vue.defineComponent({
 
     ctx.expose([]);
     return {
-      store$config,
       icon$matBadge: matBadge,
       icon$matCloudSync: matCloudSync,
       icon$matInfo: matInfo,
       icon$matPrivacyTip: matPrivacyTip,
       icon$mdiNintendoSwitch: mdiNintendoSwitch,
-      widget$servicesNintendoEnabled,
-      widget$servicesNintendoDisclaimerAcknowledged,
-      widget$servicesNintendoManuallyReauthorizeAccount,
+      store$config,
       widget$servicesNintendoDataUsername,
+      widget$servicesNintendoDisclaimerAcknowledged,
+      widget$servicesNintendoEnabled,
+      widget$servicesNintendoManuallyReauthorizeAccount,
     };
   },
 });
