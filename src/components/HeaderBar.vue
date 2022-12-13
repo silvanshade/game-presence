@@ -61,6 +61,24 @@
         />
         <q-card-section class="q-pa-sm text-black">
           <q-btn-toggle
+            v-model="hideShowAll.model.value"
+            :options="hideShowAll.options"
+            :toggle-color="hideShowAll.toggleColor.value"
+            dense
+            push
+            size="md"
+            class="q-mr-sm bg-white text-black"
+          >
+            <template #show>
+              <q-icon :name="matVisibility" />
+              <q-tooltip style="white-space: nowrap"> enable presence </q-tooltip>
+            </template>
+            <template #hide>
+              <q-icon :name="matVisibilityOff" />
+              <q-tooltip style="white-space: nowrap"> disable presence </q-tooltip>
+            </template>
+          </q-btn-toggle>
+          <q-btn-toggle
             v-model="hideShowGame.model.value"
             :options="hideShowGame.options"
             :toggle-color="hideShowGame.toggleColor.value"
@@ -68,7 +86,7 @@
             push
             disable
             size="md"
-            class="q-mr-sm bg-white text-black"
+            class="bg-white text-black"
           >
             <q-tooltip>not yet implemented</q-tooltip>
             <template #hide>
@@ -78,24 +96,6 @@
             <template #show>
               <q-icon :name="matImage" />
               <q-tooltip style="white-space: nowrap"> show this game as presence </q-tooltip>
-            </template>
-          </q-btn-toggle>
-          <q-btn-toggle
-            v-model="hideShowAll.model.value"
-            :options="hideShowAll.options"
-            :toggle-color="hideShowAll.toggleColor.value"
-            dense
-            push
-            size="md"
-            class="bg-white text-black"
-          >
-            <template #show>
-              <q-icon :name="matVisibility" />
-              <q-tooltip style="white-space: nowrap"> enable presence </q-tooltip>
-            </template>
-            <template #hide>
-              <q-icon :name="matVisibilityOff" />
-              <q-tooltip style="white-space: nowrap"> disable presence </q-tooltip>
             </template>
           </q-btn-toggle>
         </q-card-section>
