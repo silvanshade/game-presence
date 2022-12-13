@@ -25,7 +25,6 @@
 
 <script lang="ts">
 import * as vue from "vue";
-
 import HeaderBar from "../components/HeaderBar.vue";
 import SideBar from "../components/SideBar.vue";
 

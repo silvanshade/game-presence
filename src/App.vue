@@ -3,13 +3,10 @@
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
-// import * as api from "@tauri-apps/api";
 import * as urql from "@urql/vue";
 import { gql } from "@urql/vue";
-
 import MainLayout from "layouts/MainLayout.vue";
-
+import * as vue from "vue";
 import * as models from "./models";
 import * as stores from "./stores";
 

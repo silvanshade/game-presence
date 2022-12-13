@@ -6,7 +6,23 @@
     >
       <q-item>
         <q-item-section>
-          <q-item-label>Display status as Discord presence</q-item-label>
+          <q-item-label>Activate game service polling</q-item-label>
+          <q-item-label caption>Toggle to pause or continue polling game services for activity</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-toggle
+            v-model="config.activity.pollingActive"
+            :icon="activateGameServicePolling.icon.value"
+            :color="activateGameServicePolling.color.value"
+            dense
+            keep-color
+            size="xl"
+          />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Display game service status as Discord presence</q-item-label>
           <q-item-label caption>Toggle to control displaying game activity on Discord</q-item-label>
         </q-item-section>
         <q-item-section avatar>
@@ -34,30 +50,151 @@
           />
         </q-item-section>
       </q-item>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Game service activity detection priority list</q-item-label>
+          <q-item-label caption>Specifies the order (ascending) to poll services for activities</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-btn-dropdown
+            :icon="symOutlinedFormatListNumbered"
+            label="services"
+            dense
+          >
+            <q-list class="q-pa-none q-ma-none">
+              <draggable
+                ghost-class="service-activity-detection-priorities-ghost"
+                :list="serviceActivityDetectionPriorities.list.value"
+              >
+                <template #item="{ index, element }">
+                  <q-item dense>
+                    <q-item-section avatar>
+                      <q-icon
+                        :name="element.icon"
+                        :color="element.iconColor"
+                      />
+                    </q-item-section>
+                    <q-item-section>{{ element.name }}</q-item-section>
+                    <q-item-section
+                      side
+                      style="font-family: monospace"
+                      >{{ ordinal(index + 1) }}</q-item-section
+                    >
+                  </q-item>
+                </template>
+              </draggable>
+            </q-list>
+          </q-btn-dropdown>
+        </q-item-section>
+      </q-item>
     </q-list>
   </div>
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
 import { matFactCheck } from "@quasar/extras/material-icons";
+import {
+  symOutlinedAutoReadPause,
+  symOutlinedAutoReadPlay,
+  symOutlinedFormatListNumbered,
+} from "@quasar/extras/material-symbols-outlined";
 import { mdiDiscord } from "@quasar/extras/mdi-v6";
-
+import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } from "@quasar/extras/mdi-v7";
+import * as vue from "vue";
+import Draggable from "vuedraggable";
 import * as stores from "../stores";
+
+const ordinalRules = new Intl.PluralRules("en", { type: "ordinal" });
+const ordinalSuffixes: Record<Intl.LDMLPluralRule, string> = {
+  zero: "th",
+  one: "st",
+  two: "nd",
+  few: "rd",
+  many: "th",
+  other: "th",
+};
+const ordinal = (n: number): string => {
+  const category = ordinalRules.select(n);
+  const suffix = ordinalSuffixes[category];
+  return n.toString() + suffix;
+};
 
 export default vue.defineComponent({
   name: "SettingsPageActivity",
-  components: {},
+  components: {
+    Draggable,
+  },
   setup(_props, ctx) {
     const config = stores.config.useStore();
+
+    const activateGameServicePolling = new (class {
+      readonly model = vue.computed({
+        get: () => {
+          return config.activity.pollingActive;
+        },
+        set: (value) => {
+          config.activity.pollingActive = value;
+        },
+      });
+      readonly color = vue.computed(() => {
+        if (this.model.value) {
+          return "positive";
+        } else {
+          return "negative";
+        }
+      });
+      readonly icon = vue.computed(() => {
+        if (this.model.value) {
+          return symOutlinedAutoReadPlay;
+        } else {
+          return symOutlinedAutoReadPause;
+        }
+      });
+    })();
+
+    const serviceActivityDetectionPriorities = new (class {
+      readonly list = vue.ref([
+        {
+          name: "nintendo",
+          icon: mdiNintendoSwitch,
+          iconColor: "brand-nintendo",
+        },
+        {
+          name: "playstation",
+          icon: mdiSonyPlaystation,
+          iconColor: "brand-playstation",
+        },
+        {
+          name: "steam",
+          icon: mdiSteam,
+          iconColor: "brand-steam",
+        },
+        {
+          name: "xbox",
+          icon: mdiMicrosoftXbox,
+          iconColor: "brand-xbox",
+        },
+      ]);
+    })();
 
     ctx.expose([]);
 
     return {
+      activateGameServicePolling,
+      config,
       matFactCheck,
       mdiDiscord,
-      config,
+      ordinal,
+      serviceActivityDetectionPriorities,
+      symOutlinedFormatListNumbered,
     };
   },
 });
 </script>
+
+<style scoped>
+.service-activity-detection-priorities-ghost {
+  background: #5865f2;
+  color: white;
+}
+</style>

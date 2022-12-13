@@ -117,8 +117,6 @@
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
-import type { QInput } from "quasar";
 import {
   matBadge,
   matCloudSync,
@@ -129,6 +127,8 @@ import {
 } from "@quasar/extras/material-icons";
 import { mdiSteam } from "@quasar/extras/mdi-v7";
 import * as api from "@tauri-apps/api";
+import type { QInput } from "quasar";
+import * as vue from "vue";
 
 import * as stores from "../stores";
 

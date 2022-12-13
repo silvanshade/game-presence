@@ -78,10 +78,9 @@
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
 import { matBadge, matCloudSync, matInfo } from "@quasar/extras/material-icons";
 import { mdiTwitch } from "@quasar/extras/mdi-v7";
-
+import * as vue from "vue";
 import * as stores from "../stores";
 
 export default vue.defineComponent({

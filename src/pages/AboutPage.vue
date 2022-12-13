@@ -35,10 +35,10 @@
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
 import * as api from "@tauri-apps/api";
 import * as urql from "@urql/vue";
 import { gql } from "@urql/vue";
+import * as vue from "vue";
 
 interface BuildInfo {
   builtTimeUtc: string;

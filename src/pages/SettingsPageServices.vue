@@ -63,9 +63,8 @@
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
 import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam, mdiTwitch } from "@quasar/extras/mdi-v7";
-
+import * as vue from "vue";
 import SettingsPageServicesNintendo from "./SettingsPageServicesNintendo.vue";
 import SettingsPageServicesPlaystation from "./SettingsPageServicesPlaystation.vue";
 import SettingsPageServicesSteam from "./SettingsPageServicesSteam.vue";
