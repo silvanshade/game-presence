@@ -11,16 +11,16 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="servicesXboxEnableIntegration.modelValue.value"
-            :icon="mdiMicrosoftXbox"
+            v-model="widget$servicesXboxEnabled.modelValue.value"
+            :icon="icon$mdiMicrosoftXbox"
             color="brand-xbox"
             dense
             size="xl"
-            @update:model-value="servicesXboxEnableIntegration.eventUpdate"
+            @update:model-value="widget$servicesXboxEnabled.eventUpdate"
           />
         </q-item-section>
       </q-item>
-      <template v-if="config.services.twitch.data">
+      <template v-if="store$config.services.xbox.data">
         <q-separator />
         <q-item>
           <q-item-section>
@@ -31,14 +31,14 @@
             <q-btn
               label="reauthorize"
               push
-              @click="servicesXboxManuallyReauthorizeAccount.button.eventClick"
+              @click="widget$servicesXboxManuallyReauthorizeAccount.button.eventClick"
             />
           </q-item-section>
         </q-item>
         <q-separator />
         <q-item class="no-padding q-mr-md justify-end no-pointer-events">
           <q-input
-            v-model="servicesXboxUsername.modelValue.value"
+            v-model="widget$servicesXboxDataUsername.modelValue.value"
             class="no-pointer-events non-selectable"
             dense
             filled
@@ -46,7 +46,7 @@
           >
             <template #before>
               <q-btn
-                :icon-right="matBadge"
+                :icon-right="icon$matBadge"
                 label="xbox username"
                 unelevated
                 class="no-pointer-events non-selectable"
@@ -55,7 +55,7 @@
             </template>
             <template #prepend>
               <q-icon
-                :name="matInfo"
+                :name="icon$matInfo"
                 class="all-pointer-events cursor-pointer"
               >
                 <q-tooltip>Xbox username is set automatically after connecting your account</q-tooltip>
@@ -63,7 +63,7 @@
             </template>
             <template #after>
               <q-btn
-                :icon="matCloudSync"
+                :icon="icon$matCloudSync"
                 size="md"
                 unelevated
                 class="no-pointer-events non-selectable"
@@ -87,24 +87,24 @@ export default vue.defineComponent({
   name: "SettingsPageServicesXbox",
   components: {},
   setup(_props, ctx) {
-    const config = stores.config.useStore();
+    const store$config = stores.config.useStore();
 
-    const servicesXboxEnableIntegration = new (class {
+    const widget$servicesXboxEnabled = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
         void event;
         console.debug("servicesXboxEnableIntegration.toggle.@update(" + value.toString() + ")");
       };
       readonly modelValue = vue.computed({
         get: () => {
-          return config.services.xbox.enabled;
+          return store$config.services.xbox.enabled;
         },
         set: (value) => {
-          config.services.xbox.enabled = value;
+          store$config.services.xbox.enabled = value;
         },
       });
     })();
 
-    const servicesXboxManuallyReauthorizeAccount = {
+    const widget$servicesXboxManuallyReauthorizeAccount = {
       button: new (class {
         readonly eventClick = (event: Event) => {
           void event;
@@ -113,20 +113,20 @@ export default vue.defineComponent({
       })(),
     };
 
-    const servicesXboxUsername = {
+    const widget$servicesXboxDataUsername = {
       modelValue: vue.ref("servicesXboxUsername"),
     };
 
     ctx.expose([]);
     return {
-      config,
-      matBadge,
-      matCloudSync,
-      matInfo,
-      mdiMicrosoftXbox,
-      servicesXboxEnableIntegration,
-      servicesXboxManuallyReauthorizeAccount,
-      servicesXboxUsername,
+      icon$matBadge: matBadge,
+      icon$matCloudSync: matCloudSync,
+      icon$matInfo: matInfo,
+      icon$mdiMicrosoftXbox: mdiMicrosoftXbox,
+      store$config,
+      widget$servicesXboxDataUsername,
+      widget$servicesXboxEnabled,
+      widget$servicesXboxManuallyReauthorizeAccount,
     };
   },
 });

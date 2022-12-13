@@ -195,13 +195,26 @@ pub mod service {
         }
     }
 
-    #[derive(Debug, Default, Deserialize, Serialize)]
+    #[derive(Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
         pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::playstation::Data>,
+    }
+
+    impl Default for self::Playstation {
+        fn default() -> Self {
+            let enabled = bool::default();
+            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let data = Option::default();
+            Self {
+                enabled,
+                game_asset_sources,
+                data,
+            }
+        }
     }
 
     impl From<crate::app::model::config::service::Playstation> for self::Playstation {
@@ -234,13 +247,26 @@ pub mod service {
         }
     }
 
-    #[derive(Debug, Default, Deserialize, Serialize)]
+    #[derive(Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
         pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::steam::Data>,
+    }
+
+    impl Default for self::Steam {
+        fn default() -> Self {
+            let enabled = bool::default();
+            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let data = Option::default();
+            Self {
+                enabled,
+                game_asset_sources,
+                data,
+            }
+        }
     }
 
     impl From<crate::app::model::config::service::Steam> for self::Steam {
@@ -310,13 +336,26 @@ pub mod service {
         }
     }
 
-    #[derive(Debug, Default, Deserialize, Serialize)]
+    #[derive(Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
         pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::xbox::Data>,
+    }
+
+    impl Default for self::Xbox {
+        fn default() -> Self {
+            let enabled = bool::default();
+            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let data = Option::default();
+            Self {
+                enabled,
+                game_asset_sources,
+                data,
+            }
+        }
     }
 
     impl From<crate::app::model::config::service::Xbox> for self::Xbox {

@@ -191,10 +191,10 @@ export default vue.defineComponent({
     ctx.expose([]);
 
     return {
-      store$config,
       icon$matFactCheck: matFactCheck,
       icon$mdiDiscord: mdiDiscord,
       icon$symOutlinedFormatListNumbered: symOutlinedFormatListNumbered,
+      store$config,
       widget$activityPollingActive,
       widget$activityServicePriorityList,
     };
