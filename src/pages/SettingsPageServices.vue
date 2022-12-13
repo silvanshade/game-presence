@@ -1,7 +1,7 @@
 <template>
   <div class="row fit">
     <q-tabs
-      v-model="tab"
+      v-model="widget$servicesTabs.model.value"
       vertical
       inline-label
       dense
@@ -12,35 +12,35 @@
           <q-tab
             name="nintendo"
             label="nintendo"
-            :icon="mdiNintendoSwitch"
+            :icon="icon$mdiNintendoSwitch"
             class="text-brand-nintendo"
             style="justify-content: initial"
           />
           <q-tab
             name="playstation"
             label="playstation"
-            :icon="mdiSonyPlaystation"
+            :icon="icon$mdiSonyPlaystation"
             class="text-brand-playstation"
             style="justify-content: initial"
           />
           <q-tab
             name="steam"
             label="steam"
-            :icon="mdiSteam"
+            :icon="icon$mdiSteam"
             class="text-brand-steam"
             style="justify-content: initial"
           />
           <q-tab
             name="twitch"
             label="twitch"
-            :icon="mdiTwitch"
+            :icon="icon$mdiTwitch"
             class="text-brand-twitch"
             style="justify-content: initial"
           />
           <q-tab
             name="xbox"
             label="xbox"
-            :icon="mdiMicrosoftXbox"
+            :icon="icon$mdiMicrosoftXbox"
             class="text-brand-xbox"
             style="justify-content: initial"
           />
@@ -49,7 +49,7 @@
     </q-tabs>
     <q-separator vertical />
     <q-tab-panels
-      v-model="tab"
+      v-model="widget$servicesTabs.model.value"
       animated
       class="col"
     >
@@ -81,15 +81,19 @@ export default vue.defineComponent({
     SettingsPageServicesXbox,
   },
   setup(_props, ctx) {
-    const tab = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("steam");
+    const widget$servicesTabs = new (class {
+      readonly model = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("steam");
+    })();
+
     ctx.expose([]);
+
     return {
-      mdiNintendoSwitch,
-      mdiSonyPlaystation,
-      mdiSteam,
-      mdiTwitch,
-      mdiMicrosoftXbox,
-      tab,
+      icon$mdiMicrosoftXbox: mdiMicrosoftXbox,
+      icon$mdiNintendoSwitch: mdiNintendoSwitch,
+      icon$mdiSonyPlaystation: mdiSonyPlaystation,
+      icon$mdiSteam: mdiSteam,
+      icon$mdiTwitch: mdiTwitch,
+      widget$servicesTabs,
     };
   },
 });

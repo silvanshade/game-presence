@@ -11,55 +11,55 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
-            :icon="matPrivacyTip"
+            v-model="widget$servicesNintendoDisclaimerAcknowledged.modelValue.value"
+            :icon="icon$matPrivacyTip"
             color="warning"
             dense
             size="xl"
-            @update:model-value="servicesNintendoIntegrationDisclaimerAcknowledged.eventUpdate"
+            @update:model-value="widget$servicesNintendoDisclaimerAcknowledged.eventUpdate"
           />
         </q-item-section>
       </q-item>
-      <q-item :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value">
+      <q-item :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value">
         <q-item-section>
           <q-item-label>Enable Nintendo integration</q-item-label>
           <q-item-label caption>Enable reporting Nintendo activity as discord status</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="servicesNintendoEnableIntegration.modelValue.value"
-            :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
-            :icon="mdiNintendoSwitch"
+            v-model="widget$servicesNintendoEnabled.modelValue.value"
+            :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value"
+            :icon="icon$mdiNintendoSwitch"
             color="brand-nintendo"
             dense
             size="xl"
-            @update:model-value="servicesNintendoEnableIntegration.eventUpdate"
+            @update:model-value="widget$servicesNintendoEnabled.eventUpdate"
           />
         </q-item-section>
       </q-item>
-      <template v-if="config.services.nintendo.data">
+      <template v-if="store$config.services.nintendo.data">
         <q-separator />
-        <q-item :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value">
+        <q-item :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value">
           <q-item-section>
             <q-item-label>Manually reauthorize Nintendo account</q-item-label>
             <q-item-label caption>Manually reconnect or change associated account</q-item-label>
           </q-item-section>
           <q-item-section avatar>
             <q-btn
-              :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
+              :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value"
               label="reauthorize"
               push
-              @click="servicesNintendoManuallyReauthorizeAccount.button.eventClick"
+              @click="widget$servicesNintendoManuallyReauthorizeAccount.button.eventClick"
             />
           </q-item-section>
         </q-item>
         <q-separator />
         <q-item
-          :disable="!servicesNintendoIntegrationDisclaimerAcknowledged.modelValue.value"
+          :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value"
           class="no-padding q-mr-md justify-end no-pointer-events"
         >
           <q-input
-            v-model="config.services.nintendo.data.username"
+            v-model="store$config.services.nintendo.data.username"
             class="no-pointer-events non-selectable"
             dense
             filled
@@ -67,7 +67,7 @@
           >
             <template #before>
               <q-btn
-                :icon-right="matBadge"
+                :icon-right="icon$matBadge"
                 label="nintendo username"
                 unelevated
                 class="no-pointer-events non-selectable"
@@ -76,7 +76,7 @@
             </template>
             <template #prepend>
               <q-icon
-                :name="matInfo"
+                :name="icon$matInfo"
                 class="all-pointer-events cursor-pointer"
               >
                 <q-tooltip>Nintendo username is set automatically after connecting your account</q-tooltip>
@@ -84,7 +84,7 @@
             </template>
             <template #after>
               <q-btn
-                :icon="matCloudSync"
+                :icon="icon$matCloudSync"
                 size="md"
                 unelevated
                 class="no-pointer-events non-selectable"
@@ -108,39 +108,39 @@ export default vue.defineComponent({
   name: "SettingsPageServicesNintendo",
   components: {},
   setup(_props, ctx) {
-    const config = stores.config.useStore();
+    const store$config = stores.config.useStore();
 
-    const servicesNintendoIntegrationDisclaimerAcknowledged = new (class {
+    const widget$servicesNintendoDisclaimerAcknowledged = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
         void event;
-        console.debug("servicesNintendoIntegrationDisclaimerAcknowledged.toggle.@update(" + value.toString() + ")");
+        console.debug("widget$servicesNintendoDisclaimerAcknowledged.toggle.@update(" + value.toString() + ")");
       };
       readonly modelValue = vue.computed({
         get: () => {
-          return config.services.nintendo.disclaimerAcknowledged;
+          return store$config.services.nintendo.disclaimerAcknowledged;
         },
         set: (value) => {
-          config.services.nintendo.disclaimerAcknowledged = value;
+          store$config.services.nintendo.disclaimerAcknowledged = value;
         },
       });
     })();
 
-    const servicesNintendoEnableIntegration = new (class {
+    const widget$servicesNintendoEnabled = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
         void event;
-        console.debug("servicesNintendoEnableIntegration.toggle.@update(" + value.toString() + ")");
+        console.debug("widget$servicesNintendoEnabled.toggle.@update(" + value.toString() + ")");
       };
       readonly modelValue = vue.computed({
         get: () => {
-          return config.services.nintendo.enabled;
+          return store$config.services.nintendo.enabled;
         },
         set: (value) => {
-          config.services.nintendo.enabled = value;
+          store$config.services.nintendo.enabled = value;
         },
       });
     })();
 
-    const servicesNintendoManuallyReauthorizeAccount = {
+    const widget$servicesNintendoManuallyReauthorizeAccount = {
       button: new (class {
         readonly eventClick = (event: Event) => {
           void event;
@@ -149,22 +149,24 @@ export default vue.defineComponent({
       })(),
     };
 
-    const servicesNintendoUsername = {
-      modelValue: vue.ref("servicesNintendoUsername"),
+    const widget$servicesNintendoDataUsername = {
+      modelValue: vue.computed(() => {
+        return store$config.services.nintendo.data?.username;
+      }),
     };
 
     ctx.expose([]);
     return {
-      config,
-      matBadge,
-      matCloudSync,
-      matInfo,
-      matPrivacyTip,
-      mdiNintendoSwitch,
-      servicesNintendoEnableIntegration,
-      servicesNintendoIntegrationDisclaimerAcknowledged,
-      servicesNintendoManuallyReauthorizeAccount,
-      servicesNintendoUsername,
+      store$config,
+      icon$matBadge: matBadge,
+      icon$matCloudSync: matCloudSync,
+      icon$matInfo: matInfo,
+      icon$matPrivacyTip: matPrivacyTip,
+      icon$mdiNintendoSwitch: mdiNintendoSwitch,
+      widget$servicesNintendoEnabled,
+      widget$servicesNintendoDisclaimerAcknowledged,
+      widget$servicesNintendoManuallyReauthorizeAccount,
+      widget$servicesNintendoDataUsername,
     };
   },
 });
