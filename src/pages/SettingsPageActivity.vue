@@ -11,9 +11,9 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="config.activity.pollingActive"
-            :icon="activateGameServicePolling.icon.value"
-            :color="activateGameServicePolling.color.value"
+            v-model="store$config.activity.pollingActive"
+            :icon="widget$activityPollingActive.icon.value"
+            :color="widget$activityPollingActive.color.value"
             dense
             keep-color
             size="xl"
@@ -27,11 +27,11 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="config.activity.discordDisplayPresence"
+            v-model="store$config.activity.discordDisplayPresence"
             color="brand-discord"
             dense
             size="xl"
-            :icon="mdiDiscord"
+            :icon="icon$mdiDiscord"
           />
         </q-item-section>
       </q-item>
@@ -43,10 +43,10 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="config.activity.gamesRequireWhitelisting"
+            v-model="store$config.activity.gamesRequireWhitelisting"
             dense
             size="xl"
-            :icon="matFactCheck"
+            :icon="icon$matFactCheck"
           />
         </q-item-section>
       </q-item>
@@ -57,13 +57,13 @@
         </q-item-section>
         <q-item-section avatar>
           <q-btn-dropdown
-            :icon="symOutlinedFormatListNumbered"
+            :icon="icon$symOutlinedFormatListNumbered"
             label="services"
             dense
           >
             <q-list class="q-pa-none q-ma-none">
               <draggable
-                v-model="servicePriorityList.model.value"
+                v-model="widget$activityServicePriorityList.model.value"
                 item-key="name"
                 ghost-class="service-activity-priorities-ghost"
               >
@@ -79,7 +79,7 @@
                     <q-item-section
                       side
                       style="font-family: monospace"
-                      >{{ ordinal(index + 1) }}</q-item-section
+                      >{{ widget$activityServicePriorityList.ordinal(index + 1) }}</q-item-section
                     >
                   </q-item>
                 </template>
@@ -115,40 +115,25 @@ const ordinalSuffixes: Record<Intl.LDMLPluralRule, string> = {
   many: "th",
   other: "th",
 };
-const ordinal = (n: number): string => {
-  const category = ordinalRules.select(n);
-  const suffix = ordinalSuffixes[category];
-  return n.toString() + suffix;
-};
 
-const servicePrioritiesListEntry = (
+class WidgetServicePriorityListEntry {
+  constructor(readonly name: models.ServicePriorityEntry, readonly icon: string, readonly iconColor: string) {
+    return this;
+  }
+}
+
+const servicePriorityListEntry = (
   entry: models.ServicePriorityEntry,
 ): { name: models.ServicePriorityEntry; icon: string; iconColor: string } => {
   switch (entry) {
     case "nintendo":
-      return {
-        name: "nintendo",
-        icon: mdiNintendoSwitch,
-        iconColor: "brand-nintendo",
-      };
+      return new WidgetServicePriorityListEntry("nintendo", mdiNintendoSwitch, "brand-nintendo");
     case "playstation":
-      return {
-        name: "playstation",
-        icon: mdiSonyPlaystation,
-        iconColor: "brand-playstation",
-      };
+      return new WidgetServicePriorityListEntry("playstation", mdiSonyPlaystation, "brand-playstation");
     case "steam":
-      return {
-        name: "steam",
-        icon: mdiSteam,
-        iconColor: "brand-steam",
-      };
+      return new WidgetServicePriorityListEntry("steam", mdiSteam, "brand-steam");
     case "xbox":
-      return {
-        name: "xbox",
-        icon: mdiMicrosoftXbox,
-        iconColor: "brand-xbox",
-      };
+      return new WidgetServicePriorityListEntry("xbox", mdiMicrosoftXbox, "brand-xbox");
     default:
       return undefined as never;
   }
@@ -160,15 +145,15 @@ export default vue.defineComponent({
     Draggable,
   },
   setup(_props, ctx) {
-    const config = stores.config.useStore();
+    const store$config = stores.config.useStore();
 
-    const activateGameServicePolling = new (class {
+    const widget$activityPollingActive = new (class {
       readonly model = vue.computed({
         get: () => {
-          return config.activity.pollingActive;
+          return store$config.activity.pollingActive;
         },
         set: (value) => {
-          config.activity.pollingActive = value;
+          store$config.activity.pollingActive = value;
         },
       });
       readonly color = vue.computed(() => {
@@ -187,27 +172,31 @@ export default vue.defineComponent({
       });
     })();
 
-    const servicePriorityList = new (class {
+    const widget$activityServicePriorityList = new (class {
       readonly model = vue.computed({
         get: () => {
-          return config.activity.servicePriorityList.map(servicePrioritiesListEntry);
+          return store$config.activity.servicePriorityList.map(servicePriorityListEntry);
         },
         set: (value) => {
-          config.activity.servicePriorityList = value.map((entry) => entry.name);
+          store$config.activity.servicePriorityList = value.map((entry) => entry.name);
         },
       });
+      ordinal(n: number): string {
+        const category = ordinalRules.select(n);
+        const suffix = ordinalSuffixes[category];
+        return n.toString() + suffix;
+      }
     })();
 
     ctx.expose([]);
 
     return {
-      activateGameServicePolling,
-      config,
-      matFactCheck,
-      mdiDiscord,
-      ordinal,
-      servicePriorityList,
-      symOutlinedFormatListNumbered,
+      store$config,
+      icon$matFactCheck: matFactCheck,
+      icon$mdiDiscord: mdiDiscord,
+      icon$symOutlinedFormatListNumbered: symOutlinedFormatListNumbered,
+      widget$activityPollingActive,
+      widget$activityServicePriorityList,
     };
   },
 });
