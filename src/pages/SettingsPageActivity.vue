@@ -190,11 +190,9 @@ export default vue.defineComponent({
     const servicePriorityList = new (class {
       readonly model = vue.computed({
         get: () => {
-          console.debug("get");
           return config.activity.servicePriorityList.map(servicePrioritiesListEntry);
         },
         set: (value) => {
-          console.debug("set");
           config.activity.servicePriorityList = value.map((entry) => entry.name);
         },
       });
