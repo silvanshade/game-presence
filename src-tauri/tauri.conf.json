@@ -56,14 +56,6 @@
     "updater": {
       "active": false
     },
-    "windows": [
-      {
-        "fullscreen": false,
-        "height": 348,
-        "resizable": false,
-        "title": "game-presence",
-        "width": 800
-      }
-    ]
+    "windows": []
   }
 }

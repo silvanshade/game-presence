@@ -143,7 +143,7 @@ pub mod service {
     pub struct Nintendo {
         pub disclaimer_acknowledged: bool,
         pub enabled: bool,
-        pub game_asset_sources: Vec<super::AssetSource>,
+        pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::nintendo::Data>,
     }
@@ -152,7 +152,7 @@ pub mod service {
         fn default() -> Self {
             let disclaimer_acknowledged = bool::default();
             let enabled = bool::default();
-            let game_asset_sources = vec![super::AssetSource::default()];
+            let game_asset_sources = vec![super::AssetSourceEntry::default()];
             let data = Option::default();
             Self {
                 disclaimer_acknowledged,
@@ -199,7 +199,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
-        pub game_asset_sources: Vec<super::AssetSource>,
+        pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::playstation::Data>,
     }
@@ -238,7 +238,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
-        pub game_asset_sources: Vec<super::AssetSource>,
+        pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::steam::Data>,
     }
@@ -314,7 +314,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
-        pub game_asset_sources: Vec<super::AssetSource>,
+        pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::xbox::Data>,
     }
@@ -351,7 +351,8 @@ pub mod service {
 }
 
 #[derive(Clone, Copy, Debug, Default, Deserialize, Serialize)]
-pub enum AssetSource {
+#[serde(rename_all = "lowercase")]
+pub enum AssetSourceEntry {
     #[default]
     Native,
     Twitch,
@@ -363,6 +364,7 @@ pub struct Activity {
     pub polling_active: bool,
     pub discord_display_presence: bool,
     pub games_require_whitelisting: bool,
+    pub service_priority_list: Vec<ServicePriorityEntry>,
 }
 
 impl From<crate::app::model::config::Activity> for self::Activity {
@@ -370,12 +372,23 @@ impl From<crate::app::model::config::Activity> for self::Activity {
         let polling_active = activity.polling_active;
         let discord_display_presence = activity.discord_display_presence;
         let games_require_whitelisting = activity.games_require_whitelisting;
+        let service_priority_list = activity.service_priority_list;
         Self {
             polling_active,
             discord_display_presence,
             games_require_whitelisting,
+            service_priority_list,
         }
     }
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ServicePriorityEntry {
+    Nintendo,
+    Playstation,
+    Steam,
+    Xbox,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]

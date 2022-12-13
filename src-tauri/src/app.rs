@@ -11,6 +11,7 @@ mod tray;
 pub enum Error {
     TauriBuild { source: tauri::Error },
     TauriMenuItemSetTitle { source: tauri::Error },
+    TauriGetWindow,
     TauriWindowHide { source: tauri::Error },
     TauriWindowIsVisible { source: tauri::Error },
     TauriWindowShow { source: tauri::Error },
@@ -54,6 +55,18 @@ pub(crate) fn init(state: crate::app::model::State) -> Result<(), Error> {
         let plugin = tauri_plugin_graphql_ipc::init(schema);
         builder.plugin(plugin)
     };
+
+    // create the main window
+    let builder = builder.setup(|app| {
+        tauri::WindowBuilder::new(app, "main", tauri::WindowUrl::App("index.html".into()))
+            .title("game-presence")
+            .inner_size(800f64, 348f64)
+            .fullscreen(false)
+            .resizable(false)
+            .disable_file_drop_handler() // NOTE: needed on windows for vuedraggable to work
+            .build()?;
+        Ok(())
+    });
 
     // build the tauri app
     let app = builder.build(context).context(TauriBuildSnafu)?;

@@ -52,7 +52,7 @@
       </q-item>
       <q-item>
         <q-item-section>
-          <q-item-label>Game service activity detection priority list</q-item-label>
+          <q-item-label>Game service activity priority list</q-item-label>
           <q-item-label caption>Specifies the order (ascending) to poll services for activities</q-item-label>
         </q-item-section>
         <q-item-section avatar>
@@ -63,8 +63,9 @@
           >
             <q-list class="q-pa-none q-ma-none">
               <draggable
-                ghost-class="service-activity-detection-priorities-ghost"
-                :list="serviceActivityDetectionPriorities.list.value"
+                v-model="servicePriorityList.model.value"
+                item-key="name"
+                ghost-class="service-activity-priorities-ghost"
               >
                 <template #item="{ index, element }">
                   <q-item dense>
@@ -103,6 +104,7 @@ import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } fro
 import * as vue from "vue";
 import Draggable from "vuedraggable";
 import * as stores from "../stores";
+import type * as models from "../models";
 
 const ordinalRules = new Intl.PluralRules("en", { type: "ordinal" });
 const ordinalSuffixes: Record<Intl.LDMLPluralRule, string> = {
@@ -117,6 +119,39 @@ const ordinal = (n: number): string => {
   const category = ordinalRules.select(n);
   const suffix = ordinalSuffixes[category];
   return n.toString() + suffix;
+};
+
+const servicePrioritiesListEntry = (
+  entry: models.ServicePriorityEntry,
+): { name: models.ServicePriorityEntry; icon: string; iconColor: string } => {
+  switch (entry) {
+    case "nintendo":
+      return {
+        name: "nintendo",
+        icon: mdiNintendoSwitch,
+        iconColor: "brand-nintendo",
+      };
+    case "playstation":
+      return {
+        name: "playstation",
+        icon: mdiSonyPlaystation,
+        iconColor: "brand-playstation",
+      };
+    case "steam":
+      return {
+        name: "steam",
+        icon: mdiSteam,
+        iconColor: "brand-steam",
+      };
+    case "xbox":
+      return {
+        name: "xbox",
+        icon: mdiMicrosoftXbox,
+        iconColor: "brand-xbox",
+      };
+    default:
+      return undefined as never;
+  }
 };
 
 export default vue.defineComponent({
@@ -152,29 +187,17 @@ export default vue.defineComponent({
       });
     })();
 
-    const serviceActivityDetectionPriorities = new (class {
-      readonly list = vue.ref([
-        {
-          name: "nintendo",
-          icon: mdiNintendoSwitch,
-          iconColor: "brand-nintendo",
+    const servicePriorityList = new (class {
+      readonly model = vue.computed({
+        get: () => {
+          console.debug("get");
+          return config.activity.servicePriorityList.map(servicePrioritiesListEntry);
         },
-        {
-          name: "playstation",
-          icon: mdiSonyPlaystation,
-          iconColor: "brand-playstation",
+        set: (value) => {
+          console.debug("set");
+          config.activity.servicePriorityList = value.map((entry) => entry.name);
         },
-        {
-          name: "steam",
-          icon: mdiSteam,
-          iconColor: "brand-steam",
-        },
-        {
-          name: "xbox",
-          icon: mdiMicrosoftXbox,
-          iconColor: "brand-xbox",
-        },
-      ]);
+      });
     })();
 
     ctx.expose([]);
@@ -185,7 +208,7 @@ export default vue.defineComponent({
       matFactCheck,
       mdiDiscord,
       ordinal,
-      serviceActivityDetectionPriorities,
+      servicePriorityList,
       symOutlinedFormatListNumbered,
     };
   },
@@ -193,7 +216,7 @@ export default vue.defineComponent({
 </script>
 
 <style scoped>
-.service-activity-detection-priorities-ghost {
+.service-activity-priorities-ghost {
   background: #5865f2;
   color: white;
 }

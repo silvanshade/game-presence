@@ -80,7 +80,7 @@ pub mod service {
     pub struct Nintendo {
         pub disclaimer_acknowledged: bool,
         pub enabled: bool,
-        pub game_asset_sources: Vec<crate::app::data::config::AssetSource>,
+        pub game_asset_sources: Vec<crate::app::data::config::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::nintendo::Data>,
     }
@@ -125,7 +125,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
-        pub game_asset_sources: Vec<crate::app::data::config::AssetSource>,
+        pub game_asset_sources: Vec<crate::app::data::config::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::playstation::Data>,
     }
@@ -168,7 +168,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
-        pub game_asset_sources: Vec<crate::app::data::config::AssetSource>,
+        pub game_asset_sources: Vec<crate::app::data::config::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::steam::Data>,
     }
@@ -252,7 +252,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
-        pub game_asset_sources: Vec<crate::app::data::config::AssetSource>,
+        pub game_asset_sources: Vec<crate::app::data::config::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::xbox::Data>,
     }
@@ -298,6 +298,7 @@ pub struct Activity {
     pub polling_active: bool,
     pub discord_display_presence: bool,
     pub games_require_whitelisting: bool,
+    pub service_priority_list: Vec<crate::app::data::config::ServicePriorityEntry>,
 }
 
 impl TryFrom<crate::app::data::config::Activity> for self::Activity {
@@ -307,10 +308,12 @@ impl TryFrom<crate::app::data::config::Activity> for self::Activity {
         let polling_active = activity.polling_active;
         let discord_display_presence = activity.discord_display_presence;
         let games_require_whitelisting = activity.games_require_whitelisting;
+        let service_priority_list = activity.service_priority_list;
         Ok(Self {
             polling_active,
             discord_display_presence,
             games_require_whitelisting,
+            service_priority_list,
         })
     }
 }

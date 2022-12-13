@@ -39,6 +39,7 @@ export namespace service {
   export interface Nintendo {
     disclaimerAcknowledged: boolean;
     enabled: boolean;
+    gameAssetSources: AssetSourceEntry[];
     data?: Nintendo.Data;
   }
 
@@ -47,7 +48,8 @@ export namespace service {
     export const make: () => Nintendo = () => {
       const disclaimerAcknowledged = false;
       const enabled = false;
-      return { disclaimerAcknowledged, enabled };
+      const gameAssetSources: AssetSourceEntry[] = ["native"];
+      return { disclaimerAcknowledged, enabled, gameAssetSources };
     };
 
     export interface Data {
@@ -57,6 +59,7 @@ export namespace service {
 
   export interface Playstation {
     enabled: boolean;
+    gameAssetSources: AssetSourceEntry[];
     data?: Playstation.Data;
   }
 
@@ -64,7 +67,8 @@ export namespace service {
   export namespace Playstation {
     export const make: () => Playstation = () => {
       const enabled = false;
-      return { enabled };
+      const gameAssetSources: AssetSourceEntry[] = ["native"];
+      return { enabled, gameAssetSources };
     };
 
     export interface Data {
@@ -74,6 +78,7 @@ export namespace service {
 
   export interface Steam {
     enabled: boolean;
+    gameAssetSources: AssetSourceEntry[];
     data?: Steam.Data;
   }
 
@@ -81,7 +86,8 @@ export namespace service {
   export namespace Steam {
     export const make: () => Steam = () => {
       const enabled = false;
-      return { enabled };
+      const gameAssetSources: AssetSourceEntry[] = ["native"];
+      return { enabled, gameAssetSources };
     };
 
     export interface Data {
@@ -110,6 +116,7 @@ export namespace service {
 
   export interface Xbox {
     enabled: boolean;
+    gameAssetSources: AssetSourceEntry[];
     data?: Xbox.Data;
   }
 
@@ -117,7 +124,8 @@ export namespace service {
   export namespace Xbox {
     export const make: () => Xbox = () => {
       const enabled = false;
-      return { enabled };
+      const gameAssetSources: AssetSourceEntry[] = ["native"];
+      return { enabled, gameAssetSources };
     };
 
     export interface Data {
@@ -126,10 +134,13 @@ export namespace service {
   }
 }
 
+export type AssetSourceEntry = "native" | "twitch";
+
 export interface Activity {
   pollingActive: boolean;
   discordDisplayPresence: boolean;
   gamesRequireWhitelisting: boolean;
+  servicePriorityList: ServicePriorityEntry[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -138,9 +149,12 @@ export namespace Activity {
     const pollingActive = false;
     const discordDisplayPresence = false;
     const gamesRequireWhitelisting = false;
-    return { pollingActive, discordDisplayPresence, gamesRequireWhitelisting };
+    const servicePriorityList: ServicePriorityEntry[] = [];
+    return { pollingActive, discordDisplayPresence, gamesRequireWhitelisting, servicePriorityList };
   };
 }
+
+export type ServicePriorityEntry = "nintendo" | "playstation" | "steam" | "xbox";
 
 export type Games = Record<string, never>;
 
