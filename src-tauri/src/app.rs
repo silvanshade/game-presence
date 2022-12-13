@@ -1,7 +1,6 @@
 use snafu::prelude::*;
 
 pub mod command;
-pub mod data;
 mod handler;
 pub mod ipc;
 pub mod model;

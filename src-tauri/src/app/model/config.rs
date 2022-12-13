@@ -3,12 +3,19 @@ use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    ConfigInit { source: crate::app::data::config::Error },
-    ConfigWrite { source: crate::app::data::config::Error },
-    TauriSpawnBlocking { source: tauri::Error },
+    DirectoriesBaseDirsNew,
+    SerdeJsonFromStr { source: serde_json::Error },
+    SerdeJsonFromValue { source: serde_json::Error },
+    SerdeJsonToVec { source: serde_json::Error },
+    StdFsCreateDirAll { source: std::io::Error },
+    StdFsMetadata { source: std::io::Error },
+    TokioFsOpenOptions { source: std::io::Error },
+    TokioIoReadToString { source: std::io::Error },
+    StdFsSyncAll { source: std::io::Error },
+    TokioIoWriteAll { source: std::io::Error },
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub services: Services,
@@ -17,33 +24,73 @@ pub struct Config {
 }
 
 impl Config {
-    pub async fn load() -> Result<Self, Error> {
-        let config = crate::app::data::Config::init().await.context(ConfigInitSnafu)?;
-        config.try_into()
+    const FILE_NAME: &str = "config.json";
+
+    fn file_base() -> Result<std::path::PathBuf, Error> {
+        let base = directories::BaseDirs::new().context(DirectoriesBaseDirsNewSnafu)?;
+        let mut path = base.config_dir().to_path_buf();
+        path.push("game-presence");
+        Ok(path)
     }
 
-    pub async fn save(&self) -> Result<(), Error> {
-        let config = crate::app::data::Config::from(self.clone());
-        config.write().await.context(ConfigWriteSnafu)
+    fn file_base_create() -> Result<(), Error> {
+        let base = Self::file_base()?;
+        std::fs::create_dir_all(base).context(StdFsCreateDirAllSnafu)?;
+        Ok(())
+    }
+
+    fn file_path() -> Result<std::path::PathBuf, Error> {
+        let mut path = Self::file_base()?;
+        path.push(Self::FILE_NAME);
+        Ok(path)
+    }
+
+    pub async fn read() -> Result<Self, Error> {
+        use tokio::io::AsyncReadExt;
+        Self::file_base_create()?;
+        let path = Self::file_path()?;
+        let path = path.as_path();
+        let mut file = tokio::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .read(true)
+            .open(path)
+            .await
+            .context(TokioFsOpenOptionsSnafu)?;
+        let mut json = String::new();
+        file.read_to_string(&mut json).await.context(TokioIoReadToStringSnafu)?;
+        let value = serde_json::from_str::<Self>(&json);
+        let config = match value {
+            Err(_) => {
+                let config = Self::default();
+                config.write().await?;
+                config
+            },
+            Ok(config) => config,
+        };
+        Ok(config)
+    }
+
+    pub async fn write(&self) -> Result<(), Error> {
+        use tokio::io::AsyncWriteExt;
+        Self::file_base_create()?;
+        let path = Self::file_path()?;
+        let path = path.as_path();
+        let mut file = tokio::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open(path)
+            .await
+            .context(TokioFsOpenOptionsSnafu)?;
+        let json = serde_json::to_vec_pretty(self).context(SerdeJsonToVecSnafu)?;
+        file.write_all(&json).await.context(TokioIoWriteAllSnafu)?;
+        file.sync_all().await.context(StdFsSyncAllSnafu)?;
+        Ok(())
     }
 }
 
-impl TryFrom<crate::app::data::Config> for Config {
-    type Error = Error;
-
-    fn try_from(config: crate::app::data::Config) -> Result<Self, Error> {
-        let services = config.services.try_into()?;
-        let activity = config.activity.try_into()?;
-        let games = config.games.try_into()?;
-        Ok(Self {
-            services,
-            activity,
-            games,
-        })
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Services {
     pub nintendo: self::service::Nintendo,
@@ -51,25 +98,6 @@ pub struct Services {
     pub steam: self::service::Steam,
     pub twitch: self::service::Twitch,
     pub xbox: self::service::Xbox,
-}
-
-impl TryFrom<crate::app::data::config::Services> for self::Services {
-    type Error = Error;
-
-    fn try_from(services: crate::app::data::config::Services) -> Result<Self, Error> {
-        let nintendo = services.nintendo.try_into()?;
-        let playstation = services.playstation.try_into()?;
-        let steam = services.steam.try_into()?;
-        let twitch = services.twitch.try_into()?;
-        let xbox = services.xbox.try_into()?;
-        Ok(Self {
-            nintendo,
-            playstation,
-            steam,
-            twitch,
-            xbox,
-        })
-    }
 }
 
 pub mod service {
@@ -80,25 +108,23 @@ pub mod service {
     pub struct Nintendo {
         pub disclaimer_acknowledged: bool,
         pub enabled: bool,
-        pub game_asset_sources: Vec<crate::app::data::config::AssetSourceEntry>,
+        pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::nintendo::Data>,
     }
 
-    impl TryFrom<crate::app::data::config::service::Nintendo> for self::Nintendo {
-        type Error = super::Error;
-
-        fn try_from(nintendo: crate::app::data::config::service::Nintendo) -> Result<Self, Self::Error> {
-            let disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
-            let enabled = nintendo.enabled;
-            let game_asset_sources = nintendo.game_asset_sources;
-            let data = nintendo.data.map(TryInto::try_into).transpose()?;
-            Ok(Self {
+    impl Default for self::Nintendo {
+        fn default() -> Self {
+            let disclaimer_acknowledged = bool::default();
+            let enabled = bool::default();
+            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let data = Option::default();
+            Self {
                 disclaimer_acknowledged,
                 enabled,
                 game_asset_sources,
                 data,
-            })
+            }
         }
     }
 
@@ -110,38 +136,27 @@ pub mod service {
         pub struct Data {
             pub username: Option<String>,
         }
-
-        impl TryFrom<crate::app::data::config::service::nintendo::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(data: crate::app::data::config::service::nintendo::Data) -> Result<Self, Self::Error> {
-                let username = data.username;
-                Ok(Self { username })
-            }
-        }
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
-        pub game_asset_sources: Vec<crate::app::data::config::AssetSourceEntry>,
+        pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::playstation::Data>,
     }
 
-    impl TryFrom<crate::app::data::config::service::Playstation> for self::Playstation {
-        type Error = super::Error;
-
-        fn try_from(playstation: crate::app::data::config::service::Playstation) -> Result<Self, Self::Error> {
-            let enabled = playstation.enabled;
-            let game_asset_sources = playstation.game_asset_sources;
-            let data = playstation.data.map(TryInto::try_into).transpose()?;
-            Ok(Self {
+    impl Default for self::Playstation {
+        fn default() -> Self {
+            let enabled = bool::default();
+            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let data = Option::default();
+            Self {
                 enabled,
                 game_asset_sources,
                 data,
-            })
+            }
         }
     }
 
@@ -153,38 +168,27 @@ pub mod service {
         pub struct Data {
             pub username: Option<String>,
         }
-
-        impl TryFrom<crate::app::data::config::service::playstation::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(data: crate::app::data::config::service::playstation::Data) -> Result<Self, Self::Error> {
-                let username = data.username;
-                Ok(Self { username })
-            }
-        }
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
-        pub game_asset_sources: Vec<crate::app::data::config::AssetSourceEntry>,
+        pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::steam::Data>,
     }
 
-    impl TryFrom<crate::app::data::config::service::Steam> for self::Steam {
-        type Error = super::Error;
-
-        fn try_from(steam: crate::app::data::config::service::Steam) -> Result<Self, Self::Error> {
-            let enabled = steam.enabled;
-            let game_asset_sources = steam.game_asset_sources;
-            let data = steam.data.map(TryInto::try_into).transpose()?;
-            Ok(Self {
+    impl Default for self::Steam {
+        fn default() -> Self {
+            let enabled = bool::default();
+            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let data = Option::default();
+            Self {
                 enabled,
                 game_asset_sources,
                 data,
-            })
+            }
         }
     }
 
@@ -198,35 +202,14 @@ pub mod service {
             pub key: String,
             pub username: String,
         }
-
-        impl TryFrom<crate::app::data::config::service::steam::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(data: crate::app::data::config::service::steam::Data) -> Result<Self, Self::Error> {
-                let id = data.id;
-                let key = data.key;
-                let username = data.username;
-                Ok(Self { id, key, username })
-            }
-        }
     }
 
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(Clone, Debug, Default, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Twitch {
         pub enabled: bool,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::twitch::Data>,
-    }
-
-    impl TryFrom<crate::app::data::config::service::Twitch> for self::Twitch {
-        type Error = super::Error;
-
-        fn try_from(twitch: crate::app::data::config::service::Twitch) -> Result<Self, Self::Error> {
-            let enabled = twitch.enabled;
-            let data = twitch.data.map(TryInto::try_into).transpose()?;
-            Ok(Self { enabled, data })
-        }
     }
 
     pub mod twitch {
@@ -237,38 +220,27 @@ pub mod service {
         pub struct Data {
             pub username: String,
         }
-
-        impl TryFrom<crate::app::data::config::service::twitch::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(data: crate::app::data::config::service::twitch::Data) -> Result<Self, Self::Error> {
-                let username = data.username;
-                Ok(Self { username })
-            }
-        }
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
-        pub game_asset_sources: Vec<crate::app::data::config::AssetSourceEntry>,
+        pub game_asset_sources: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::xbox::Data>,
     }
 
-    impl TryFrom<crate::app::data::config::service::Xbox> for self::Xbox {
-        type Error = super::Error;
-
-        fn try_from(xbox: crate::app::data::config::service::Xbox) -> Result<Self, Self::Error> {
-            let enabled = xbox.enabled;
-            let game_asset_sources = xbox.game_asset_sources;
-            let data = xbox.data.map(TryInto::try_into).transpose()?;
-            Ok(Self {
+    impl Default for self::Xbox {
+        fn default() -> Self {
+            let enabled = bool::default();
+            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let data = Option::default();
+            Self {
                 enabled,
                 game_asset_sources,
                 data,
-            })
+            }
         }
     }
 
@@ -280,52 +252,35 @@ pub mod service {
         pub struct Data {
             pub username: Option<String>,
         }
-
-        impl TryFrom<crate::app::data::config::service::xbox::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(data: crate::app::data::config::service::xbox::Data) -> Result<Self, Self::Error> {
-                let username = data.username;
-                Ok(Self { username })
-            }
-        }
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum AssetSourceEntry {
+    #[default]
+    Native,
+    Twitch,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
     pub polling_active: bool,
     pub discord_display_presence: bool,
     pub games_require_whitelisting: bool,
-    pub service_priority_list: Vec<crate::app::data::config::ServicePriorityEntry>,
+    pub service_priority_list: Vec<ServicePriorityEntry>,
 }
 
-impl TryFrom<crate::app::data::config::Activity> for self::Activity {
-    type Error = Error;
-
-    fn try_from(activity: crate::app::data::config::Activity) -> Result<Self, Error> {
-        let polling_active = activity.polling_active;
-        let discord_display_presence = activity.discord_display_presence;
-        let games_require_whitelisting = activity.games_require_whitelisting;
-        let service_priority_list = activity.service_priority_list;
-        Ok(Self {
-            polling_active,
-            discord_display_presence,
-            games_require_whitelisting,
-            service_priority_list,
-        })
-    }
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ServicePriorityEntry {
+    Nintendo,
+    Playstation,
+    Steam,
+    Xbox,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {}
-
-impl TryFrom<crate::app::data::config::Games> for self::Games {
-    type Error = Error;
-
-    fn try_from(_games: crate::app::data::config::Games) -> Result<Self, Error> {
-        Ok(Self {})
-    }
-}

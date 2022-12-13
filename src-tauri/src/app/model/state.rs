@@ -32,7 +32,7 @@ impl State {
     pub async fn init() -> Result<Self, Error> {
         let payload = {
             let provenience = crate::app::ipc::Provenience::default();
-            let config = crate::app::model::Config::load().await.context(ConfigLoadSnafu)?;
+            let config = crate::app::model::Config::read().await.context(ConfigLoadSnafu)?;
             crate::app::ipc::Payload { provenience, config }
         };
         let state = {
@@ -49,7 +49,7 @@ impl State {
         data: crate::app::model::Config,
         provenience: crate::app::ipc::Provenience,
     ) -> Result<(), Error> {
-        data.save().await.context(ConfigSaveSnafu)?;
+        data.write().await.context(ConfigSaveSnafu)?;
         let payload = crate::app::ipc::Payload {
             provenience,
             config: data,
