@@ -16,9 +16,12 @@ fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(),
     Ok(())
 }
 
-pub fn invoke<R: tauri::Runtime>() -> impl Fn(tauri::Invoke<R>) {
+pub fn invoke() -> impl Fn(tauri::Invoke<tauri::Wry>) {
     use crate::app::command;
-    tauri::generate_handler![command::api::twitch::authorization_flow]
+    tauri::generate_handler![
+        command::service::authorization_flow_playstation,
+        command::service::authorization_flow_twitch
+    ]
 }
 
 pub fn run() -> impl FnMut(&tauri::AppHandle<tauri::Wry>, tauri::RunEvent) {
