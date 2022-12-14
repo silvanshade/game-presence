@@ -18,7 +18,7 @@ export default vue.defineComponent({
 
     const configMutation = urql.useMutation(gql`
       mutation ($data: JSON) {
-        state(data: $data)
+        model(data: $data)
       }
     `);
 

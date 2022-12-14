@@ -21,10 +21,10 @@ pub struct Mutation;
 
 #[Object]
 impl Mutation {
-    async fn state<'ctx>(&self, ctx: &Context<'ctx>, data: serde_json::Value) -> async_graphql::Result<bool> {
+    async fn model<'ctx>(&self, ctx: &Context<'ctx>, data: serde_json::Value) -> async_graphql::Result<bool> {
         let config = serde_json::from_value(data)?;
-        let state = ctx.data::<crate::app::model::State>()?;
-        state.update_without_rebroadcast(config).await?;
+        let model = ctx.data::<crate::app::model::Model>()?;
+        model.update_without_rebroadcast(config).await?;
         Ok(true)
     }
 }
@@ -38,10 +38,10 @@ impl Subscription {
         &self,
         ctx: &Context<'ctx>,
     ) -> async_graphql::Result<impl Stream<Item = async_graphql::Result<serde_json::Value>> + 'ctx> {
-        let state = ctx.data::<crate::app::model::State>()?;
+        let model = ctx.data::<crate::app::model::Model>()?;
         let stream = async_stream::try_stream! {
             loop {
-                let mut rx = state.rx.write().await;
+                let mut rx = model.rx.write().await;
                 rx.changed().await?;
                 if rx.borrow().provenience == crate::app::ipc::Provenience::Backend {
                     let config = rx.borrow().config.clone();
@@ -53,7 +53,7 @@ impl Subscription {
     }
 }
 
-pub fn schema(state: crate::app::model::State) -> Schema<Query, Mutation, Subscription> {
+pub fn schema(state: crate::app::model::Model) -> Schema<Query, Mutation, Subscription> {
     let query = Query::default();
     let mutation = Mutation::default();
     let subscription = Subscription::default();

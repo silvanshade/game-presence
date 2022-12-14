@@ -9,16 +9,16 @@ mod service;
 enum Error {
     AppInit { source: crate::app::Error },
     CoreRun { source: crate::core::Error },
-    StateInit { source: crate::app::model::state::Error },
+    ModelInit { source: crate::app::model::Error },
     TokioJoin { source: tokio::task::JoinError },
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     tauri::async_runtime::set(tokio::runtime::Handle::current());
-    let state = crate::app::model::State::init().await.context(StateInitSnafu)?;
-    let core = tokio::spawn(crate::core::run(state.clone()));
-    crate::app::init(state).context(AppInitSnafu)?;
+    let model = crate::app::model::Model::init().await.context(ModelInitSnafu)?;
+    let core = tokio::spawn(crate::core::run(model.clone()));
+    crate::app::init(model).context(AppInitSnafu)?;
     core.await.context(TokioJoinSnafu)?.context(CoreRunSnafu)?;
     Ok(())
 }
