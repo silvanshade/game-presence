@@ -19,7 +19,7 @@
           />
         </q-item-section>
       </q-item>
-      <template v-if="store$config.services.playstation.data">
+      <template v-if="model$gui.services.playstation.data">
         <q-separator />
         <q-item>
           <q-item-section>
@@ -86,7 +86,7 @@ export default vue.defineComponent({
   name: "SettingsPageServicesPlaystation",
   components: {},
   setup(_props, ctx) {
-    const store$config = stores.config.useStore();
+    const model$gui = stores.gui.useStore();
 
     const widget$servicesPlaystationEnabled = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
@@ -95,10 +95,10 @@ export default vue.defineComponent({
       };
       readonly model = vue.computed({
         get: () => {
-          return store$config.services.playstation.enabled;
+          return model$gui.services.playstation.enabled;
         },
         set: (value) => {
-          store$config.services.playstation.enabled = value;
+          model$gui.services.playstation.enabled = value;
         },
       });
     })();
@@ -122,7 +122,7 @@ export default vue.defineComponent({
       icon$matCloudSync: matCloudSync,
       icon$matInfo: matInfo,
       icon$mdiSonyPlaystation: mdiSonyPlaystation,
-      store$config,
+      model$gui,
       widget$servicesPlaystationEnabled,
       widget$servicesPlaystationManuallyReauthorizeAccount,
       widget$servicesPlaystationDataUsername,

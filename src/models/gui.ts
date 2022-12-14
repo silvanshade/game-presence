@@ -1,12 +1,12 @@
-export interface Config {
+export interface Gui {
   services: Services;
   activity: Activity;
   games: Games;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace Config {
-  export const make: () => Config = () => {
+export namespace Gui {
+  export const make: () => Gui = () => {
     const services = Services.make();
     const activity = Activity.make();
     const games = Games.make();

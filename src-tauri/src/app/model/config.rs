@@ -18,8 +18,8 @@ pub enum Error {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
-    pub services: Services,
     pub activity: Activity,
+    pub services: Services,
     pub games: Games,
 }
 
@@ -45,7 +45,7 @@ impl Config {
         Ok(path)
     }
 
-    pub async fn read() -> Result<Self, Error> {
+    pub async fn load() -> Result<Self, Error> {
         use tokio::io::AsyncReadExt;
         Self::file_base_create()?;
         let path = Self::file_path()?;
@@ -63,7 +63,7 @@ impl Config {
         let config = match value {
             Err(_) => {
                 let config = Self::default();
-                config.write().await?;
+                config.save().await?;
                 config
             },
             Ok(config) => config,
@@ -71,7 +71,7 @@ impl Config {
         Ok(config)
     }
 
-    pub async fn write(&self) -> Result<(), Error> {
+    pub async fn save(&self) -> Result<(), Error> {
         use tokio::io::AsyncWriteExt;
         Self::file_base_create()?;
         let path = Self::file_path()?;
@@ -90,6 +90,33 @@ impl Config {
     }
 }
 
+impl Config {
+    pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+        self.services.synchronize_with_gui(gui);
+        self.activity.synchronize_with_gui(gui);
+        self.games.synchronize_with_gui(gui);
+    }
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Activity {
+    pub polling_active: bool,
+    pub discord_display_presence: bool,
+    pub games_require_whitelisting: bool,
+    pub service_priorities: Vec<ServicePrioritiesEntry>,
+}
+
+impl Activity {
+    pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+        let activity = &gui.activity;
+        self.polling_active = activity.polling_active;
+        self.discord_display_presence = activity.discord_display_presence;
+        self.games_require_whitelisting = activity.games_require_whitelisting;
+        self.service_priorities = activity.service_priorities.clone();
+    }
+}
+
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Services {
@@ -98,6 +125,16 @@ pub struct Services {
     pub steam: self::service::Steam,
     pub twitch: self::service::Twitch,
     pub xbox: self::service::Xbox,
+}
+
+impl Services {
+    fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+        self.nintendo.synchronize_with_gui(gui);
+        self.playstation.synchronize_with_gui(gui);
+        self.steam.synchronize_with_gui(gui);
+        self.twitch.synchronize_with_gui(gui);
+        self.xbox.synchronize_with_gui(gui);
+    }
 }
 
 pub mod service {
@@ -111,6 +148,15 @@ pub mod service {
         pub assets_priorities: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::nintendo::Data>,
+    }
+
+    impl Nintendo {
+        pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+            let nintendo = &gui.services.nintendo;
+            self.disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
+            self.enabled = nintendo.enabled;
+            self.assets_priorities = nintendo.assets_priorities.clone();
+        }
     }
 
     impl Default for self::Nintendo {
@@ -145,6 +191,14 @@ pub mod service {
         pub data: Option<self::playstation::Data>,
     }
 
+    impl Playstation {
+        pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+            let playstation = &gui.services.playstation;
+            self.enabled = playstation.enabled;
+            self.assets_priorities = playstation.assets_priorities.clone();
+        }
+    }
+
     impl Default for self::Playstation {
         fn default() -> Self {
             let enabled = bool::default();
@@ -173,6 +227,14 @@ pub mod service {
         pub assets_priorities: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::steam::Data>,
+    }
+
+    impl Steam {
+        pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+            let steam = &gui.services.steam;
+            self.enabled = steam.enabled;
+            self.assets_priorities = steam.assets_priorities.clone();
+        }
     }
 
     impl Default for self::Steam {
@@ -204,6 +266,13 @@ pub mod service {
         pub data: Option<self::twitch::Data>,
     }
 
+    impl Twitch {
+        pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+            let twitch = &gui.services.twitch;
+            self.enabled = twitch.enabled;
+        }
+    }
+
     pub mod twitch {
         use serde::{Deserialize, Serialize};
 
@@ -219,6 +288,14 @@ pub mod service {
         pub assets_priorities: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::xbox::Data>,
+    }
+
+    impl Xbox {
+        pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+            let xbox = &gui.services.xbox;
+            self.enabled = xbox.enabled;
+            self.assets_priorities = xbox.assets_priorities.clone();
+        }
     }
 
     impl Default for self::Xbox {
@@ -243,7 +320,7 @@ pub mod service {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AssetSourceEntry {
     #[default]
@@ -251,16 +328,7 @@ pub enum AssetSourceEntry {
     Twitch,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Activity {
-    pub polling_active: bool,
-    pub discord_display_presence: bool,
-    pub games_require_whitelisting: bool,
-    pub service_priorities: Vec<ServicePrioritiesEntry>,
-}
-
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ServicePrioritiesEntry {
     Nintendo,
@@ -272,3 +340,8 @@ pub enum ServicePrioritiesEntry {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {}
+
+impl Games {
+    fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+    }
+}

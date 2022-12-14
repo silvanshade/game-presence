@@ -7,23 +7,37 @@ pub enum Error {}
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Gui {
-    pub services: Services,
     pub activity: Activity,
+    pub services: Services,
     pub games: Games,
 }
 
-impl TryFrom<crate::app::model::Config> for Gui {
-    type Error = Error;
+impl Gui {
+    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), Error> {
+        self.services.synchronize_with_config(config)?;
+        self.activity.synchronize_with_config(config)?;
+        self.games.synchronize_with_config(config)?;
+        Ok(())
+    }
+}
 
-    fn try_from(config: crate::app::model::Config) -> Result<Self, Self::Error> {
-        let services = config.services.try_into()?;
-        let activity = config.activity.try_into()?;
-        let games = config.games.try_into()?;
-        Ok(Gui {
-            services,
-            activity,
-            games,
-        })
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Activity {
+    pub polling_active: bool,
+    pub discord_display_presence: bool,
+    pub games_require_whitelisting: bool,
+    pub service_priorities: Vec<crate::app::model::config::ServicePrioritiesEntry>,
+}
+
+impl Activity {
+    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), Error> {
+        let activity = &config.activity;
+        self.polling_active = activity.polling_active;
+        self.discord_display_presence = activity.discord_display_presence;
+        self.games_require_whitelisting = activity.games_require_whitelisting;
+        self.service_priorities = activity.service_priorities.clone();
+        Ok(())
     }
 }
 
@@ -37,22 +51,14 @@ pub struct Services {
     pub xbox: self::service::Xbox,
 }
 
-impl TryFrom<crate::app::model::config::Services> for self::Services {
-    type Error = Error;
-
-    fn try_from(services: crate::app::model::config::Services) -> Result<Self, Self::Error> {
-        let nintendo = services.nintendo.try_into()?;
-        let playstation = services.playstation.try_into()?;
-        let steam = services.steam.try_into()?;
-        let twitch = services.twitch.try_into()?;
-        let xbox = services.xbox.try_into()?;
-        Ok(self::Services {
-            nintendo,
-            playstation,
-            steam,
-            twitch,
-            xbox,
-        })
+impl Services {
+    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), Error> {
+        self.nintendo.synchronize_with_config(config)?;
+        self.playstation.synchronize_with_config(config)?;
+        self.steam.synchronize_with_config(config)?;
+        self.twitch.synchronize_with_config(config)?;
+        self.xbox.synchronize_with_config(config)?;
+        Ok(())
     }
 }
 
@@ -67,6 +73,16 @@ pub mod service {
         pub assets_priorities: Vec<crate::app::model::config::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::nintendo::Data>,
+    }
+
+    impl Nintendo {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+            let nintendo = &config.services.nintendo;
+            self.disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
+            self.enabled = nintendo.enabled;
+            self.assets_priorities = nintendo.assets_priorities.clone();
+            Ok(())
+        }
     }
 
     impl Default for self::Nintendo {
@@ -84,37 +100,12 @@ pub mod service {
         }
     }
 
-    impl TryFrom<crate::app::model::config::service::Nintendo> for self::Nintendo {
-        type Error = super::Error;
-
-        fn try_from(nintendo: crate::app::model::config::service::Nintendo) -> Result<Self, Self::Error> {
-            let disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
-            let enabled = nintendo.enabled;
-            let assets_priorities = nintendo.assets_priorities;
-            let data = nintendo.data.map(TryInto::try_into).transpose()?;
-            Ok(self::Nintendo {
-                disclaimer_acknowledged,
-                enabled,
-                assets_priorities,
-                data,
-            })
-        }
-    }
-
     pub mod nintendo {
         use serde::{Deserialize, Serialize};
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
-
-        impl TryFrom<crate::app::model::config::service::nintendo::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(_data: crate::app::model::config::service::nintendo::Data) -> Result<Self, Self::Error> {
-                Ok(self::Data {})
-            }
-        }
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -124,6 +115,15 @@ pub mod service {
         pub assets_priorities: Vec<crate::app::model::config::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::playstation::Data>,
+    }
+
+    impl Playstation {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+            let playstation = &config.services.playstation;
+            self.enabled = playstation.enabled;
+            self.assets_priorities = playstation.assets_priorities.clone();
+            Ok(())
+        }
     }
 
     impl Default for self::Playstation {
@@ -139,35 +139,12 @@ pub mod service {
         }
     }
 
-    impl TryFrom<crate::app::model::config::service::Playstation> for self::Playstation {
-        type Error = super::Error;
-
-        fn try_from(playstation: crate::app::model::config::service::Playstation) -> Result<Self, Self::Error> {
-            let enabled = playstation.enabled;
-            let assets_priorities = playstation.assets_priorities;
-            let data = playstation.data.map(TryInto::try_into).transpose()?;
-            Ok(self::Playstation {
-                enabled,
-                assets_priorities,
-                data,
-            })
-        }
-    }
-
     pub mod playstation {
         use serde::{Deserialize, Serialize};
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
-
-        impl TryFrom<crate::app::model::config::service::playstation::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(_data: crate::app::model::config::service::playstation::Data) -> Result<Self, Self::Error> {
-                Ok(self::Data {})
-            }
-        }
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -177,6 +154,15 @@ pub mod service {
         pub assets_priorities: Vec<crate::app::model::config::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::steam::Data>,
+    }
+
+    impl Steam {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+            let steam = &config.services.steam;
+            self.enabled = steam.enabled;
+            self.assets_priorities = steam.assets_priorities.clone();
+            Ok(())
+        }
     }
 
     impl Default for self::Steam {
@@ -192,35 +178,12 @@ pub mod service {
         }
     }
 
-    impl TryFrom<crate::app::model::config::service::Steam> for self::Steam {
-        type Error = super::Error;
-
-        fn try_from(steam: crate::app::model::config::service::Steam) -> Result<Self, Self::Error> {
-            let enabled = steam.enabled;
-            let assets_priorities = steam.assets_priorities;
-            let data = steam.data.map(TryInto::try_into).transpose()?;
-            Ok(self::Steam {
-                enabled,
-                assets_priorities,
-                data,
-            })
-        }
-    }
-
     pub mod steam {
         use serde::{Deserialize, Serialize};
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
-
-        impl TryFrom<crate::app::model::config::service::steam::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(_data: crate::app::model::config::service::steam::Data) -> Result<Self, Self::Error> {
-                Ok(self::Data {})
-            }
-        }
     }
 
     #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -231,13 +194,11 @@ pub mod service {
         pub data: Option<self::twitch::Data>,
     }
 
-    impl TryFrom<crate::app::model::config::service::Twitch> for self::Twitch {
-        type Error = super::Error;
-
-        fn try_from(twitch: crate::app::model::config::service::Twitch) -> Result<Self, Self::Error> {
-            let enabled = twitch.enabled;
-            let data = twitch.data.map(TryInto::try_into).transpose()?;
-            Ok(self::Twitch { enabled, data })
+    impl Twitch {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+            let twitch = &config.services.twitch;
+            self.enabled = twitch.enabled;
+            Ok(())
         }
     }
 
@@ -247,14 +208,6 @@ pub mod service {
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
-
-        impl TryFrom<crate::app::model::config::service::twitch::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(_data: crate::app::model::config::service::twitch::Data) -> Result<Self, Self::Error> {
-                Ok(self::Data {})
-            }
-        }
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -264,6 +217,15 @@ pub mod service {
         pub assets_priorities: Vec<crate::app::model::config::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::xbox::Data>,
+    }
+
+    impl Xbox {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+            let xbox = &config.services.xbox;
+            self.enabled = xbox.enabled;
+            self.assets_priorities = xbox.assets_priorities.clone();
+            Ok(())
+        }
     }
 
     impl Default for self::Xbox {
@@ -279,61 +241,12 @@ pub mod service {
         }
     }
 
-    impl TryFrom<crate::app::model::config::service::Xbox> for self::Xbox {
-        type Error = super::Error;
-
-        fn try_from(xbox: crate::app::model::config::service::Xbox) -> Result<Self, Self::Error> {
-            let enabled = xbox.enabled;
-            let assets_priorities = xbox.assets_priorities;
-            let data = xbox.data.map(TryInto::try_into).transpose()?;
-            Ok(self::Xbox {
-                enabled,
-                assets_priorities,
-                data,
-            })
-        }
-    }
-
     pub mod xbox {
         use serde::{Deserialize, Serialize};
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
-
-        impl TryFrom<crate::app::model::config::service::xbox::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(_data: crate::app::model::config::service::xbox::Data) -> Result<Self, Self::Error> {
-                Ok(self::Data {})
-            }
-        }
-    }
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Activity {
-    pub polling_active: bool,
-    pub discord_display_presence: bool,
-    pub games_require_whitelisting: bool,
-    pub service_priorities: Vec<crate::app::model::config::ServicePrioritiesEntry>,
-}
-
-impl TryFrom<crate::app::model::config::Activity> for self::Activity {
-    type Error = Error;
-
-    fn try_from(activity: crate::app::model::config::Activity) -> Result<Self, Self::Error> {
-        let polling_active = activity.polling_active;
-        let discord_display_presence = activity.discord_display_presence;
-        let games_require_whitelisting = activity.games_require_whitelisting;
-        let service_priorities = activity.service_priorities;
-        Ok(self::Activity {
-            polling_active,
-            discord_display_presence,
-            games_require_whitelisting,
-            service_priorities,
-        })
     }
 }
 
@@ -341,10 +254,8 @@ impl TryFrom<crate::app::model::config::Activity> for self::Activity {
 #[serde(rename_all = "camelCase")]
 pub struct Games {}
 
-impl TryFrom<crate::app::model::config::Games> for self::Games {
-    type Error = Error;
-
-    fn try_from(_games: crate::app::model::config::Games) -> Result<Self, Self::Error> {
-        Ok(self::Games {})
+impl Games {
+    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), Error> {
+        Ok(())
     }
 }

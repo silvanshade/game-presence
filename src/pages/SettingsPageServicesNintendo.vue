@@ -93,7 +93,7 @@
           </q-btn-dropdown>
         </q-item-section>
       </q-item>
-      <template v-if="store$config.services.nintendo.data">
+      <template v-if="model$gui.services.nintendo.data">
         <q-separator />
         <q-item :disable="!widget$servicesNintendoDisclaimerAcknowledged.model.value">
           <q-item-section>
@@ -174,8 +174,8 @@ const ordinalSuffixes: Record<Intl.LDMLPluralRule, string> = {
 };
 
 const widget$serviceNintendoAssetsPrioritiesEntry = (
-  entry: models.AssetsPrioritiesEntry,
-): { name: models.AssetsPrioritiesEntry; icon: string; iconColor: string } => {
+  entry: models.gui.AssetsPrioritiesEntry,
+): { name: models.gui.AssetsPrioritiesEntry; icon: string; iconColor: string } => {
   switch (entry) {
     case "native":
       return {
@@ -200,7 +200,7 @@ export default vue.defineComponent({
     Draggable,
   },
   setup(_props, ctx) {
-    const store$config = stores.config.useStore();
+    const model$gui = stores.gui.useStore();
 
     const widget$servicesNintendoDisclaimerAcknowledged = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
@@ -209,10 +209,10 @@ export default vue.defineComponent({
       };
       readonly model = vue.computed({
         get: () => {
-          return store$config.services.nintendo.disclaimerAcknowledged;
+          return model$gui.services.nintendo.disclaimerAcknowledged;
         },
         set: (value) => {
-          store$config.services.nintendo.disclaimerAcknowledged = value;
+          model$gui.services.nintendo.disclaimerAcknowledged = value;
         },
       });
     })();
@@ -224,10 +224,10 @@ export default vue.defineComponent({
       };
       readonly model = vue.computed({
         get: () => {
-          return store$config.services.nintendo.enabled;
+          return model$gui.services.nintendo.enabled;
         },
         set: (value) => {
-          store$config.services.nintendo.enabled = value;
+          model$gui.services.nintendo.enabled = value;
         },
       });
     })();
@@ -235,10 +235,10 @@ export default vue.defineComponent({
     const widget$serviceNintendoAssetsPriorities = new (class {
       readonly model = vue.computed({
         get: () => {
-          return store$config.services.nintendo.assetsPriorities.map(widget$serviceNintendoAssetsPrioritiesEntry);
+          return model$gui.services.nintendo.assetsPriorities.map(widget$serviceNintendoAssetsPrioritiesEntry);
         },
         set: (value) => {
-          store$config.services.nintendo.assetsPriorities = value.map((entry) => entry.name);
+          model$gui.services.nintendo.assetsPriorities = value.map((entry) => entry.name);
         },
       });
       ordinal(n: number): string {
@@ -271,7 +271,7 @@ export default vue.defineComponent({
       icon$mdiNintendoSwitch: mdiNintendoSwitch,
       icon$symOutlinedFormatListNumbered: symOutlinedFormatListNumbered,
       icon$symOutlinedSwipeVertical: symOutlinedSwipeVertical,
-      store$config,
+      model$gui,
       widget$serviceNintendoAssetsPriorities,
       widget$servicesNintendoDataUsername,
       widget$servicesNintendoDisclaimerAcknowledged,

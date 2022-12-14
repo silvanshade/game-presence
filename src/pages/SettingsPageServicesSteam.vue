@@ -20,7 +20,7 @@
           />
         </q-item-section>
       </q-item>
-      <template v-if="store$config.services.steam.data">
+      <template v-if="model$gui.services.steam.data">
         <q-separator />
         <q-item>
           <q-item-section>
@@ -136,7 +136,7 @@ export default vue.defineComponent({
   name: "SettingsPageServicesSteam",
   components: {},
   setup(_props, ctx) {
-    const store$config = stores.config.useStore();
+    const model$gui = stores.gui.useStore();
 
     const widget$servicesSteamEnabled = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
@@ -145,10 +145,10 @@ export default vue.defineComponent({
       };
       readonly model = vue.computed({
         get: () => {
-          return store$config.services.steam.enabled;
+          return model$gui.services.steam.enabled;
         },
         set: (value) => {
-          store$config.services.steam.enabled = value;
+          model$gui.services.steam.enabled = value;
         },
       });
     })();
@@ -224,7 +224,7 @@ export default vue.defineComponent({
       icon$matSaveAs: matSaveAs,
       icon$matVpnKey: matVpnKey,
       icon$mdiSteam: mdiSteam,
-      store$config,
+      model$gui,
       widget$servicesSteamDataKey,
       widget$servicesSteamDataKeyRef,
       widget$servicesSteamDataUsername,

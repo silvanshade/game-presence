@@ -6,6 +6,8 @@ pub mod ipc;
 pub mod model;
 mod tray;
 
+pub use model::Model;
+
 #[derive(Debug, Snafu)]
 pub enum Error {
     TauriBuild { source: tauri::Error },
@@ -30,7 +32,7 @@ fn make_system_tray() -> tauri::SystemTray {
     tauri::SystemTray::new().with_menu(system_tray_menu)
 }
 
-pub(crate) fn init(state: crate::app::model::Model) -> Result<(), Error> {
+pub(crate) fn init(state: crate::app::Model) -> Result<(), Error> {
     let context = tauri::generate_context!();
 
     // create the default builder

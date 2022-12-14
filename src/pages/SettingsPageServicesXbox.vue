@@ -20,7 +20,7 @@
           />
         </q-item-section>
       </q-item>
-      <template v-if="store$config.services.xbox.data">
+      <template v-if="model$gui.services.xbox.data">
         <q-separator />
         <q-item>
           <q-item-section>
@@ -87,7 +87,7 @@ export default vue.defineComponent({
   name: "SettingsPageServicesXbox",
   components: {},
   setup(_props, ctx) {
-    const store$config = stores.config.useStore();
+    const model$gui = stores.gui.useStore();
 
     const widget$servicesXboxEnabled = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
@@ -96,10 +96,10 @@ export default vue.defineComponent({
       };
       readonly model = vue.computed({
         get: () => {
-          return store$config.services.xbox.enabled;
+          return model$gui.services.xbox.enabled;
         },
         set: (value) => {
-          store$config.services.xbox.enabled = value;
+          model$gui.services.xbox.enabled = value;
         },
       });
     })();
@@ -124,7 +124,7 @@ export default vue.defineComponent({
       icon$matCloudSync: matCloudSync,
       icon$matInfo: matInfo,
       icon$mdiMicrosoftXbox: mdiMicrosoftXbox,
-      store$config,
+      model$gui,
       widget$servicesXboxDataUsername,
       widget$servicesXboxEnabled,
       widget$servicesXboxManuallyReauthorizeAccount,

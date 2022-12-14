@@ -21,10 +21,10 @@ pub struct Mutation;
 
 #[Object]
 impl Mutation {
-    async fn model<'ctx>(&self, ctx: &Context<'ctx>, data: serde_json::Value) -> async_graphql::Result<bool> {
-        let config = serde_json::from_value(data)?;
-        let model = ctx.data::<crate::app::model::Model>()?;
-        model.update_without_rebroadcast(config).await?;
+    async fn gui<'ctx>(&self, ctx: &Context<'ctx>, data: serde_json::Value) -> async_graphql::Result<bool> {
+        let gui = serde_json::from_value(data)?;
+        let model = ctx.data::<crate::app::Model>()?;
+        model.write_gui(gui).await?;
         Ok(true)
     }
 }
@@ -34,26 +34,28 @@ pub struct Subscription;
 
 #[Subscription]
 impl Subscription {
-    async fn state<'ctx>(
+    async fn gui<'ctx>(
         &self,
         ctx: &Context<'ctx>,
     ) -> async_graphql::Result<impl Stream<Item = async_graphql::Result<serde_json::Value>> + 'ctx> {
-        let model = ctx.data::<crate::app::model::Model>()?;
+        let model = ctx.data::<crate::app::Model>()?;
         let stream = async_stream::try_stream! {
+            let mut initial = true;
             loop {
-                let mut rx = model.rx.write().await;
-                rx.changed().await?;
-                if rx.borrow().provenience == crate::app::ipc::Provenience::Backend {
-                    let config = rx.borrow().config.clone();
-                    yield serde_json::to_value(config)?;
+                if !initial {
+                    model.notifiers.gui.notified().await;
+                } else {
+                    initial = false;
                 }
+                let gui = model.gui.read().await.clone();
+                yield serde_json::to_value(gui)?;
             }
         };
         Ok(stream)
     }
 }
 
-pub fn schema(state: crate::app::model::Model) -> Schema<Query, Mutation, Subscription> {
+pub fn schema(state: crate::app::Model) -> Schema<Query, Mutation, Subscription> {
     let query = Query::default();
     let mutation = Mutation::default();
     let subscription = Subscription::default();

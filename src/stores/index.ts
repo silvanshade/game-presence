@@ -31,4 +31,4 @@ export default store((/* { ssrContext } */) => {
   return pinia;
 });
 
-export * as config from "./config";
+export * as gui from "./gui";

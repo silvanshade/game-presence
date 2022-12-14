@@ -14,34 +14,32 @@ export default vue.defineComponent({
   name: "App",
   components: { MainLayout },
   setup(_props, ctx) {
-    const config = stores.config.useStore();
+    const model$gui = stores.gui.useStore();
 
-    const configMutation = urql.useMutation(gql`
-      mutation ($data: JSON) {
-        model(data: $data)
-      }
-    `);
-
-    urql.useSubscription<{ state: models.Config }, { state: models.Config }>(
+    urql.useSubscription<{ gui: models.Gui }, { gui: models.Gui }>(
       {
         query: gql`
           subscription {
-            state
+            gui
           }
         `,
       },
-      (prev = { state: models.Config.make() }, data) => {
+      (prev = { gui: models.Gui.make() }, data) => {
         console.debug("subscription", { prev, data });
-        config.$patch(data.state);
+        model$gui.$patch(data.gui);
         return data;
       },
     );
 
-    config.$subscribe((mutation, state) => {
+    const guiMutation = urql.useMutation(gql`
+      mutation ($data: JSON) {
+        gui(data: $data)
+      }
+    `);
+
+    model$gui.$subscribe((mutation, state) => {
       console.debug("mutation", { mutation, state });
-      void mutation;
-      const variables = { data: state };
-      configMutation.executeMutation(variables).catch(console.error);
+      guiMutation.executeMutation({ data: state }).catch(console.error);
     });
 
     ctx.expose([]);

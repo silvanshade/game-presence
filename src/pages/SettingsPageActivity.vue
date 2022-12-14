@@ -11,7 +11,7 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="store$config.activity.pollingActive"
+            v-model="widget$activityPollingActive.model.value"
             :icon="widget$activityPollingActive.icon.value"
             :color="widget$activityPollingActive.color.value"
             dense
@@ -27,7 +27,7 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="store$config.activity.discordDisplayPresence"
+            v-model="model$gui.activity.discordDisplayPresence"
             color="brand-discord"
             dense
             size="xl"
@@ -43,7 +43,7 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="store$config.activity.gamesRequireWhitelisting"
+            v-model="model$gui.activity.gamesRequireWhitelisting"
             dense
             size="xl"
             :icon="icon$matFactCheck"
@@ -136,8 +136,8 @@ const ordinalSuffixes: Record<Intl.LDMLPluralRule, string> = {
 };
 
 const widget$servicePrioritiesEntry = (
-  entry: models.ServicePrioritiesEntry,
-): { name: models.ServicePrioritiesEntry; icon: string; iconColor: string } => {
+  entry: models.gui.ServicePrioritiesEntry,
+): { name: models.gui.ServicePrioritiesEntry; icon: string; iconColor: string } => {
   switch (entry) {
     case "nintendo":
       return {
@@ -174,15 +174,15 @@ export default vue.defineComponent({
     Draggable,
   },
   setup(_props, ctx) {
-    const store$config = stores.config.useStore();
+    const model$gui = stores.gui.useStore();
 
     const widget$activityPollingActive = new (class {
       readonly model = vue.computed({
         get: () => {
-          return store$config.activity.pollingActive;
+          return model$gui.activity.pollingActive;
         },
         set: (value) => {
-          store$config.activity.pollingActive = value;
+          model$gui.activity.pollingActive = value;
         },
       });
       readonly color = vue.computed(() => {
@@ -204,10 +204,10 @@ export default vue.defineComponent({
     const widget$activityServicePriorities = new (class {
       readonly model = vue.computed({
         get: () => {
-          return store$config.activity.servicePriorities.map(widget$servicePrioritiesEntry);
+          return model$gui.activity.servicePriorities.map(widget$servicePrioritiesEntry);
         },
         set: (value) => {
-          store$config.activity.servicePriorities = value.map((entry) => entry.name);
+          model$gui.activity.servicePriorities = value.map((entry) => entry.name);
         },
       });
       ordinal(n: number): string {
@@ -224,7 +224,7 @@ export default vue.defineComponent({
       icon$mdiDiscord: mdiDiscord,
       icon$symOutlinedFormatListNumbered: symOutlinedFormatListNumbered,
       icon$symOutlinedSwipeVertical: symOutlinedSwipeVertical,
-      store$config,
+      model$gui,
       widget$activityPollingActive,
       widget$activityServicePriorities,
     };

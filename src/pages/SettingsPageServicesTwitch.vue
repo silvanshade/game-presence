@@ -20,7 +20,7 @@
           />
         </q-item-section>
       </q-item>
-      <template v-if="store$config.services.twitch.data">
+      <template v-if="model$gui.services.twitch.data">
         <q-separator />
         <q-item>
           <q-item-section>
@@ -87,7 +87,7 @@ export default vue.defineComponent({
   name: "SettingsPageServicesTwitch",
   components: {},
   setup(_props, ctx) {
-    const store$config = stores.config.useStore();
+    const model$gui = stores.gui.useStore();
 
     const widget$servicesTwitchEnabled = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
@@ -96,10 +96,10 @@ export default vue.defineComponent({
       };
       readonly model = vue.computed({
         get: () => {
-          return store$config.services.twitch.enabled;
+          return model$gui.services.twitch.enabled;
         },
         set: (value) => {
-          store$config.services.twitch.enabled = value;
+          model$gui.services.twitch.enabled = value;
         },
       });
     })();
@@ -120,11 +120,11 @@ export default vue.defineComponent({
     ctx.expose([]);
 
     return {
-      store$config,
       icon$matBadge: matBadge,
       icon$matCloudSync: matCloudSync,
       icon$matInfo: matInfo,
       icon$mdiTwitch: mdiTwitch,
+      model$gui,
       widget$servicesTwitchEnabled,
       widget$servicesTwitchManuallyReauthorizeAccount,
       widget$servicesTwitchDataUsername,

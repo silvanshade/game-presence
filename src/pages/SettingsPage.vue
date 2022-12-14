@@ -7,14 +7,14 @@
       class="row"
     >
       <q-tab
-        :icon="icon$mdiController"
-        name="services"
-        label="services"
-      />
-      <q-tab
         :icon="icon$symOutlinedDetectionAndZone"
         name="activity"
         label="activity"
+      />
+      <q-tab
+        :icon="icon$mdiController"
+        name="services"
+        label="services"
       />
       <q-tab
         :icon="icon$matPermMedia"
@@ -32,14 +32,14 @@
       class="row"
       style="flex-grow: 1"
     >
+      <q-tab-panel name="activity">
+        <SettingsPageActivity />
+      </q-tab-panel>
       <q-tab-panel
         name="services"
         class="flex-center column"
       >
         <SettingsPageServices />
-      </q-tab-panel>
-      <q-tab-panel name="activity">
-        <SettingsPageActivity />
       </q-tab-panel>
       <q-tab-panel name="games"></q-tab-panel>
     </q-tab-panels>

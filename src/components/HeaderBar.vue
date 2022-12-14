@@ -116,12 +116,12 @@ export default vue.defineComponent({
   name: "HeaderBar",
   components: {},
   setup(_props, ctx) {
-    const config = stores.config.useStore();
+    const model$gui = stores.gui.useStore();
 
     const pausePlayActivity = new (class {
       readonly model = vue.computed({
         get: () => {
-          switch (config.activity.pollingActive) {
+          switch (model$gui.activity.pollingActive) {
             case false:
               return "pause";
             case true:
@@ -133,10 +133,10 @@ export default vue.defineComponent({
         set: (value: "pause" | "play") => {
           switch (value) {
             case "pause":
-              config.activity.pollingActive = false;
+              model$gui.activity.pollingActive = false;
               break;
             case "play":
-              config.activity.pollingActive = true;
+              model$gui.activity.pollingActive = true;
               break;
           }
         },
@@ -178,7 +178,7 @@ export default vue.defineComponent({
     const hideShowAll = new (class {
       readonly model = vue.computed({
         get: () => {
-          switch (config.activity.discordDisplayPresence) {
+          switch (model$gui.activity.discordDisplayPresence) {
             case false:
               return "hide";
             case true:
@@ -190,10 +190,10 @@ export default vue.defineComponent({
         set: (value: "hide" | "show") => {
           switch (value) {
             case "hide":
-              config.activity.discordDisplayPresence = false;
+              model$gui.activity.discordDisplayPresence = false;
               break;
             case "show":
-              config.activity.discordDisplayPresence = true;
+              model$gui.activity.discordDisplayPresence = true;
               break;
           }
         },
