@@ -1,23 +1,23 @@
 <template>
   <div class="fit column no-wrap">
     <q-tabs
-      v-model="tab"
+      v-model="widget$settingsTabs.model.value"
       inline-label
       dense
       class="row"
     >
       <q-tab
-        :icon="mdiController"
+        :icon="icon$mdiController"
         name="services"
         label="services"
       />
       <q-tab
-        :icon="symOutlinedDetectionAndZone"
+        :icon="icon$symOutlinedDetectionAndZone"
         name="activity"
         label="activity"
       />
       <q-tab
-        :icon="matPermMedia"
+        :icon="icon$matPermMedia"
         name="games"
         label="games"
         disable
@@ -27,7 +27,7 @@
     </q-tabs>
     <q-separator inset />
     <q-tab-panels
-      v-model="tab"
+      v-model="widget$settingsTabs.model.value"
       animated
       class="row"
       style="flex-grow: 1"
@@ -59,13 +59,17 @@ export default vue.defineComponent({
   name: "SettingsPage",
   components: { SettingsPageActivity, SettingsPageServices },
   setup(_props, ctx) {
-    const tab = vue.ref<"services" | "activity" | "games">("activity");
+    const widget$settingsTabs = new (class {
+      readonly model = vue.ref<"services" | "activity" | "games">("activity");
+    })();
+
     ctx.expose([]);
+
     return {
-      matPermMedia,
-      mdiController,
-      symOutlinedDetectionAndZone,
-      tab,
+      icon$matPermMedia: matPermMedia,
+      icon$mdiController: mdiController,
+      icon$symOutlinedDetectionAndZone: symOutlinedDetectionAndZone,
+      widget$settingsTabs,
     };
   },
 });

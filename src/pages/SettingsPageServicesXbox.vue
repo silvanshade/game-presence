@@ -11,7 +11,7 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="widget$servicesXboxEnabled.modelValue.value"
+            v-model="widget$servicesXboxEnabled.model.value"
             :icon="icon$mdiMicrosoftXbox"
             color="brand-xbox"
             dense
@@ -38,7 +38,7 @@
         <q-separator />
         <q-item class="no-padding q-mr-md justify-end no-pointer-events">
           <q-input
-            v-model="widget$servicesXboxDataUsername.modelValue.value"
+            v-model="widget$servicesXboxDataUsername.model.value"
             class="no-pointer-events non-selectable"
             dense
             filled
@@ -92,9 +92,9 @@ export default vue.defineComponent({
     const widget$servicesXboxEnabled = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
         void event;
-        console.debug("servicesXboxEnableIntegration.toggle.@update(" + value.toString() + ")");
+        console.debug("widget$servicesXboxEnabled.toggle.@update(" + value.toString() + ")");
       };
-      readonly modelValue = vue.computed({
+      readonly model = vue.computed({
         get: () => {
           return store$config.services.xbox.enabled;
         },
@@ -108,16 +108,19 @@ export default vue.defineComponent({
       button: new (class {
         readonly eventClick = (event: Event) => {
           void event;
-          console.debug("servicesXboxManuallyReauthorizeAccount.button.@click");
+          console.debug("widget$servicesXboxManuallyReauthorizeAccount.button.@click");
         };
       })(),
     };
 
     const widget$servicesXboxDataUsername = {
-      modelValue: vue.ref("servicesXboxUsername"),
+      model: vue.computed(() => {
+        return store$config.services.xbox.data?.username;
+      }),
     };
 
     ctx.expose([]);
+
     return {
       icon$matBadge: matBadge,
       icon$matCloudSync: matCloudSync,

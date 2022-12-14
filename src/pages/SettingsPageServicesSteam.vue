@@ -11,16 +11,16 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="servicesSteamEnableIntegration.modelValue.value"
-            :icon="mdiSteam"
+            v-model="widget$servicesSteamEnabled.model.value"
+            :icon="icon$mdiSteam"
             color="brand-steam"
             dense
             size="xl"
-            @update:model-value="servicesSteamEnableIntegration.eventUpdate"
+            @update:model-value="widget$servicesSteamEnabled.eventUpdate"
           />
         </q-item-section>
       </q-item>
-      <template v-if="config.services.steam.data">
+      <template v-if="store$config.services.steam.data">
         <q-separator />
         <q-item>
           <q-item-section>
@@ -31,14 +31,14 @@
             <q-btn
               label="reauthorize"
               push
-              @click="servicesSteamManuallyReauthorizeAccount.button.eventClick"
+              @click="widget$servicesSteamManuallyReauthorizeAccount.button.eventClick"
             />
           </q-item-section>
         </q-item>
         <q-separator />
         <q-item class="no-padding q-mr-md justify-end no-pointer-events">
           <q-input
-            v-model="servicesSteamUsername.modelValue.value"
+            v-model="widget$servicesSteamDataUsername.model.value"
             class="no-pointer-events non-selectable"
             dense
             filled
@@ -46,7 +46,7 @@
           >
             <template #before>
               <q-btn
-                :icon-right="matBadge"
+                :icon-right="icon$matBadge"
                 label="steam username"
                 unelevated
                 class="no-pointer-events non-selectable"
@@ -55,7 +55,7 @@
             </template>
             <template #prepend>
               <q-icon
-                :name="matInfo"
+                :name="icon$matInfo"
                 class="all-pointer-events cursor-pointer"
               >
                 <q-tooltip>Steam username is set automatically after connecting your account</q-tooltip>
@@ -63,7 +63,7 @@
             </template>
             <template #after>
               <q-btn
-                :icon="matCloudSync"
+                :icon="icon$matCloudSync"
                 size="md"
                 unelevated
                 class="no-pointer-events non-selectable"
@@ -75,17 +75,17 @@
         <q-item class="no-padding q-mr-md justify-end">
           <q-input
             ref="servicesSteamApiKeyRef"
-            v-model="servicesSteamApiKey.modelValue.value"
+            v-model="widget$servicesSteamDataKey.model.value"
             dense
             filled
             hide-bottom-space
             no-error-icon
-            :rules="servicesSteamApiKey.behaviorRules"
-            @update:model-value="servicesSteamApiKey.eventUpdate"
+            :rules="widget$servicesSteamDataKey.behaviorRules"
+            @update:model-value="widget$servicesSteamDataKey.eventUpdate"
           >
             <template #before>
               <q-btn
-                :icon-right="matVpnKey"
+                :icon-right="icon$matVpnKey"
                 label="steam api key"
                 unelevated
                 class="no-pointer-events non-selectable"
@@ -94,19 +94,19 @@
             </template>
             <template #prepend>
               <q-icon
-                :name="matContentPasteSearch"
+                :name="icon$matContentPasteSearch"
                 class="cursor-pointer"
-                @click="servicesSteamApiKey.slotAppend.icon.eventClick"
+                @click="widget$servicesSteamDataKey.slotAppend.icon.eventClick"
               >
                 <q-tooltip>Click to open API key page then paste the key here and click the save button</q-tooltip>
               </q-icon>
             </template>
             <template #after>
               <q-btn
-                :color="servicesSteamApiKey.slotAfter.btn.color.value"
-                :disable="servicesSteamApiKey.slotAfter.btn.disable.value"
-                :icon="matSaveAs"
-                @click="servicesSteamApiKey.slotAfter.btn.eventClick"
+                :color="widget$servicesSteamDataKey.slotAfter.btn.color.value"
+                :disable="widget$servicesSteamDataKey.slotAfter.btn.disable.value"
+                :icon="icon$matSaveAs"
+                @click="widget$servicesSteamDataKey.slotAfter.btn.eventClick"
               />
             </template>
           </q-input>
@@ -136,43 +136,45 @@ export default vue.defineComponent({
   name: "SettingsPageServicesSteam",
   components: {},
   setup(_props, ctx) {
-    const config = stores.config.useStore();
+    const store$config = stores.config.useStore();
 
-    const servicesSteamEnableIntegration = new (class {
+    const widget$servicesSteamEnabled = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
         void event;
         console.debug("servicesSteamEnableIntegration.toggle.@update(" + value.toString() + ")");
       };
-      readonly modelValue = vue.computed({
+      readonly model = vue.computed({
         get: () => {
-          return config.services.steam.enabled;
+          return store$config.services.steam.enabled;
         },
         set: (value) => {
-          config.services.steam.enabled = value;
+          store$config.services.steam.enabled = value;
         },
       });
     })();
 
-    const servicesSteamManuallyReauthorizeAccount = {
+    const widget$servicesSteamManuallyReauthorizeAccount = {
       button: new (class {
         readonly eventClick = (event: Event) => {
           void event;
-          console.debug("servicesSteamManuallyReauthorizeAccount.button.@click");
+          console.debug("widget$servicesSteamManuallyReauthorizeAccount.button.@click");
         };
       })(),
     };
 
-    const servicesSteamUsername = {
-      modelValue: vue.ref("servicesSteamUsername"),
+    const widget$servicesSteamDataUsername = {
+      model: vue.computed(() => {
+        return store$config.services.steam.data?.username;
+      }),
     };
 
-    const servicesSteamApiKey = new (class {
+    const widget$servicesSteamDataKey = new (class {
       readonly behaviorRules = [(value: string) => /^[0-9A-Z]{32}$/.test(value)];
       readonly eventUpdate = (value: string, event: Event) => {
         // NOTE: this is called before
         void event;
-        console.debug(`servicesSteamApiKey.update("` + value + `")`);
-        if (servicesSteamApiKeyRef.value && servicesSteamApiKeyRef.value.validate(value)) {
+        console.debug(`widget$servicesSteamDataKey.@update("` + value + `")`);
+        if (widget$servicesSteamDataKeyRef.value && widget$servicesSteamDataKeyRef.value.validate(value)) {
           this.internalSaveAllow();
         } else {
           this.internalSaveReset();
@@ -186,14 +188,14 @@ export default vue.defineComponent({
         this.slotAfter.btn.color.value = "grey";
         this.slotAfter.btn.disable.value = true;
       };
-      readonly modelValue = vue.ref("servicesSteamApiKey");
+      readonly model = vue.ref("servicesSteamApiKey");
       readonly slotAfter = {
         btn: new (class {
           readonly root: { internalSaveReset: () => void };
           readonly color = vue.ref("grey");
           readonly disable = vue.ref(true);
           readonly eventClick = () => {
-            console.debug("servicesSteamApiKey.$after.btn.click");
+            console.debug("widget$servicesSteamDataKey.#after.btn.click");
             this.root.internalSaveReset();
           };
           constructor(root: { internalSaveReset: () => void }) {
@@ -205,31 +207,31 @@ export default vue.defineComponent({
       readonly slotAppend = {
         icon: {
           eventClick: async () => {
-            console.debug("servicesSteamApiKey.$append.icon.click");
+            console.debug("widget$servicesSteamDataKey.#append.icon.click");
             await api.shell.open("https://steamcommunity.com/dev/apikey");
           },
         },
       };
       readonly slotBefore = {};
     })();
-    const servicesSteamApiKeyRef = vue.ref<QInput>();
+    const widget$servicesSteamDataKeyRef = vue.ref<QInput>();
 
     ctx.expose([]);
 
     return {
-      config,
-      matBadge,
-      matCloudSync,
-      matContentPasteSearch,
-      matInfo,
-      matSaveAs,
-      matVpnKey,
-      mdiSteam,
-      servicesSteamApiKey,
-      servicesSteamApiKeyRef,
-      servicesSteamEnableIntegration,
-      servicesSteamManuallyReauthorizeAccount,
-      servicesSteamUsername,
+      icon$matBadge: matBadge,
+      icon$matCloudSync: matCloudSync,
+      icon$matContentPasteSearch: matContentPasteSearch,
+      icon$matInfo: matInfo,
+      icon$matSaveAs: matSaveAs,
+      icon$matVpnKey: matVpnKey,
+      icon$mdiSteam: mdiSteam,
+      store$config,
+      widget$servicesSteamDataKey,
+      widget$servicesSteamDataKeyRef,
+      widget$servicesSteamDataUsername,
+      widget$servicesSteamEnabled,
+      widget$servicesSteamManuallyReauthorizeAccount,
     };
   },
 });

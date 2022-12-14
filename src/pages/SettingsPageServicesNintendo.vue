@@ -11,7 +11,7 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="widget$servicesNintendoDisclaimerAcknowledged.modelValue.value"
+            v-model="widget$servicesNintendoDisclaimerAcknowledged.model.value"
             :icon="icon$matPrivacyTip"
             color="warning"
             dense
@@ -20,15 +20,15 @@
           />
         </q-item-section>
       </q-item>
-      <q-item :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value">
+      <q-item :disable="!widget$servicesNintendoDisclaimerAcknowledged.model.value">
         <q-item-section>
           <q-item-label>Enable Nintendo integration</q-item-label>
           <q-item-label caption>Enable reporting Nintendo activity as discord status</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="widget$servicesNintendoEnabled.modelValue.value"
-            :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value"
+            v-model="widget$servicesNintendoEnabled.model.value"
+            :disable="!widget$servicesNintendoDisclaimerAcknowledged.model.value"
             :icon="icon$mdiNintendoSwitch"
             color="brand-nintendo"
             dense
@@ -39,14 +39,14 @@
       </q-item>
       <template v-if="store$config.services.nintendo.data">
         <q-separator />
-        <q-item :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value">
+        <q-item :disable="!widget$servicesNintendoDisclaimerAcknowledged.model.value">
           <q-item-section>
             <q-item-label>Manually reauthorize Nintendo account</q-item-label>
             <q-item-label caption>Manually reconnect or change associated account</q-item-label>
           </q-item-section>
           <q-item-section avatar>
             <q-btn
-              :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value"
+              :disable="!widget$servicesNintendoDisclaimerAcknowledged.model.value"
               label="reauthorize"
               push
               @click="widget$servicesNintendoManuallyReauthorizeAccount.button.eventClick"
@@ -55,7 +55,7 @@
         </q-item>
         <q-separator />
         <q-item
-          :disable="!widget$servicesNintendoDisclaimerAcknowledged.modelValue.value"
+          :disable="!widget$servicesNintendoDisclaimerAcknowledged.model.value"
           class="no-padding q-mr-md justify-end no-pointer-events"
         >
           <q-input
@@ -115,7 +115,7 @@ export default vue.defineComponent({
         void event;
         console.debug("widget$servicesNintendoDisclaimerAcknowledged.toggle.@update(" + value.toString() + ")");
       };
-      readonly modelValue = vue.computed({
+      readonly model = vue.computed({
         get: () => {
           return store$config.services.nintendo.disclaimerAcknowledged;
         },
@@ -130,7 +130,7 @@ export default vue.defineComponent({
         void event;
         console.debug("widget$servicesNintendoEnabled.toggle.@update(" + value.toString() + ")");
       };
-      readonly modelValue = vue.computed({
+      readonly model = vue.computed({
         get: () => {
           return store$config.services.nintendo.enabled;
         },
@@ -150,7 +150,7 @@ export default vue.defineComponent({
     };
 
     const widget$servicesNintendoDataUsername = {
-      modelValue: vue.computed(() => {
+      model: vue.computed(() => {
         return store$config.services.nintendo.data?.username;
       }),
     };

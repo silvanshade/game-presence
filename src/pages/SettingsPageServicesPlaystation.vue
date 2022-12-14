@@ -11,15 +11,15 @@
         </q-item-section>
         <q-item-section avatar>
           <q-toggle
-            v-model="servicesPlaystationEnableIntegration.modelValue.value"
-            :icon="mdiSonyPlaystation"
+            v-model="widget$servicesPlaystationEnabled.model.value"
+            :icon="icon$mdiSonyPlaystation"
             color="brand-playstation"
             dense
             size="xl"
           />
         </q-item-section>
       </q-item>
-      <template v-if="config.services.playstation.data">
+      <template v-if="store$config.services.playstation.data">
         <q-separator />
         <q-item>
           <q-item-section>
@@ -30,14 +30,14 @@
             <q-btn
               label="reauthorize"
               push
-              @click="servicesPlaystationManuallyReauthorizeAccount.button.eventClick"
+              @click="widget$servicesPlaystationManuallyReauthorizeAccount.button.eventClick"
             />
           </q-item-section>
         </q-item>
         <q-separator />
         <q-item class="no-padding q-mr-md justify-end no-pointer-events">
           <q-input
-            v-model="servicesPlaystationUsername.modelValue.value"
+            v-model="widget$servicesPlaystationDataUsername.model.value"
             class="no-pointer-events non-selectable"
             dense
             filled
@@ -45,7 +45,7 @@
           >
             <template #before>
               <q-btn
-                :icon-right="matBadge"
+                :icon-right="icon$matBadge"
                 label="playstation username"
                 unelevated
                 class="no-pointer-events non-selectable"
@@ -54,7 +54,7 @@
             </template>
             <template #prepend>
               <q-icon
-                :name="matInfo"
+                :name="icon$matInfo"
                 class="all-pointer-events cursor-pointer"
               >
                 <q-tooltip>Playstation username is set automatically after connecting your account</q-tooltip>
@@ -62,7 +62,7 @@
             </template>
             <template #after>
               <q-btn
-                :icon="matCloudSync"
+                :icon="icon$matCloudSync"
                 size="md"
                 unelevated
                 class="no-pointer-events non-selectable"
@@ -86,46 +86,48 @@ export default vue.defineComponent({
   name: "SettingsPageServicesPlaystation",
   components: {},
   setup(_props, ctx) {
-    const config = stores.config.useStore();
+    const store$config = stores.config.useStore();
 
-    const servicesPlaystationEnableIntegration = new (class {
+    const widget$servicesPlaystationEnabled = new (class {
       readonly eventUpdate = (value: boolean, event: Event) => {
         void event;
-        console.debug("servicesPlaystationEnableIntegration.toggle.@update(" + value.toString() + ")");
+        console.debug("widget$servicesPlaystationEnabled.toggle.@update(" + value.toString() + ")");
       };
-      readonly modelValue = vue.computed({
+      readonly model = vue.computed({
         get: () => {
-          return config.services.playstation.enabled;
+          return store$config.services.playstation.enabled;
         },
         set: (value) => {
-          config.services.playstation.enabled = value;
+          store$config.services.playstation.enabled = value;
         },
       });
     })();
 
-    const servicesPlaystationManuallyReauthorizeAccount = {
+    const widget$servicesPlaystationManuallyReauthorizeAccount = {
       button: new (class {
         readonly eventClick = (event: Event) => {
           void event;
-          console.debug("servicesPlaystationManuallyReauthorizeAccount.button.@click");
+          console.debug("widget$servicesPlaystationManuallyReauthorizeAccount.button.@click");
         };
       })(),
     };
 
-    const servicesPlaystationUsername = {
-      modelValue: vue.ref("servicesPlaystationUsername"),
+    const widget$servicesPlaystationDataUsername = {
+      model: vue.computed(() => {
+        return store$config.services.playstation.data?.username;
+      }),
     };
 
     ctx.expose([]);
     return {
-      config,
-      matBadge,
-      matCloudSync,
-      matInfo,
-      mdiSonyPlaystation,
-      servicesPlaystationEnableIntegration,
-      servicesPlaystationManuallyReauthorizeAccount,
-      servicesPlaystationUsername,
+      icon$matBadge: matBadge,
+      icon$matCloudSync: matCloudSync,
+      icon$matInfo: matInfo,
+      icon$mdiSonyPlaystation: mdiSonyPlaystation,
+      store$config,
+      widget$servicesPlaystationEnabled,
+      widget$servicesPlaystationManuallyReauthorizeAccount,
+      widget$servicesPlaystationDataUsername,
     };
   },
 });
