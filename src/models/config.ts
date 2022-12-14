@@ -39,7 +39,7 @@ export namespace service {
   export interface Nintendo {
     disclaimerAcknowledged: boolean;
     enabled: boolean;
-    gameAssetSources: AssetSourceEntry[];
+    assetsPriorities: AssetsPrioritiesEntry[];
     data?: Nintendo.Data;
   }
 
@@ -48,8 +48,8 @@ export namespace service {
     export const make: () => Nintendo = () => {
       const disclaimerAcknowledged = false;
       const enabled = false;
-      const gameAssetSources: AssetSourceEntry[] = ["native"];
-      return { disclaimerAcknowledged, enabled, gameAssetSources };
+      const assetsPriorities: AssetsPrioritiesEntry[] = ["native"];
+      return { disclaimerAcknowledged, enabled, assetsPriorities };
     };
 
     export interface Data {
@@ -59,7 +59,7 @@ export namespace service {
 
   export interface Playstation {
     enabled: boolean;
-    gameAssetSources: AssetSourceEntry[];
+    assetsPriorities: AssetsPrioritiesEntry[];
     data?: Playstation.Data;
   }
 
@@ -67,8 +67,8 @@ export namespace service {
   export namespace Playstation {
     export const make: () => Playstation = () => {
       const enabled = false;
-      const gameAssetSources: AssetSourceEntry[] = ["native"];
-      return { enabled, gameAssetSources };
+      const assetsPriorities: AssetsPrioritiesEntry[] = ["native"];
+      return { enabled, assetsPriorities };
     };
 
     export interface Data {
@@ -78,7 +78,7 @@ export namespace service {
 
   export interface Steam {
     enabled: boolean;
-    gameAssetSources: AssetSourceEntry[];
+    assetsPriorities: AssetsPrioritiesEntry[];
     data?: Steam.Data;
   }
 
@@ -86,8 +86,8 @@ export namespace service {
   export namespace Steam {
     export const make: () => Steam = () => {
       const enabled = false;
-      const gameAssetSources: AssetSourceEntry[] = ["native"];
-      return { enabled, gameAssetSources };
+      const assetsPriorities: AssetsPrioritiesEntry[] = ["native"];
+      return { enabled, assetsPriorities };
     };
 
     export interface Data {
@@ -116,7 +116,7 @@ export namespace service {
 
   export interface Xbox {
     enabled: boolean;
-    gameAssetSources: AssetSourceEntry[];
+    assetsPriorities: AssetsPrioritiesEntry[];
     data?: Xbox.Data;
   }
 
@@ -124,8 +124,8 @@ export namespace service {
   export namespace Xbox {
     export const make: () => Xbox = () => {
       const enabled = false;
-      const gameAssetSources: AssetSourceEntry[] = ["native"];
-      return { enabled, gameAssetSources };
+      const assetsPriorities: AssetsPrioritiesEntry[] = ["native"];
+      return { enabled, assetsPriorities };
     };
 
     export interface Data {
@@ -134,13 +134,13 @@ export namespace service {
   }
 }
 
-export type AssetSourceEntry = "native" | "twitch";
+export type AssetsPrioritiesEntry = "native" | "twitch";
 
 export interface Activity {
   pollingActive: boolean;
   discordDisplayPresence: boolean;
   gamesRequireWhitelisting: boolean;
-  servicePriorityList: ServicePriorityEntry[];
+  servicePriorities: ServicePrioritiesEntry[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -149,12 +149,12 @@ export namespace Activity {
     const pollingActive = false;
     const discordDisplayPresence = false;
     const gamesRequireWhitelisting = false;
-    const servicePriorityList: ServicePriorityEntry[] = [];
-    return { pollingActive, discordDisplayPresence, gamesRequireWhitelisting, servicePriorityList };
+    const servicePriorities: ServicePrioritiesEntry[] = [];
+    return { pollingActive, discordDisplayPresence, gamesRequireWhitelisting, servicePriorities };
   };
 }
 
-export type ServicePriorityEntry = "nintendo" | "playstation" | "steam" | "xbox";
+export type ServicePrioritiesEntry = "nintendo" | "playstation" | "steam" | "xbox";
 
 export type Games = Record<string, never>;
 

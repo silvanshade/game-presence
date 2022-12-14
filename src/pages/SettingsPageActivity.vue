@@ -62,13 +62,30 @@
             dense
           >
             <q-list class="q-pa-none q-ma-none">
+              <q-item
+                dense
+                class="bg-black text-white"
+              >
+                <q-btn
+                  :icon="icon$symOutlinedSwipeVertical"
+                  label="drag to reorder"
+                  no-caps
+                  unelevated
+                  class="no-pointer-events non-selectable"
+                  disable
+                />
+              </q-item>
+              <q-separator />
               <draggable
-                v-model="widget$activityServicePriorityList.model.value"
+                v-model="widget$activityServicePriorities.model.value"
                 item-key="name"
-                ghost-class="service-activity-priorities-ghost"
+                ghost-class="activity-service-priorities-ghost"
               >
                 <template #item="{ index, element }">
-                  <q-item dense>
+                  <q-item
+                    clickable
+                    dense
+                  >
                     <q-item-section avatar>
                       <q-icon
                         :name="element.icon"
@@ -79,8 +96,9 @@
                     <q-item-section
                       side
                       style="font-family: monospace"
-                      >{{ widget$activityServicePriorityList.ordinal(index + 1) }}</q-item-section
                     >
+                      {{ widget$activityServicePriorities.ordinal(index + 1) }}
+                    </q-item-section>
                   </q-item>
                 </template>
               </draggable>
@@ -98,6 +116,7 @@ import {
   symOutlinedAutoReadPause,
   symOutlinedAutoReadPlay,
   symOutlinedFormatListNumbered,
+  symOutlinedSwipeVertical,
 } from "@quasar/extras/material-symbols-outlined";
 import { mdiDiscord } from "@quasar/extras/mdi-v6";
 import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } from "@quasar/extras/mdi-v7";
@@ -116,24 +135,34 @@ const ordinalSuffixes: Record<Intl.LDMLPluralRule, string> = {
   other: "th",
 };
 
-class WidgetServicePriorityListEntry {
-  constructor(readonly name: models.ServicePriorityEntry, readonly icon: string, readonly iconColor: string) {
-    return this;
-  }
-}
-
-const servicePriorityListEntry = (
-  entry: models.ServicePriorityEntry,
-): { name: models.ServicePriorityEntry; icon: string; iconColor: string } => {
+const widget$servicePrioritiesEntry = (
+  entry: models.ServicePrioritiesEntry,
+): { name: models.ServicePrioritiesEntry; icon: string; iconColor: string } => {
   switch (entry) {
     case "nintendo":
-      return new WidgetServicePriorityListEntry("nintendo", mdiNintendoSwitch, "brand-nintendo");
+      return {
+        name: "nintendo",
+        icon: mdiNintendoSwitch,
+        iconColor: "brand-nintendo",
+      };
     case "playstation":
-      return new WidgetServicePriorityListEntry("playstation", mdiSonyPlaystation, "brand-playstation");
+      return {
+        name: "playstation",
+        icon: mdiSonyPlaystation,
+        iconColor: "brand-playstation",
+      };
     case "steam":
-      return new WidgetServicePriorityListEntry("steam", mdiSteam, "brand-steam");
+      return {
+        name: "steam",
+        icon: mdiSteam,
+        iconColor: "brand-steam",
+      };
     case "xbox":
-      return new WidgetServicePriorityListEntry("xbox", mdiMicrosoftXbox, "brand-xbox");
+      return {
+        name: "xbox",
+        icon: mdiMicrosoftXbox,
+        iconColor: "brand-xbox",
+      };
     default:
       return undefined as never;
   }
@@ -172,13 +201,13 @@ export default vue.defineComponent({
       });
     })();
 
-    const widget$activityServicePriorityList = new (class {
+    const widget$activityServicePriorities = new (class {
       readonly model = vue.computed({
         get: () => {
-          return store$config.activity.servicePriorityList.map(servicePriorityListEntry);
+          return store$config.activity.servicePriorities.map(widget$servicePrioritiesEntry);
         },
         set: (value) => {
-          store$config.activity.servicePriorityList = value.map((entry) => entry.name);
+          store$config.activity.servicePriorities = value.map((entry) => entry.name);
         },
       });
       ordinal(n: number): string {
@@ -194,16 +223,17 @@ export default vue.defineComponent({
       icon$matFactCheck: matFactCheck,
       icon$mdiDiscord: mdiDiscord,
       icon$symOutlinedFormatListNumbered: symOutlinedFormatListNumbered,
+      icon$symOutlinedSwipeVertical: symOutlinedSwipeVertical,
       store$config,
       widget$activityPollingActive,
-      widget$activityServicePriorityList,
+      widget$activityServicePriorities,
     };
   },
 });
 </script>
 
 <style scoped>
-.service-activity-priorities-ghost {
+.activity-service-priorities-ghost {
   background: #5865f2;
   color: white;
 }

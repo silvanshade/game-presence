@@ -37,6 +37,62 @@
           />
         </q-item-section>
       </q-item>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Game art assets priority list</q-item-label>
+          <q-item-label caption>Specifies the order (ascending) of asset sources</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-btn-dropdown
+            :icon="icon$symOutlinedFormatListNumbered"
+            label="assets"
+            dense
+          >
+            <q-list class="q-pa-none q-ma-none">
+              <q-item
+                dense
+                class="bg-black text-white"
+              >
+                <q-btn
+                  :icon="icon$symOutlinedSwipeVertical"
+                  label="drag to reorder"
+                  no-caps
+                  unelevated
+                  class="no-pointer-events non-selectable"
+                  disable
+                />
+              </q-item>
+              <q-separator />
+              <draggable
+                v-model="widget$serviceNintendoAssetsPriorities.model.value"
+                item-key="name"
+                ghost-class="service-nintendo-assets-priorities-ghost"
+              >
+                <template #item="{ index, element }">
+                  <q-item
+                    clickable
+                    dense
+                  >
+                    <q-item-section avatar>
+                      <q-icon
+                        :name="element.icon"
+                        :color="element.iconColor"
+                      />
+                    </q-item-section>
+                    <q-item-section>{{ element.name }}</q-item-section>
+                    <q-item-section
+                      side
+                      style="font-family: monospace"
+                    >
+                      {{ widget$serviceNintendoAssetsPriorities.ordinal(index + 1) }}
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </draggable>
+            </q-list>
+          </q-btn-dropdown>
+        </q-item-section>
+      </q-item>
       <template v-if="store$config.services.nintendo.data">
         <q-separator />
         <q-item :disable="!widget$servicesNintendoDisclaimerAcknowledged.model.value">
@@ -100,13 +156,49 @@
 
 <script lang="ts">
 import { matBadge, matCloudSync, matInfo, matPrivacyTip } from "@quasar/extras/material-icons";
-import { mdiNintendoSwitch } from "@quasar/extras/mdi-v7";
+import { symOutlinedFormatListNumbered, symOutlinedSwipeVertical } from "@quasar/extras/material-symbols-outlined";
+import { mdiNintendoSwitch, mdiTwitch } from "@quasar/extras/mdi-v7";
 import * as vue from "vue";
+import Draggable from "vuedraggable";
+import type * as models from "../models";
 import * as stores from "../stores";
+
+const ordinalRules = new Intl.PluralRules("en", { type: "ordinal" });
+const ordinalSuffixes: Record<Intl.LDMLPluralRule, string> = {
+  zero: "th",
+  one: "st",
+  two: "nd",
+  few: "rd",
+  many: "th",
+  other: "th",
+};
+
+const widget$serviceNintendoAssetsPrioritiesEntry = (
+  entry: models.AssetsPrioritiesEntry,
+): { name: models.AssetsPrioritiesEntry; icon: string; iconColor: string } => {
+  switch (entry) {
+    case "native":
+      return {
+        name: "native",
+        icon: mdiNintendoSwitch,
+        iconColor: "brand-nintendo",
+      };
+    case "twitch":
+      return {
+        name: "twitch",
+        icon: mdiTwitch,
+        iconColor: "brand-twitch",
+      };
+    default:
+      return undefined as never;
+  }
+};
 
 export default vue.defineComponent({
   name: "SettingsPageServicesNintendo",
-  components: {},
+  components: {
+    Draggable,
+  },
   setup(_props, ctx) {
     const store$config = stores.config.useStore();
 
@@ -140,6 +232,22 @@ export default vue.defineComponent({
       });
     })();
 
+    const widget$serviceNintendoAssetsPriorities = new (class {
+      readonly model = vue.computed({
+        get: () => {
+          return store$config.services.nintendo.assetsPriorities.map(widget$serviceNintendoAssetsPrioritiesEntry);
+        },
+        set: (value) => {
+          store$config.services.nintendo.assetsPriorities = value.map((entry) => entry.name);
+        },
+      });
+      ordinal(n: number): string {
+        const category = ordinalRules.select(n);
+        const suffix = ordinalSuffixes[category];
+        return n.toString() + suffix;
+      }
+    })();
+
     const widget$servicesNintendoManuallyReauthorizeAccount = {
       button: new (class {
         readonly eventClick = (event: Event) => {
@@ -156,13 +264,17 @@ export default vue.defineComponent({
     };
 
     ctx.expose([]);
+
     return {
       icon$matBadge: matBadge,
       icon$matCloudSync: matCloudSync,
       icon$matInfo: matInfo,
       icon$matPrivacyTip: matPrivacyTip,
       icon$mdiNintendoSwitch: mdiNintendoSwitch,
+      icon$symOutlinedFormatListNumbered: symOutlinedFormatListNumbered,
+      icon$symOutlinedSwipeVertical: symOutlinedSwipeVertical,
       store$config,
+      widget$serviceNintendoAssetsPriorities,
       widget$servicesNintendoDataUsername,
       widget$servicesNintendoDisclaimerAcknowledged,
       widget$servicesNintendoEnabled,
@@ -171,3 +283,10 @@ export default vue.defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.service-nintendo-assets-priorities-ghost {
+  background: #5865f2;
+  color: white;
+}
+</style>

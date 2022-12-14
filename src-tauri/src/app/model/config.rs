@@ -108,7 +108,7 @@ pub mod service {
     pub struct Nintendo {
         pub disclaimer_acknowledged: bool,
         pub enabled: bool,
-        pub game_asset_sources: Vec<super::AssetSourceEntry>,
+        pub assets_priorities: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::nintendo::Data>,
     }
@@ -117,12 +117,12 @@ pub mod service {
         fn default() -> Self {
             let disclaimer_acknowledged = bool::default();
             let enabled = bool::default();
-            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let assets_priorities = vec![super::AssetSourceEntry::default()];
             let data = Option::default();
             Self {
                 disclaimer_acknowledged,
                 enabled,
-                game_asset_sources,
+                assets_priorities,
                 data,
             }
         }
@@ -142,7 +142,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
-        pub game_asset_sources: Vec<super::AssetSourceEntry>,
+        pub assets_priorities: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::playstation::Data>,
     }
@@ -150,11 +150,11 @@ pub mod service {
     impl Default for self::Playstation {
         fn default() -> Self {
             let enabled = bool::default();
-            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let assets_priorities = vec![super::AssetSourceEntry::default()];
             let data = Option::default();
             Self {
                 enabled,
-                game_asset_sources,
+                assets_priorities,
                 data,
             }
         }
@@ -174,7 +174,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
-        pub game_asset_sources: Vec<super::AssetSourceEntry>,
+        pub assets_priorities: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::steam::Data>,
     }
@@ -182,11 +182,11 @@ pub mod service {
     impl Default for self::Steam {
         fn default() -> Self {
             let enabled = bool::default();
-            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let assets_priorities = vec![super::AssetSourceEntry::default()];
             let data = Option::default();
             Self {
                 enabled,
-                game_asset_sources,
+                assets_priorities,
                 data,
             }
         }
@@ -226,7 +226,7 @@ pub mod service {
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
-        pub game_asset_sources: Vec<super::AssetSourceEntry>,
+        pub assets_priorities: Vec<super::AssetSourceEntry>,
         #[serde(skip_serializing_if = "Option::is_none")]
         pub data: Option<self::xbox::Data>,
     }
@@ -234,11 +234,11 @@ pub mod service {
     impl Default for self::Xbox {
         fn default() -> Self {
             let enabled = bool::default();
-            let game_asset_sources = vec![super::AssetSourceEntry::default()];
+            let assets_priorities = vec![super::AssetSourceEntry::default()];
             let data = Option::default();
             Self {
                 enabled,
-                game_asset_sources,
+                assets_priorities,
                 data,
             }
         }
@@ -269,12 +269,12 @@ pub struct Activity {
     pub polling_active: bool,
     pub discord_display_presence: bool,
     pub games_require_whitelisting: bool,
-    pub service_priority_list: Vec<ServicePriorityEntry>,
+    pub service_priorities: Vec<ServicePrioritiesEntry>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
-pub enum ServicePriorityEntry {
+pub enum ServicePrioritiesEntry {
     Nintendo,
     Playstation,
     Steam,
