@@ -40,15 +40,10 @@ impl Subscription {
     ) -> async_graphql::Result<impl Stream<Item = async_graphql::Result<serde_json::Value>> + 'ctx> {
         let model = ctx.data::<crate::app::Model>()?;
         let stream = async_stream::try_stream! {
-            let mut initial = true;
+            yield serde_json::to_value(model.gui.read().await.clone())?;
             loop {
-                if !initial {
-                    model.notifiers.gui.notified().await;
-                } else {
-                    initial = false;
-                }
-                let gui = model.gui.read().await.clone();
-                yield serde_json::to_value(gui)?;
+                model.notifiers.gui.notified().await;
+                yield serde_json::to_value(model.gui.read().await.clone())?;
             }
         };
         Ok(stream)
