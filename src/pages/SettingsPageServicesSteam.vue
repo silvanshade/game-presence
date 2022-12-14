@@ -163,9 +163,7 @@ export default vue.defineComponent({
     };
 
     const widget$servicesSteamDataUsername = {
-      model: vue.computed(() => {
-        return store$config.services.steam.data?.username;
-      }),
+      model: vue.ref<string | undefined>(),
     };
 
     const widget$servicesSteamDataKey = new (class {

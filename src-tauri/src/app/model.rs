@@ -8,6 +8,9 @@ use tokio::sync::{
 
 mod build;
 pub mod config;
+mod gui;
+mod presence;
+mod session;
 
 pub use build::BuildInfo;
 pub use config::Config;

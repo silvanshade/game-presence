@@ -133,9 +133,7 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {
-            pub username: Option<String>,
-        }
+        pub struct Data {}
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -165,9 +163,7 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {
-            pub username: Option<String>,
-        }
+        pub struct Data {}
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -197,11 +193,7 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {
-            pub id: String,
-            pub key: String,
-            pub username: String,
-        }
+        pub struct Data {}
     }
 
     #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -217,9 +209,7 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {
-            pub username: String,
-        }
+        pub struct Data {}
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -249,9 +239,7 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {
-            pub username: Option<String>,
-        }
+        pub struct Data {}
     }
 }
 

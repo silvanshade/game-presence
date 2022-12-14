@@ -114,9 +114,7 @@ export default vue.defineComponent({
     };
 
     const widget$servicesTwitchDataUsername = {
-      model: vue.computed(() => {
-        return store$config.services.twitch.data?.username;
-      }),
+      model: vue.ref<string | undefined>(),
     };
 
     ctx.expose([]);

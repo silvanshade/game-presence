@@ -115,7 +115,7 @@
           class="no-padding q-mr-md justify-end no-pointer-events"
         >
           <q-input
-            v-model="store$config.services.nintendo.data.username"
+            v-model="widget$servicesNintendoDataUsername.model.value"
             class="no-pointer-events non-selectable"
             dense
             filled
@@ -258,9 +258,7 @@ export default vue.defineComponent({
     };
 
     const widget$servicesNintendoDataUsername = {
-      model: vue.computed(() => {
-        return store$config.services.nintendo.data?.username;
-      }),
+      model: vue.ref<string | undefined>(),
     };
 
     ctx.expose([]);

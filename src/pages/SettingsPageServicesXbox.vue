@@ -114,9 +114,7 @@ export default vue.defineComponent({
     };
 
     const widget$servicesXboxDataUsername = {
-      model: vue.computed(() => {
-        return store$config.services.xbox.data?.username;
-      }),
+      model: vue.ref<string | undefined>(),
     };
 
     ctx.expose([]);

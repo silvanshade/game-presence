@@ -52,9 +52,7 @@ export namespace service {
       return { disclaimerAcknowledged, enabled, assetsPriorities };
     };
 
-    export interface Data {
-      username: string;
-    }
+    export type Data = Record<string, never>;
   }
 
   export interface Playstation {
@@ -71,9 +69,7 @@ export namespace service {
       return { enabled, assetsPriorities };
     };
 
-    export interface Data {
-      username: string;
-    }
+    export type Data = Record<string, never>;
   }
 
   export interface Steam {
@@ -90,11 +86,7 @@ export namespace service {
       return { enabled, assetsPriorities };
     };
 
-    export interface Data {
-      id: string;
-      key: string;
-      username: string;
-    }
+    export type Data = Record<string, never>;
   }
 
   export interface Twitch {
@@ -109,9 +101,7 @@ export namespace service {
       return { enabled };
     };
 
-    export interface Data {
-      username: string;
-    }
+    export type Data = Record<string, never>;
   }
 
   export interface Xbox {
@@ -128,9 +118,7 @@ export namespace service {
       return { enabled, assetsPriorities };
     };
 
-    export interface Data {
-      username: string;
-    }
+    export type Data = Record<string, never>;
   }
 }
 

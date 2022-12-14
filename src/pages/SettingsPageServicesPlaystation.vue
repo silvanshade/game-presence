@@ -113,9 +113,7 @@ export default vue.defineComponent({
     };
 
     const widget$servicesPlaystationDataUsername = {
-      model: vue.computed(() => {
-        return store$config.services.playstation.data?.username;
-      }),
+      model: vue.ref<string | undefined>(),
     };
 
     ctx.expose([]);
