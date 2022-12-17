@@ -20,6 +20,62 @@
           />
         </q-item-section>
       </q-item>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Game art assets priority list</q-item-label>
+          <q-item-label caption>Specifies the order (ascending) of asset sources</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-btn-dropdown
+            :icon="icon$symOutlinedFormatListNumbered"
+            label="assets"
+            dense
+          >
+            <q-list class="q-pa-none q-ma-none">
+              <q-item
+                dense
+                class="bg-black text-white"
+              >
+                <q-btn
+                  :icon="icon$symOutlinedSwipeVertical"
+                  label="drag to reorder"
+                  no-caps
+                  unelevated
+                  class="no-pointer-events non-selectable"
+                  disable
+                />
+              </q-item>
+              <q-separator />
+              <draggable
+                v-model="widget$servicesSteamAssetsPriorities.model.value"
+                item-key="name"
+                ghost-class="service-assets-priorities-ghost"
+              >
+                <template #item="{ index, element }">
+                  <q-item
+                    clickable
+                    dense
+                  >
+                    <q-item-section avatar>
+                      <q-icon
+                        :name="element.icon"
+                        :color="element.iconColor"
+                      />
+                    </q-item-section>
+                    <q-item-section>{{ element.name }}</q-item-section>
+                    <q-item-section
+                      side
+                      style="font-family: monospace"
+                    >
+                      {{ widget$servicesSteamAssetsPriorities.ordinal(index + 1) }}
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </draggable>
+            </q-list>
+          </q-btn-dropdown>
+        </q-item-section>
+      </q-item>
       <template v-if="model$gui.services.steam.data">
         <q-separator />
         <q-item>
@@ -125,16 +181,20 @@ import {
   matSaveAs,
   matVpnKey,
 } from "@quasar/extras/material-icons";
+import { symOutlinedFormatListNumbered, symOutlinedSwipeVertical } from "@quasar/extras/material-symbols-outlined";
 import { mdiSteam } from "@quasar/extras/mdi-v7";
 import * as api from "@tauri-apps/api";
 import type { QInput } from "quasar";
 import * as vue from "vue";
-
+import Draggable from "vuedraggable";
+import * as models from "../models";
 import * as stores from "../stores";
 
 export default vue.defineComponent({
   name: "SettingsPageServicesSteam",
-  components: {},
+  components: {
+    Draggable,
+  },
   setup(_props, ctx) {
     const model$gui = stores.gui.useStore();
 
@@ -151,6 +211,25 @@ export default vue.defineComponent({
           model$gui.services.steam.enabled = value;
         },
       });
+    })();
+
+    const widget$servicesSteamAssetsPriorities = new (class {
+      readonly model = vue.computed({
+        get: () => {
+          let native = {
+            icon: mdiSteam,
+            iconColor: "brand-steam",
+          };
+          let callback = models.gui.AssetsPrioritiesEntry.widget$entry(native);
+          return model$gui.services.steam.assetsPriorities.map(callback);
+        },
+        set: (value) => {
+          model$gui.services.steam.assetsPriorities = value.map((entry) => entry.name);
+        },
+      });
+      ordinal(n: number): string {
+        return models.gui.AssetsPrioritiesEntry.ordinal(n);
+      }
     })();
 
     const widget$servicesSteamManuallyReauthorizeAccount = {
@@ -224,7 +303,10 @@ export default vue.defineComponent({
       icon$matSaveAs: matSaveAs,
       icon$matVpnKey: matVpnKey,
       icon$mdiSteam: mdiSteam,
+      icon$symOutlinedFormatListNumbered: symOutlinedFormatListNumbered,
+      icon$symOutlinedSwipeVertical: symOutlinedSwipeVertical,
       model$gui,
+      widget$servicesSteamAssetsPriorities,
       widget$servicesSteamDataKey,
       widget$servicesSteamDataKeyRef,
       widget$servicesSteamDataUsername,

@@ -1,3 +1,5 @@
+import { mdiTwitch } from "@quasar/extras/mdi-v7";
+
 export interface Gui {
   services: Services;
   activity: Activity;
@@ -123,6 +125,40 @@ export namespace service {
 }
 
 export type AssetsPrioritiesEntry = "native" | "twitch";
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace AssetsPrioritiesEntry {
+  const ordinalRules = new Intl.PluralRules("en", { type: "ordinal" });
+  const ordinalSuffixes: Record<Intl.LDMLPluralRule, string> = {
+    zero: "th",
+    one: "st",
+    two: "nd",
+    few: "rd",
+    many: "th",
+    other: "th",
+  };
+  export const ordinal = (n: number): string => {
+    const category = ordinalRules.select(n);
+    const suffix = ordinalSuffixes[category];
+    return n.toString() + suffix;
+  };
+  export const widget$entry =
+    (native: { icon: string; iconColor: string }) =>
+    (entry: AssetsPrioritiesEntry): { name: AssetsPrioritiesEntry } & typeof native => {
+      switch (entry) {
+        case "native":
+          return { name: "native", ...native };
+        case "twitch":
+          return {
+            name: "twitch",
+            icon: mdiTwitch,
+            iconColor: "brand-twitch",
+          };
+        default:
+          return undefined as never;
+      }
+    };
+}
 
 export interface Activity {
   pollingActive: boolean;

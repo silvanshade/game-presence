@@ -19,6 +19,62 @@
           />
         </q-item-section>
       </q-item>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Game art assets priority list</q-item-label>
+          <q-item-label caption>Specifies the order (ascending) of asset sources</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-btn-dropdown
+            :icon="icon$symOutlinedFormatListNumbered"
+            label="assets"
+            dense
+          >
+            <q-list class="q-pa-none q-ma-none">
+              <q-item
+                dense
+                class="bg-black text-white"
+              >
+                <q-btn
+                  :icon="icon$symOutlinedSwipeVertical"
+                  label="drag to reorder"
+                  no-caps
+                  unelevated
+                  class="no-pointer-events non-selectable"
+                  disable
+                />
+              </q-item>
+              <q-separator />
+              <draggable
+                v-model="widget$servicesPlaystationAssetsPriorities.model.value"
+                item-key="name"
+                ghost-class="service-assets-priorities-ghost"
+              >
+                <template #item="{ index, element }">
+                  <q-item
+                    clickable
+                    dense
+                  >
+                    <q-item-section avatar>
+                      <q-icon
+                        :name="element.icon"
+                        :color="element.iconColor"
+                      />
+                    </q-item-section>
+                    <q-item-section>{{ element.name }}</q-item-section>
+                    <q-item-section
+                      side
+                      style="font-family: monospace"
+                    >
+                      {{ widget$servicesPlaystationAssetsPriorities.ordinal(index + 1) }}
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </draggable>
+            </q-list>
+          </q-btn-dropdown>
+        </q-item-section>
+      </q-item>
       <template v-if="model$gui.services.playstation.data">
         <q-separator />
         <q-item>
@@ -78,13 +134,18 @@
 
 <script lang="ts">
 import { matBadge, matCloudSync, matInfo } from "@quasar/extras/material-icons";
+import { symOutlinedFormatListNumbered, symOutlinedSwipeVertical } from "@quasar/extras/material-symbols-outlined";
 import { mdiSonyPlaystation } from "@quasar/extras/mdi-v7";
 import * as vue from "vue";
+import Draggable from "vuedraggable";
+import * as models from "../models";
 import * as stores from "../stores";
 
 export default vue.defineComponent({
   name: "SettingsPageServicesPlaystation",
-  components: {},
+  components: {
+    Draggable,
+  },
   setup(_props, ctx) {
     const model$gui = stores.gui.useStore();
 
@@ -103,6 +164,26 @@ export default vue.defineComponent({
       });
     })();
 
+    const widget$servicesPlaystationAssetsPriorities = new (class {
+      readonly model = vue.computed({
+        get: () => {
+          console.log("get", model$gui.services.playstation);
+          let native = {
+            icon: mdiSonyPlaystation,
+            iconColor: "brand-playstation",
+          };
+          let callback = models.gui.AssetsPrioritiesEntry.widget$entry(native);
+          return model$gui.services.playstation.assetsPriorities.map(callback);
+        },
+        set: (value) => {
+          model$gui.services.playstation.assetsPriorities = value.map((entry) => entry.name);
+        },
+      });
+      ordinal(n: number): string {
+        return models.gui.AssetsPrioritiesEntry.ordinal(n);
+      }
+    })();
+
     const widget$servicesPlaystationManuallyReauthorizeAccount = {
       button: new (class {
         readonly eventClick = (event: Event) => {
@@ -117,12 +198,16 @@ export default vue.defineComponent({
     };
 
     ctx.expose([]);
+
     return {
       icon$matBadge: matBadge,
       icon$matCloudSync: matCloudSync,
       icon$matInfo: matInfo,
       icon$mdiSonyPlaystation: mdiSonyPlaystation,
+      icon$symOutlinedFormatListNumbered: symOutlinedFormatListNumbered,
+      icon$symOutlinedSwipeVertical: symOutlinedSwipeVertical,
       model$gui,
+      widget$servicesPlaystationAssetsPriorities,
       widget$servicesPlaystationEnabled,
       widget$servicesPlaystationManuallyReauthorizeAccount,
       widget$servicesPlaystationDataUsername,

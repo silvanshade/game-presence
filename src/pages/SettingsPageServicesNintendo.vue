@@ -64,9 +64,9 @@
               </q-item>
               <q-separator />
               <draggable
-                v-model="widget$serviceNintendoAssetsPriorities.model.value"
+                v-model="widget$servicesNintendoAssetsPriorities.model.value"
                 item-key="name"
-                ghost-class="service-nintendo-assets-priorities-ghost"
+                ghost-class="service-assets-priorities-ghost"
               >
                 <template #item="{ index, element }">
                   <q-item
@@ -84,7 +84,7 @@
                       side
                       style="font-family: monospace"
                     >
-                      {{ widget$serviceNintendoAssetsPriorities.ordinal(index + 1) }}
+                      {{ widget$servicesNintendoAssetsPriorities.ordinal(index + 1) }}
                     </q-item-section>
                   </q-item>
                 </template>
@@ -157,42 +157,11 @@
 <script lang="ts">
 import { matBadge, matCloudSync, matInfo, matPrivacyTip } from "@quasar/extras/material-icons";
 import { symOutlinedFormatListNumbered, symOutlinedSwipeVertical } from "@quasar/extras/material-symbols-outlined";
-import { mdiNintendoSwitch, mdiTwitch } from "@quasar/extras/mdi-v7";
+import { mdiNintendoSwitch } from "@quasar/extras/mdi-v7";
 import * as vue from "vue";
 import Draggable from "vuedraggable";
-import type * as models from "../models";
+import * as models from "../models";
 import * as stores from "../stores";
-
-const ordinalRules = new Intl.PluralRules("en", { type: "ordinal" });
-const ordinalSuffixes: Record<Intl.LDMLPluralRule, string> = {
-  zero: "th",
-  one: "st",
-  two: "nd",
-  few: "rd",
-  many: "th",
-  other: "th",
-};
-
-const widget$serviceNintendoAssetsPrioritiesEntry = (
-  entry: models.gui.AssetsPrioritiesEntry,
-): { name: models.gui.AssetsPrioritiesEntry; icon: string; iconColor: string } => {
-  switch (entry) {
-    case "native":
-      return {
-        name: "native",
-        icon: mdiNintendoSwitch,
-        iconColor: "brand-nintendo",
-      };
-    case "twitch":
-      return {
-        name: "twitch",
-        icon: mdiTwitch,
-        iconColor: "brand-twitch",
-      };
-    default:
-      return undefined as never;
-  }
-};
 
 export default vue.defineComponent({
   name: "SettingsPageServicesNintendo",
@@ -232,19 +201,22 @@ export default vue.defineComponent({
       });
     })();
 
-    const widget$serviceNintendoAssetsPriorities = new (class {
+    const widget$servicesNintendoAssetsPriorities = new (class {
       readonly model = vue.computed({
         get: () => {
-          return model$gui.services.nintendo.assetsPriorities.map(widget$serviceNintendoAssetsPrioritiesEntry);
+          let native = {
+            icon: mdiNintendoSwitch,
+            iconColor: "brand-nintendo",
+          };
+          let callback = models.gui.AssetsPrioritiesEntry.widget$entry(native);
+          return model$gui.services.nintendo.assetsPriorities.map(callback);
         },
         set: (value) => {
           model$gui.services.nintendo.assetsPriorities = value.map((entry) => entry.name);
         },
       });
       ordinal(n: number): string {
-        const category = ordinalRules.select(n);
-        const suffix = ordinalSuffixes[category];
-        return n.toString() + suffix;
+        return models.gui.AssetsPrioritiesEntry.ordinal(n);
       }
     })();
 
@@ -272,7 +244,7 @@ export default vue.defineComponent({
       icon$symOutlinedFormatListNumbered: symOutlinedFormatListNumbered,
       icon$symOutlinedSwipeVertical: symOutlinedSwipeVertical,
       model$gui,
-      widget$serviceNintendoAssetsPriorities,
+      widget$servicesNintendoAssetsPriorities,
       widget$servicesNintendoDataUsername,
       widget$servicesNintendoDisclaimerAcknowledged,
       widget$servicesNintendoEnabled,
@@ -281,10 +253,3 @@ export default vue.defineComponent({
   },
 });
 </script>
-
-<style scoped>
-.service-nintendo-assets-priorities-ghost {
-  background: #5865f2;
-  color: white;
-}
-</style>
