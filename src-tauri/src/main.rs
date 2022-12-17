@@ -1,6 +1,5 @@
 use snafu::prelude::*;
 
-mod api;
 mod app;
 mod core;
 mod service;

@@ -27,7 +27,13 @@ pub fn run() -> impl FnMut(&tauri::AppHandle<tauri::Wry>, tauri::RunEvent) {
     use tauri::{RunEvent, WindowEvent};
     |app, run_event| match run_event {
         RunEvent::Ready => {
-            // noop
+            tauri::async_runtime::spawn(async move {
+                let query = "atomic heart";
+                if let Some(result) = crate::service::xbox::request_autosuggest(query).await.unwrap() {
+                    println!("image: {:#?}", result.image_url().unwrap().as_str());
+                    println!("store: {:#?}", result.store_url().unwrap().as_str());
+                }
+            });
         },
         RunEvent::WindowEvent {
             label,
