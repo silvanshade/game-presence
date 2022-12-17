@@ -63,12 +63,10 @@ pub async fn request_autosuggest(query: &str) -> Result<Option<XboxStoreSuggestR
     use levenshtein::levenshtein;
     let url = endpoint_autosuggest_url(query)?;
     let data = reqwest::get(url).await.context(ReqwestGetSnafu)?;
-    println!("{:#?}", data);
     let json = data
         .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?;
-    println!("{:#?}", json);
     let auto_suggest = serde_json::from_value::<XboxStoreAutoSuggest>(json).context(SerdeJsonFromValueSnafu)?;
     let mut results = auto_suggest
         .result_sets
