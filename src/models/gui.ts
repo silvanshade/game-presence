@@ -42,7 +42,7 @@ export namespace service {
     disclaimerAcknowledged: boolean;
     enabled: boolean;
     assetsPriorities: AssetsPrioritiesEntry[];
-    data?: Nintendo.Data;
+    data: null | Nintendo.Data;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -51,7 +51,8 @@ export namespace service {
       const disclaimerAcknowledged = false;
       const enabled = false;
       const assetsPriorities: AssetsPrioritiesEntry[] = ["native"];
-      return { disclaimerAcknowledged, enabled, assetsPriorities };
+      const data = null;
+      return { disclaimerAcknowledged, enabled, assetsPriorities, data };
     };
 
     export type Data = Record<string, never>;
@@ -60,7 +61,7 @@ export namespace service {
   export interface Playstation {
     enabled: boolean;
     assetsPriorities: AssetsPrioritiesEntry[];
-    data?: Playstation.Data;
+    data: null | Playstation.Data;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -68,7 +69,8 @@ export namespace service {
     export const make: () => Playstation = () => {
       const enabled = false;
       const assetsPriorities: AssetsPrioritiesEntry[] = ["native"];
-      return { enabled, assetsPriorities };
+      const data = null;
+      return { enabled, assetsPriorities, data };
     };
 
     export type Data = Record<string, never>;
@@ -77,7 +79,7 @@ export namespace service {
   export interface Steam {
     enabled: boolean;
     assetsPriorities: AssetsPrioritiesEntry[];
-    data?: Steam.Data;
+    data: null | Steam.Data;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -85,22 +87,26 @@ export namespace service {
     export const make: () => Steam = () => {
       const enabled = false;
       const assetsPriorities: AssetsPrioritiesEntry[] = ["native"];
-      return { enabled, assetsPriorities };
+      const data = null;
+      return { enabled, assetsPriorities, data };
     };
 
-    export type Data = Record<string, never>;
+    export interface Data {
+      apiKey: string;
+    }
   }
 
   export interface Twitch {
     enabled: boolean;
-    data?: Twitch.Data;
+    data: null | Twitch.Data;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
   export namespace Twitch {
     export const make: () => Twitch = () => {
       const enabled = false;
-      return { enabled };
+      const data = null;
+      return { enabled, data };
     };
 
     export type Data = Record<string, never>;
@@ -109,7 +115,7 @@ export namespace service {
   export interface Xbox {
     enabled: boolean;
     assetsPriorities: AssetsPrioritiesEntry[];
-    data?: Xbox.Data;
+    data: null | Xbox.Data;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -117,10 +123,13 @@ export namespace service {
     export const make: () => Xbox = () => {
       const enabled = false;
       const assetsPriorities: AssetsPrioritiesEntry[] = ["native"];
-      return { enabled, assetsPriorities };
+      const data = null;
+      return { enabled, assetsPriorities, data };
     };
 
-    export type Data = Record<string, never>;
+    export interface Data {
+      apiKey: string;
+    }
   }
 }
 

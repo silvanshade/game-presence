@@ -255,7 +255,9 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {}
+        pub struct Data {
+            pub api_key: String,
+        }
     }
 
     #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -316,7 +318,9 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {}
+        pub struct Data {
+            pub api_key: String,
+        }
     }
 }
 

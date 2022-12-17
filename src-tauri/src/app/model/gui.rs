@@ -161,6 +161,13 @@ pub mod service {
             let steam = &config.services.steam;
             self.enabled = steam.enabled;
             self.assets_priorities = steam.assets_priorities.clone();
+            if let Some(that_data) = &steam.data {
+                if let Some(this_data) = &mut self.data {
+                    this_data.api_key = that_data.api_key.clone();
+                } else {
+                    self.data = Some(that_data.clone().try_into()?);
+                }
+            }
             Ok(())
         }
     }
@@ -183,7 +190,18 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {}
+        pub struct Data {
+            pub api_key: String,
+        }
+
+        impl TryFrom<crate::app::model::config::service::steam::Data> for self::Data {
+            type Error = super::super::Error;
+
+            fn try_from(data: crate::app::model::config::service::steam::Data) -> Result<Self, Self::Error> {
+                let api_key = data.api_key.clone();
+                Ok(Self { api_key })
+            }
+        }
     }
 
     #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -224,6 +242,13 @@ pub mod service {
             let xbox = &config.services.xbox;
             self.enabled = xbox.enabled;
             self.assets_priorities = xbox.assets_priorities.clone();
+            if let Some(that_data) = &xbox.data {
+                if let Some(this_data) = &mut self.data {
+                    this_data.api_key = that_data.api_key.clone();
+                } else {
+                    self.data = Some(that_data.clone().try_into()?);
+                }
+            }
             Ok(())
         }
     }
@@ -246,7 +271,18 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {}
+        pub struct Data {
+            pub api_key: String,
+        }
+
+        impl TryFrom<crate::app::model::config::service::xbox::Data> for self::Data {
+            type Error = super::super::Error;
+
+            fn try_from(data: crate::app::model::config::service::xbox::Data) -> Result<Self, Self::Error> {
+                let api_key = data.api_key.clone();
+                Ok(Self { api_key })
+            }
+        }
     }
 }
 

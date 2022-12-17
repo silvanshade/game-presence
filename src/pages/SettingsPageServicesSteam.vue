@@ -131,13 +131,13 @@
         <q-item class="no-padding q-mr-md justify-end">
           <q-input
             ref="servicesSteamApiKeyRef"
-            v-model="widget$servicesSteamDataKey.model.value"
+            v-model="widget$servicesSteamDataApiKey.model.value"
             dense
             filled
             hide-bottom-space
             no-error-icon
-            :rules="widget$servicesSteamDataKey.behaviorRules"
-            @update:model-value="widget$servicesSteamDataKey.eventUpdate"
+            :rules="widget$servicesSteamDataApiKey.behaviorRules"
+            @update:model-value="widget$servicesSteamDataApiKey.eventUpdate"
           >
             <template #before>
               <q-btn
@@ -152,17 +152,17 @@
               <q-icon
                 :name="icon$matContentPasteSearch"
                 class="cursor-pointer"
-                @click="widget$servicesSteamDataKey.slotAppend.icon.eventClick"
+                @click="widget$servicesSteamDataApiKey.slotAppend.icon.eventClick"
               >
                 <q-tooltip>Click to open API key page then paste the key here and click the save button</q-tooltip>
               </q-icon>
             </template>
             <template #after>
               <q-btn
-                :color="widget$servicesSteamDataKey.slotAfter.btn.color.value"
-                :disable="widget$servicesSteamDataKey.slotAfter.btn.disable.value"
+                :color="widget$servicesSteamDataApiKey.slotAfter.btn.color.value"
+                :disable="widget$servicesSteamDataApiKey.slotAfter.btn.disable.value"
                 :icon="icon$matSaveAs"
-                @click="widget$servicesSteamDataKey.slotAfter.btn.eventClick"
+                @click="widget$servicesSteamDataApiKey.slotAfter.btn.eventClick"
               />
             </template>
           </q-input>
@@ -184,7 +184,7 @@ import {
 import { symOutlinedFormatListNumbered, symOutlinedSwipeVertical } from "@quasar/extras/material-symbols-outlined";
 import { mdiSteam } from "@quasar/extras/mdi-v7";
 import * as api from "@tauri-apps/api";
-import type { QInput } from "quasar";
+import type * as quasar from "quasar";
 import * as vue from "vue";
 import Draggable from "vuedraggable";
 import * as models from "../models";
@@ -245,13 +245,13 @@ export default vue.defineComponent({
       model: vue.ref<string | undefined>(),
     };
 
-    const widget$servicesSteamDataKey = new (class {
+    const widget$servicesSteamDataApiKey = new (class {
       readonly behaviorRules = [(value: string) => /^[0-9A-Z]{32}$/.test(value)];
       readonly eventUpdate = (value: string, event: Event) => {
         // NOTE: this is called before
         void event;
         console.debug(`widget$servicesSteamDataKey.@update("` + value + `")`);
-        if (widget$servicesSteamDataKeyRef.value && widget$servicesSteamDataKeyRef.value.validate(value)) {
+        if (widget$servicesSteamDataApiKeyRef.value && widget$servicesSteamDataApiKeyRef.value.validate(value)) {
           this.internalSaveAllow();
         } else {
           this.internalSaveReset();
@@ -291,7 +291,7 @@ export default vue.defineComponent({
       };
       readonly slotBefore = {};
     })();
-    const widget$servicesSteamDataKeyRef = vue.ref<QInput>();
+    const widget$servicesSteamDataApiKeyRef = vue.ref<quasar.QInput>();
 
     ctx.expose([]);
 
@@ -307,8 +307,8 @@ export default vue.defineComponent({
       icon$symOutlinedSwipeVertical: symOutlinedSwipeVertical,
       model$gui,
       widget$servicesSteamAssetsPriorities,
-      widget$servicesSteamDataKey,
-      widget$servicesSteamDataKeyRef,
+      widget$servicesSteamDataApiKey,
+      widget$servicesSteamDataApiKeyRef,
       widget$servicesSteamDataUsername,
       widget$servicesSteamEnabled,
       widget$servicesSteamManuallyReauthorizeAccount,
