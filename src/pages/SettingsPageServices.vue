@@ -7,7 +7,7 @@
       dense
       class="col-auto"
     >
-      <div class="column fit flex-center">
+      <div class="column fit">
         <div>
           <q-tab
             name="nintendo"
@@ -53,11 +53,31 @@
       animated
       class="col"
     >
-      <q-tab-panel name="nintendo"><SettingsPageServicesNintendo /></q-tab-panel>
-      <q-tab-panel name="playstation"><SettingsPageServicesPlaystation /></q-tab-panel>
-      <q-tab-panel name="steam"><SettingsPageServicesSteam /></q-tab-panel>
-      <q-tab-panel name="twitch"><SettingsPageServicesTwitch /></q-tab-panel>
-      <q-tab-panel name="xbox"><SettingsPageServicesXbox /></q-tab-panel>
+      <q-tab-panel
+        name="nintendo"
+        class="no-padding"
+        ><SettingsPageServicesNintendo
+      /></q-tab-panel>
+      <q-tab-panel
+        name="playstation"
+        class="no-padding"
+        ><SettingsPageServicesPlaystation
+      /></q-tab-panel>
+      <q-tab-panel
+        name="steam"
+        class="no-padding"
+        ><SettingsPageServicesSteam
+      /></q-tab-panel>
+      <q-tab-panel
+        name="twitch"
+        class="no-padding"
+        ><SettingsPageServicesTwitch
+      /></q-tab-panel>
+      <q-tab-panel
+        name="xbox"
+        class="no-padding"
+        ><SettingsPageServicesXbox
+      /></q-tab-panel>
     </q-tab-panels>
   </div>
 </template>

@@ -61,7 +61,7 @@ pub(crate) fn init(state: crate::app::Model) -> Result<(), Error> {
     let builder = builder.setup(|app| {
         tauri::WindowBuilder::new(app, "main", tauri::WindowUrl::App("index.html".into()))
             .title("game-presence")
-            .inner_size(762f64, 400f64)
+            .inner_size(760f64, 380f64)
             .fullscreen(false)
             .resizable(false)
             .disable_file_drop_handler() // NOTE: needed on windows for vuedraggable to work
