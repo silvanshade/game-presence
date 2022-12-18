@@ -20,6 +20,7 @@ pub fn invoke() -> impl Fn(tauri::Invoke<tauri::Wry>) {
     tauri::generate_handler![
         crate::app::command::service_playstation_authorization_flow,
         crate::app::command::service_twitch_authorization_flow,
+        crate::app::command::service_xbox_authorization_flow,
     ]
 }
 

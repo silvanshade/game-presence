@@ -17,3 +17,11 @@ pub async fn service_twitch_authorization_flow(
         .await
         .map_err(|err| err.to_string())
 }
+
+#[tauri::command]
+pub async fn service_xbox_authorization_flow(
+    app: tauri::AppHandle<tauri::Wry>,
+    reauthorize: bool,
+) -> Result<(), String> {
+    Ok(())
+}
