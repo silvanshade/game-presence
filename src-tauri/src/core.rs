@@ -15,6 +15,11 @@ pub struct Core {
 }
 
 impl Core {
+    const NINTENDO_TICK_RATE: u64 = u64::MAX;
+    const PLAYSTATION_TICK_RATE: u64 = u64::MAX;
+    const STEAM_TICK_RATE: u64 = u64::MAX;
+    const XBOX_TICK_RATE: u64 = 5;
+
     pub fn new(model: crate::app::Model) -> Self {
         let nintendo = tauri::async_runtime::spawn(Self::nintendo(model.clone()));
         let playstation = tauri::async_runtime::spawn(Self::playstation(model.clone()));
@@ -28,24 +33,24 @@ impl Core {
         }
     }
 
+    fn exit(model: &crate::app::Model) -> tokio::sync::futures::Notified {
+        model.notifiers.exit.notified()
+    }
+
+    async fn tick(secs: u64) {
+        tokio::time::sleep(tokio::time::Duration::from_secs(secs)).await
+    }
+
     async fn nintendo(model: crate::app::Model) -> Result<(), Error> {
         loop {
-            let done = model.notifiers.exit.notified();
-            let tick = async {
-                tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-                if !model.config.read().await.services.nintendo.enabled {
-                    println!("nintendo: skip");
-                    return;
-                }
-                println!("nintendo: tick");
-            };
             tokio::select! {
-                _ = done => {
-                    println!("nintendo: exit");
+                _ = Self::exit(&model) => {
                     break;
                 }
-                _ = tick => {
-                    continue;
+                _ = Self::tick(Self::XBOX_TICK_RATE) => {
+                    if !model.config.read().await.services.nintendo.enabled {
+                        continue;
+                    }
                 }
             }
         }
@@ -54,22 +59,14 @@ impl Core {
 
     async fn playstation(model: crate::app::Model) -> Result<(), Error> {
         loop {
-            let done = model.notifiers.exit.notified();
-            let task = async {
-                tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-                if !model.config.read().await.services.playstation.enabled {
-                    println!("playstation: skip");
-                    return;
-                }
-                println!("playstation: tick");
-            };
             tokio::select! {
-                _ = done => {
-                    println!("playstation: exit");
+                _ = Self::exit(&model) => {
                     break;
                 }
-                _ = task => {
-                    continue;
+                _ = Self::tick(Self::XBOX_TICK_RATE) => {
+                    if !model.config.read().await.services.playstation.enabled {
+                        continue;
+                    }
                 }
             }
         }
@@ -78,22 +75,14 @@ impl Core {
 
     async fn steam(model: crate::app::Model) -> Result<(), Error> {
         loop {
-            let done = model.notifiers.exit.notified();
-            let tick = async {
-                tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-                if !model.config.read().await.services.steam.enabled {
-                    println!("steam: skip");
-                    return;
-                }
-                println!("steam: tick");
-            };
             tokio::select! {
-                _ = done => {
-                    println!("steam: exit");
+                _ = Self::exit(&model) => {
                     break;
                 }
-                _ = tick => {
-                    continue;
+                _ = Self::tick(Self::XBOX_TICK_RATE) => {
+                    if !model.config.read().await.services.steam.enabled {
+                        continue;
+                    }
                 }
             }
         }
@@ -102,22 +91,14 @@ impl Core {
 
     async fn xbox(model: crate::app::Model) -> Result<(), Error> {
         loop {
-            let done = model.notifiers.exit.notified();
-            let tick = async {
-                tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-                if !model.config.read().await.services.xbox.enabled {
-                    println!("xbox: skip");
-                    return;
-                }
-                println!("xbox: tick");
-            };
             tokio::select! {
-                _ = done => {
-                    println!("xbox: exit");
+                _ = Self::exit(&model) => {
                     break;
                 }
-                _ = tick => {
-                    continue;
+                _ = Self::tick(Self::XBOX_TICK_RATE) => {
+                    if !model.config.read().await.services.xbox.enabled {
+                        continue;
+                    }
                 }
             }
         }
