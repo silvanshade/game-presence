@@ -1077,6 +1077,7 @@ dependencies = [
  "percent-encoding",
  "proc-exit",
  "rand 0.8.5",
+ "regex",
  "reqwest",
  "ring",
  "serde",

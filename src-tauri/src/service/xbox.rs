@@ -2,7 +2,7 @@ use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    ReqwestGet { source: reqwest::Error },
+    ReqwestSend { source: reqwest::Error },
     ReqwestResponseJson { source: reqwest::Error },
     SerdeJsonFromValue { source: serde_json::Error },
     UrlDropResizeParams,
@@ -13,14 +13,14 @@ pub mod api {
     pub mod autosuggest {
         use super::super::{
             Error,
-            ReqwestGetSnafu,
             ReqwestResponseJsonSnafu,
-            SerdeJsonFromValueSnafu,
+            ReqwestSendSnafu,
             UrlDropResizeParamsSnafu,
             UrlParseSnafu,
         };
         use serde::Deserialize;
         use snafu::prelude::*;
+        use tap::prelude::*;
 
         pub const ENDPOINT: &str = "https://www.microsoft.com/msstoreapiprod/api/autosuggest";
 
@@ -36,15 +36,13 @@ pub mod api {
         }
 
         pub async fn request(query: &str) -> Result<Option<self::Suggest>, Error> {
-            use tap::Tap;
-            let url = self::url(query)?;
-            let data = reqwest::get(url).await.context(ReqwestGetSnafu)?;
-            let json = data
-                .json::<serde_json::Value>()
+            let client = reqwest::Client::new();
+            let request = client.get(self::url(query)?);
+            let response = request.send().await.context(ReqwestSendSnafu)?;
+            response
+                .json::<self::Response>()
                 .await
-                .context(ReqwestResponseJsonSnafu)?;
-            let auto_suggest = serde_json::from_value::<self::Response>(json).context(SerdeJsonFromValueSnafu)?;
-            let result = auto_suggest
+                .context(ReqwestResponseJsonSnafu)?
                 .result_sets
                 .into_iter()
                 .flat_map(|result_set| result_set.suggests)
@@ -58,8 +56,8 @@ pub mod api {
                 .tap_mut(|results| results.sort_by(|lhs, rhs| lhs.0.cmp(&rhs.0)))
                 .into_iter()
                 .map(|result| result.1)
-                .next();
-            Ok(result)
+                .next()
+                .pipe(Ok)
         }
 
         #[derive(Debug, Deserialize)]
@@ -97,6 +95,56 @@ pub mod api {
             }
         }
     }
-}
 
-const ENDPOINT_PRESENCE: &str = "https://xbl.io/api/v2/player/summary";
+    pub mod summary {
+        use super::super::{Error, ReqwestResponseJsonSnafu, ReqwestSendSnafu, SerdeJsonFromValueSnafu, UrlParseSnafu};
+        use serde::Deserialize;
+        use snafu::prelude::*;
+        use tap::prelude::*;
+
+        pub const ENDPOINT: &str = "https://xbl.io/api/v2/player/summary";
+
+        fn url() -> Result<url::Url, Error> {
+            url::Url::parse(self::ENDPOINT).context(UrlParseSnafu)
+        }
+
+        pub async fn request(api_key: &str) -> Result<Option<self::Person>, Error> {
+            let client = reqwest::Client::new();
+            let request = client.get(self::url()?).header("x-authorization", api_key);
+            let response = request.send().await.context(ReqwestSendSnafu)?;
+            response
+                .json::<self::Response>()
+                .await
+                .context(ReqwestResponseJsonSnafu)?
+                // .tap(|v| println!("value: {:#?}", v))
+                // .pipe(serde_json::from_value::<self::Response>)
+                // .context(SerdeJsonFromValueSnafu)?
+                .people
+                .pop()
+                .pipe(Ok)
+        }
+
+        #[derive(Debug, Deserialize)]
+        #[serde(rename_all = "camelCase")]
+        pub struct Response {
+            pub people: Vec<Person>,
+        }
+
+        #[derive(Debug, Deserialize)]
+        #[serde(rename_all = "camelCase")]
+        pub struct Person {
+            pub display_pic_raw: String,
+            pub gamertag: String,
+            pub presence_state: String,
+            pub presence_text: String,
+        }
+    }
+
+    pub async fn autosuggest(query: &str) -> Result<Option<self::autosuggest::Suggest>, super::Error> {
+        self::autosuggest::request(query).await
+    }
+
+    pub async fn summary(api_key: &str) -> Result<Option<self::summary::Person>, super::Error> {
+        self::summary::request(api_key).await
+    }
+}
