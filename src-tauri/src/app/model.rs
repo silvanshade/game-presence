@@ -22,6 +22,7 @@ pub struct Model {
 #[derive(Clone, Default)]
 pub struct Notifiers {
     pub gui: Arc<tokio::sync::Notify>,
+    pub exit: Arc<tokio::sync::Notify>,
 }
 
 #[derive(Debug, Snafu)]

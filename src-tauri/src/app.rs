@@ -32,7 +32,7 @@ fn make_system_tray() -> tauri::SystemTray {
     tauri::SystemTray::new().with_menu(system_tray_menu)
 }
 
-pub(crate) fn init(state: crate::app::Model) -> Result<(), Error> {
+pub(crate) fn init(model: crate::app::Model) -> Result<(), Error> {
     let context = tauri::generate_context!();
 
     // create the default builder
@@ -48,11 +48,11 @@ pub(crate) fn init(state: crate::app::Model) -> Result<(), Error> {
     let builder = builder.on_system_tray_event(handler::system_tray());
 
     // configure the app state
-    let builder = builder.manage(state.clone());
+    let builder = builder.manage(model.clone());
 
     // configure tauri plugins
     let builder = {
-        let schema = crate::app::ipc::schema(state);
+        let schema = crate::app::ipc::schema(model);
         let plugin = tauri_plugin_graphql_ipc::init(schema);
         builder.plugin(plugin)
     };
@@ -61,7 +61,7 @@ pub(crate) fn init(state: crate::app::Model) -> Result<(), Error> {
     let builder = builder.setup(|app| {
         tauri::WindowBuilder::new(app, "main", tauri::WindowUrl::App("index.html".into()))
             .title("game-presence")
-            .inner_size(760f64, 380f64)
+            .inner_size(760f64, 384f64)
             .fullscreen(false)
             .resizable(false)
             .disable_file_drop_handler() // NOTE: needed on windows for vuedraggable to work

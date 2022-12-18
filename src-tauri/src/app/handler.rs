@@ -1,7 +1,7 @@
-pub use snafu::prelude::*;
+use snafu::prelude::*;
+use tauri::Manager;
 
 fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(), crate::app::Error> {
-    use tauri::Manager;
     let window = app.get_window("main").expect(r#"failed to get "main" window"#);
     let item = app.tray_handle().get_item(crate::app::tray::visibility::ID);
     if window.is_visible().context(crate::app::TauriWindowIsVisibleSnafu)? {
@@ -27,13 +27,14 @@ pub fn run() -> impl FnMut(&tauri::AppHandle<tauri::Wry>, tauri::RunEvent) {
     use tauri::{RunEvent, WindowEvent};
     |app, run_event| match run_event {
         RunEvent::Ready => {
-            tauri::async_runtime::spawn(async move {
-                let query = "atomic heart";
-                if let Some(result) = crate::service::xbox::request_autosuggest(query).await.unwrap() {
-                    println!("image: {:#?}", result.image_url().unwrap().as_str());
-                    println!("store: {:#?}", result.store_url().unwrap().as_str());
-                }
-            });
+            // tauri::async_runtime::spawn(async move {
+            //     let query = "atomic heart";
+            //     if let Some(result) =
+            // crate::service::xbox::request_autosuggest(query).await.unwrap() {
+            //         println!("image: {:#?}", result.image_url().unwrap().as_str());
+            //         println!("store: {:#?}", result.store_url().unwrap().as_str());
+            //     }
+            // });
         },
         RunEvent::WindowEvent {
             label,
@@ -42,6 +43,9 @@ pub fn run() -> impl FnMut(&tauri::AppHandle<tauri::Wry>, tauri::RunEvent) {
         } if label == "main" => {
             api.prevent_close();
             self::toggle_visibility(app).unwrap();
+        },
+        RunEvent::Exit => {
+            app.state::<crate::app::Model>().notifiers.exit.notify_waiters();
         },
         _ => {},
     }
@@ -52,8 +56,12 @@ pub fn system_tray<R: tauri::Runtime>() -> impl Fn(&tauri::AppHandle<R>, tauri::
     |app, event| match event {
         SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
             crate::app::tray::quit::ID => {
-                let code = proc_exit::Code::SUCCESS;
-                code.process_exit();
+                // NOTE: we manually close all windows (rather than app::exit) so that RunEvent::Exit triggers
+                for window in app.windows().values() {
+                    window
+                        .close()
+                        .expect(&format!("failed to close window: {}", window.label()));
+                }
             },
             crate::app::tray::visibility::ID => self::toggle_visibility(app).unwrap(),
             _ => {},

@@ -22,22 +22,21 @@ built = { version = "0.5" }
 directories = { version = "4.0" }
 discord-rich-presence = { version = "0.2" }
 indoc = { version = "1.0" }
-jsonpath_lib = "0.3.0"
-levenshtein = "1.0.5"
-percent-encoding = "2.2.0"
+percent-encoding = { version = "2.2" }
 proc-exit = { version = "2.0", features = [] }
 rand = { version = "0.8" }
 reqwest = { version = "0.11", features = [] }
-ring = "0.16.20"
+ring = { version = "0.16" }
 serde = { version = "1.0", features = ["derive", "serde_derive", "std"] }
 serde_json = { version = "1.0", features = ["std"] }
 serde_urlencoded = { version = "0.7", features = [] }
 snafu = { version = "0.7", features = ["std"] }
+tap = "1.0.1"
 tauri = { version = "1.2", features = ["compression", "objc-exception", "reqwest", "shell-open", "system-tray", "wry"] }
 tauri-plugin-graphql-ipc = { version = "0.0", git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc", features = ["async-graphql"] }
 tokio = { version = "1.21", features = ["fs", "macros"] }
 tracing = { version = "0.1", features = ["attributes", "std"] }
-triple_accel = { version = "0.4.0", features = [] }
+triple_accel = { version = "0.4", features = [] }
 twitch_api2 = { version = "0.6", features = [] }
 twitch_oauth2 = { version = "0.9", features = [] }
 url = { version = "2.3", features = [] }

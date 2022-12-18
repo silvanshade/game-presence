@@ -3,7 +3,6 @@ use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    JsonpathSelector { source: jsonpath_lib::JsonPathError },
     ReqwestGet { source: reqwest::Error },
     ReqwestResponseJson { source: reqwest::Error },
     SerdeJsonFromValue { source: serde_json::Error },
@@ -60,7 +59,7 @@ fn endpoint_autosuggest_url(query: &str) -> Result<url::Url, Error> {
 }
 
 pub async fn request_autosuggest(query: &str) -> Result<Option<XboxStoreSuggestResult>, Error> {
-    use levenshtein::levenshtein;
+    use tap::Tap;
     let url = endpoint_autosuggest_url(query)?;
     let data = reqwest::get(url).await.context(ReqwestGetSnafu)?;
     let json = data
@@ -68,16 +67,20 @@ pub async fn request_autosuggest(query: &str) -> Result<Option<XboxStoreSuggestR
         .await
         .context(ReqwestResponseJsonSnafu)?;
     let auto_suggest = serde_json::from_value::<XboxStoreAutoSuggest>(json).context(SerdeJsonFromValueSnafu)?;
-    let mut results = auto_suggest
+    let result = auto_suggest
         .result_sets
         .into_iter()
         .flat_map(|result_set| result_set.suggests)
         .filter(|suggest| suggest.source == "Game")
-        .collect::<Vec<_>>();
-    results.sort_by(|lhs, rhs| {
-        let lhs = levenshtein(query, &lhs.title);
-        let rhs = levenshtein(query, &rhs.title);
-        lhs.cmp(&rhs)
-    });
-    Ok(results.into_iter().next())
+        .map(|suggest| {
+            use triple_accel::levenshtein::levenshtein_exp;
+            let distance = levenshtein_exp(query.as_bytes(), suggest.title.as_bytes());
+            (distance, suggest)
+        })
+        .collect::<Vec<_>>()
+        .tap_mut(|results| results.sort_by(|lhs, rhs| lhs.0.cmp(&rhs.0)))
+        .into_iter()
+        .map(|result| result.1)
+        .next();
+    Ok(result)
 }
