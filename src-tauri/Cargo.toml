@@ -22,6 +22,7 @@ built = { version = "0.5" }
 directories = { version = "4.0" }
 discord-rich-presence = { version = "0.2" }
 indoc = { version = "1.0" }
+oauth2 = "4.3.0"
 percent-encoding = { version = "2.2" }
 proc-exit = { version = "2.0", features = [] }
 rand = { version = "0.8" }

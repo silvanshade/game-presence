@@ -2,149 +2,204 @@ use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    ReqwestSend { source: reqwest::Error },
-    ReqwestResponseJson { source: reqwest::Error },
-    SerdeJsonFromValue { source: serde_json::Error },
-    UrlDropResizeParams,
-    UrlParse { source: url::ParseError },
+    Oauth2AuthUrlNew {
+        source: url::ParseError,
+    },
+    Oauth2CsrfTokenStateSecretMismatch {
+        state: String,
+        token: CsrfToken,
+    },
+    Oauth2ExchangeCode {
+        source: oauth2::basic::BasicRequestTokenError<oauth2::reqwest::Error<reqwest::Error>>,
+    },
+    Oauth2RedirectUrlNew {
+        source: url::ParseError,
+    },
+    Oauth2TokenUrlNew {
+        source: url::ParseError,
+    },
+    SerdeUrlEncoded {
+        source: serde::de::value::Error,
+    },
+    StdSyncMpscReceive {
+        source: std::sync::mpsc::RecvError,
+    },
+    TauriSpawn {
+        source: tauri::Error,
+    },
+    TauriWindowBuilderNew {
+        source: tauri::Error,
+    },
+    TauriWindowClose {
+        source: tauri::Error,
+    },
+    UrlParse {
+        source: url::ParseError,
+    },
+    UrlQuery,
 }
 
 pub mod api {
-    pub mod autosuggest {
+    pub mod authorize {
         use super::super::{
             Error,
-            ReqwestResponseJsonSnafu,
-            ReqwestSendSnafu,
-            UrlDropResizeParamsSnafu,
+            Oauth2AuthUrlNewSnafu,
+            Oauth2ExchangeCodeSnafu,
+            Oauth2RedirectUrlNewSnafu,
+            Oauth2TokenUrlNewSnafu,
+            SerdeUrlEncodedSnafu,
+            StdSyncMpscReceiveSnafu,
+            TauriSpawnSnafu,
+            TauriWindowBuilderNewSnafu,
+            TauriWindowCloseSnafu,
             UrlParseSnafu,
+            UrlQuerySnafu,
         };
         use serde::Deserialize;
         use snafu::prelude::*;
         use tap::prelude::*;
 
-        pub const ENDPOINT: &str = "https://www.microsoft.com/msstoreapiprod/api/autosuggest";
+        const CLIENT_ID: &str = "6d97ccd0-5a71-48c5-9bc3-a203a183da22";
 
-        fn url(query: &str) -> Result<url::Url, Error> {
-            use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
-            let encoded_query = utf8_percent_encode(query, NON_ALPHANUMERIC).to_string();
-            let params = [
-                ("market", "en-us"),
-                ("sources", "DCatAll-Products"),
-                ("query", encoded_query.as_str()),
-            ];
-            url::Url::parse_with_params(self::ENDPOINT, params).context(UrlParseSnafu)
+        const REDIRECT_URL: &str = "http://localhost:3000/api/xbox/authorize/redirect";
+
+        const AUTH_SCOPES: [&str; 2] = ["xboxlive.signin", "xboxlive.offline_access"];
+
+        const AUTH_URL: &str = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
+
+        const TOKEN_URL: &str = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+
+        struct AuthCodeData {
+            code: oauth2::AuthorizationCode,
+            state: oauth2::CsrfToken,
         }
 
-        pub async fn request(query: &str) -> Result<Option<self::Suggest>, Error> {
-            let client = reqwest::Client::new();
-            let request = client.get(self::url(query)?);
-            let response = request.send().await.context(ReqwestSendSnafu)?;
-            response
-                .json::<self::Response>()
-                .await
-                .context(ReqwestResponseJsonSnafu)?
-                .result_sets
-                .into_iter()
-                .flat_map(|result_set| result_set.suggests)
-                .filter(|suggest| suggest.source == "Game")
-                .map(|suggest| {
-                    use triple_accel::levenshtein::levenshtein_exp;
-                    let distance = levenshtein_exp(query.as_bytes(), suggest.title.as_bytes());
-                    (distance, suggest)
+        impl AuthCodeData {
+            pub fn new(code: String, state: String) -> Self {
+                let code = oauth2::AuthorizationCode::new(code);
+                let state = oauth2::CsrfToken::new(state);
+                Self { code, state }
+            }
+        }
+
+        #[derive(Deserialize)]
+        #[serde(rename_all = "camelCase")]
+        struct AuthCodeQuery {
+            code: String,
+            state: String,
+        }
+
+        fn client() -> Result<oauth2::basic::BasicClient, Error> {
+            let client_id = CLIENT_ID.conv::<String>().pipe(oauth2::ClientId::new);
+            let client_secret = None;
+            let auth_url = AUTH_URL
+                .conv::<String>()
+                .pipe(oauth2::AuthUrl::new)
+                .context(Oauth2AuthUrlNewSnafu)?;
+            let token_url = TOKEN_URL
+                .conv::<String>()
+                .pipe(oauth2::TokenUrl::new)
+                .context(Oauth2TokenUrlNewSnafu)?
+                .conv::<Option<_>>();
+            let redirect_uri = "http://localhost:3000/api/xbox/authorize/redirect"
+                .conv::<String>()
+                .pipe(oauth2::RedirectUrl::new)
+                .context(Oauth2RedirectUrlNewSnafu)?;
+            let client = oauth2::basic::BasicClient::new(client_id, client_secret, auth_url, token_url)
+                .set_redirect_uri(redirect_uri);
+            Ok(client)
+        }
+
+        async fn flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<(), Error> {
+            let client = client()?;
+            let (pkce_code_challenge, pkce_code_verifier) = oauth2::PkceCodeChallenge::new_random_sha256();
+            let AuthCodeData { code, state } = flow_get_auth_code(app, &client, pkce_code_challenge).await?;
+            let token = flow_get_bearer_token(&client, code, pkce_code_verifier).await?;
+            Ok(())
+        }
+
+        async fn flow_get_auth_code(
+            app: &tauri::AppHandle<tauri::Wry>,
+            client: &oauth2::basic::BasicClient,
+            pkce_code_challenge: oauth2::PkceCodeChallenge,
+        ) -> Result<AuthCodeData, Error> {
+            let (auth_url, csrf_token) = {
+                let scopes = AUTH_SCOPES
+                    .into_iter()
+                    .map(|scope| scope.conv::<String>().pipe(oauth2::Scope::new));
+                client
+                    .authorize_url(oauth2::CsrfToken::new_random)
+                    .add_scopes(scopes)
+                    .set_pkce_challenge(pkce_code_challenge)
+                    .url()
+            };
+
+            let (tx, rx) = std::sync::mpsc::channel::<String>();
+            let window = {
+                tauri::WindowBuilder::new(
+                    app,
+                    "twitch-integration-authorization",
+                    tauri::WindowUrl::External(auth_url),
+                )
+                .on_navigation(move |url: String| {
+                    println!("navigating: {}", url);
+                    if url.starts_with(REDIRECT_URL) {
+                        tx.send(url).expect("failed to send redirect URL back from window");
+                        return false;
+                    }
+                    true
                 })
-                .collect::<Vec<_>>()
-                .tap_mut(|results| results.sort_by(|lhs, rhs| lhs.0.cmp(&rhs.0)))
-                .into_iter()
-                .map(|result| result.1)
-                .next()
-                .pipe(Ok)
-        }
+                .build()
+                .context(TauriWindowBuilderNewSnafu)?
+            };
 
-        #[derive(Debug, Deserialize)]
-        #[serde(rename_all = "PascalCase")]
-        pub struct Response {
-            pub result_sets: Vec<ResultSet>,
-        }
+            let auth_redirect = rx
+                .recv()
+                .context(StdSyncMpscReceiveSnafu)?
+                .as_str()
+                .pipe(url::Url::parse)
+                .context(UrlParseSnafu)?;
 
-        #[derive(Debug, Deserialize)]
-        #[serde(rename_all = "PascalCase")]
-        pub struct ResultSet {
-            pub suggests: Vec<Suggest>,
-        }
-
-        #[derive(Debug, Deserialize)]
-        #[serde(rename_all = "PascalCase")]
-        pub struct Suggest {
-            pub source: String,
-            pub title: String,
-            pub url: String,
-            pub image_url: String,
-        }
-
-        impl Suggest {
-            pub fn image_url(&self) -> Result<url::Url, Error> {
-                let protocol = "https";
-                let url = self.image_url.split('?').next().context(UrlDropResizeParamsSnafu)?;
-                url::Url::parse(&format!("{}:{}", protocol, url)).context(UrlParseSnafu)
-            }
-
-            pub fn store_url(&self) -> Result<url::Url, Error> {
-                let protocol = "https";
-                let url = &self.url;
-                url::Url::parse(&format!("{}:{}", protocol, url)).context(UrlParseSnafu)
-            }
-        }
-    }
-
-    pub mod summary {
-        use super::super::{Error, ReqwestResponseJsonSnafu, ReqwestSendSnafu, SerdeJsonFromValueSnafu, UrlParseSnafu};
-        use serde::Deserialize;
-        use snafu::prelude::*;
-        use tap::prelude::*;
-
-        pub const ENDPOINT: &str = "https://xbl.io/api/v2/player/summary";
-
-        fn url() -> Result<url::Url, Error> {
-            url::Url::parse(self::ENDPOINT).context(UrlParseSnafu)
-        }
-
-        pub async fn request(api_key: &str) -> Result<Option<self::Person>, Error> {
-            let client = reqwest::Client::new();
-            let request = client.get(self::url()?).header("x-authorization", api_key);
-            let response = request.send().await.context(ReqwestSendSnafu)?;
-            response
-                .json::<self::Response>()
+            tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
                 .await
-                .context(ReqwestResponseJsonSnafu)?
-                // .tap(|v| println!("value: {:#?}", v))
-                // .pipe(serde_json::from_value::<self::Response>)
-                // .context(SerdeJsonFromValueSnafu)?
-                .people
-                .pop()
-                .pipe(Ok)
+                .context(TauriSpawnSnafu)??;
+
+            let AuthCodeQuery { code, state } = auth_redirect
+                .query()
+                .context(UrlQuerySnafu)?
+                .pipe(serde_urlencoded::from_str::<AuthCodeQuery>)
+                .context(SerdeUrlEncodedSnafu)?;
+
+            if &state != csrf_token.secret() {
+                return Err(Error::Oauth2CsrfTokenStateSecretMismatch {
+                    state,
+                    token: csrf_token,
+                });
+            }
+
+            Ok(AuthCodeData::new(code, state))
         }
 
-        #[derive(Debug, Deserialize)]
-        #[serde(rename_all = "camelCase")]
-        pub struct Response {
-            pub people: Vec<Person>,
+        async fn flow_get_bearer_token(
+            client: &oauth2::basic::BasicClient,
+            code: oauth2::AuthorizationCode,
+            pkce_code_verifier: oauth2::PkceCodeVerifier,
+        ) -> Result<oauth2::basic::BasicTokenResponse, Error> {
+            let token = client
+                .exchange_code(code)
+                .set_pkce_verifier(pkce_code_verifier)
+                .request_async(oauth2::reqwest::async_http_client)
+                .await
+                .context(Oauth2ExchangeCodeSnafu)?;
+            Ok(token)
         }
 
-        #[derive(Debug, Deserialize)]
-        #[serde(rename_all = "camelCase")]
-        pub struct Person {
-            pub display_pic_raw: String,
-            pub gamertag: String,
-            pub presence_state: String,
-            pub presence_text: String,
+        fn flow_get_xsts_user_token() -> Result<(), Error> {
+            Ok(())
         }
-    }
 
-    pub async fn autosuggest(query: &str) -> Result<Option<self::autosuggest::Suggest>, super::Error> {
-        self::autosuggest::request(query).await
-    }
-
-    pub async fn summary(api_key: &str) -> Result<Option<self::summary::Person>, super::Error> {
-        self::summary::request(api_key).await
+        fn flow_get_xsts_xtoken() -> Result<(), Error> {
+            Ok(())
+        }
     }
 }

@@ -23,5 +23,8 @@ pub async fn service_xbox_authorization_flow(
     app: tauri::AppHandle<tauri::Wry>,
     reauthorize: bool,
 ) -> Result<(), String> {
-    Ok(())
+    todo!()
+    // crate::service::xbox::api::authorize::flow(&app, reauthorize)
+    //     .await
+    //     .map_err(|err| err.to_string())
 }

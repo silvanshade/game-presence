@@ -202,6 +202,10 @@ export default vue.defineComponent({
       readonly eventUpdate = (value: boolean, event: Event) => {
         void event;
         console.debug("widget$servicesXboxEnabled.toggle.@update(" + value.toString() + ")");
+        if (value) {
+          console.log("auth flow!");
+          api.invoke("service_xbox_authorization_flow", { reauthorize: false }).catch(console.error);
+        }
       };
       readonly model = vue.computed({
         get: () => {

@@ -32,13 +32,13 @@ struct ResponseToken {
     scope: String,
 }
 
-const CLIENT_AUTHORIZATION: &str = "YWM4ZDE2MWEtZDk2Ni00NzI4LWIwZWEtZmZlYzIyZjY5ZWRjOkRFaXhFcVhYQ2RYZHdqMHY=";
+const APP_CLIENT_ID: &str = "YWM4ZDE2MWEtZDk2Ni00NzI4LWIwZWEtZmZlYzIyZjY5ZWRjOkRFaXhFcVhYQ2RYZHdqMHY=";
+
+const APP_REDIRECT_URI: &str = "com.playstation.PlayStationApp://redirect";
 
 const ENDPOINT_AUTHORIZE: &str = "https://ca.account.sony.com/api/authz/v3/oauth/authorize";
 
 const ENDPOINT_TOKEN: &str = "https://ca.account.sony.com/api/authz/v3/oauth/token";
-
-const REDIRECT_URI: &str = "com.playstation.PlayStationApp://redirect";
 
 mod params {
     pub fn common<'a, 'b>() -> impl Iterator<Item = (&'a str, &'b str)> {
@@ -51,7 +51,7 @@ mod params {
             ("token_format", "jwt"),
             ("ui", "pr"),
             ("extraQueryParams", "{ PlatformPrivacyWs1 = minimal; }"),
-            ("redirect_uri", super::REDIRECT_URI),
+            ("redirect_uri", super::APP_REDIRECT_URI),
         ]
         .into_iter()
     }
@@ -78,7 +78,7 @@ async fn request_authorize(app: &tauri::AppHandle<tauri::Wry>, reauthorize: bool
 
     let window = {
         let navigation_handler = move |url: String| {
-            if url.starts_with(&REDIRECT_URI.to_ascii_lowercase()) {
+            if url.starts_with(&APP_REDIRECT_URI.to_ascii_lowercase()) {
                 tx_response.blocking_send(url).unwrap();
                 return false;
             }
@@ -116,14 +116,14 @@ async fn request_token(response_authorize: ResponseAuthorize) -> Result<Response
     let client = reqwest::Client::new();
     let request = client
         .post(ENDPOINT_TOKEN)
-        .header("Authorization", format!("Basic {}", CLIENT_AUTHORIZATION))
+        .header("Authorization", format!("Basic {}", APP_CLIENT_ID))
         .form(
             &params::common()
                 .chain(
                     [
                         ("grant_type", "authorization_code"),
                         ("code", response_authorize.code.as_str()),
-                        ("redirect_uri", REDIRECT_URI),
+                        ("redirect_uri", APP_REDIRECT_URI),
                     ]
                     .into_iter(),
                 )
