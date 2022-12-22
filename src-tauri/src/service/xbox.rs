@@ -30,7 +30,9 @@ pub enum Error {
     StdSyncMpscReceive {
         source: std::sync::mpsc::RecvError,
     },
-    TauriGetWindow,
+    TauriWindowNavigate {
+        source: crate::service::Error,
+    },
     TauriSpawn {
         source: tauri::Error,
     },
@@ -38,9 +40,6 @@ pub enum Error {
         source: tauri::Error,
     },
     TauriWindowClose {
-        source: tauri::Error,
-    },
-    TauriWithWebview {
         source: tauri::Error,
     },
     UrlParse {
@@ -62,16 +61,15 @@ pub mod api {
             ReqwestRequestSendSnafu,
             SerdeUrlEncodedSnafu,
             StdSyncMpscReceiveSnafu,
-            TauriGetWindowSnafu,
             TauriSpawnSnafu,
             TauriWindowBuilderNewSnafu,
             TauriWindowCloseSnafu,
-            TauriWithWebviewSnafu,
+            TauriWindowNavigateSnafu,
             UrlParseSnafu,
             UrlQuerySnafu,
             XboxTokenXuiSnafu,
         };
-        use crate::service::PlatformWebviewExt;
+        use crate::service::TauriWindowExt;
         use serde::Deserialize;
         use snafu::prelude::*;
         use tap::prelude::*;
@@ -281,9 +279,12 @@ pub mod api {
                 .xbox_auth_ready
                 .notified()
                 .await;
+            // window
+            //     .with_webview(move |webview| webview.navigate(auth_url, reauthorize).unwrap())
+            //     .context(TauriWithWebviewSnafu)?;
             window
-                .with_webview(move |webview| webview.navigate(auth_url, reauthorize).unwrap())
-                .context(TauriWithWebviewSnafu)?;
+                .navigate(auth_url, reauthorize)
+                .context(TauriWindowNavigateSnafu)?;
 
             let auth_redirect = rx
                 .recv()
