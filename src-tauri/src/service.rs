@@ -93,7 +93,7 @@ impl TauriPlatformWebviewExt for PlatformWebview {
         use objc::{runtime::Object, *};
         use objc_foundation::{INSString, NSString};
 
-        let web_view = self.inner();
+        let webview = self.inner();
 
         unsafe {
             let handler = {
@@ -101,12 +101,12 @@ impl TauriPlatformWebviewExt for PlatformWebview {
                     let string = NSString::from_str(url.as_str());
                     let url: *mut Object = msg_send![class!(NSURL), URLWithString: string];
                     let request: *mut Object = msg_send![class!(NSURLRequest), requestWithURL: url];
-                    let _navigation: *mut Object = { msg_send![web_view, loadRequest: request] };
+                    let _navigation: *mut Object = { msg_send![webview, loadRequest: request] };
                 });
                 block.copy()
             };
             if clear_data_first {
-                let configuration: *mut Object = msg_send![web_view, configuration];
+                let configuration: *mut Object = msg_send![webview, configuration];
                 let data_store: *mut Object = msg_send![configuration, websiteDataStore];
                 let data_types: *mut Object = msg_send![class!(WKWebsiteDataStore), allWebsiteDataTypes];
                 let date: *mut Object = msg_send![class!(NSDate), distantPast];
@@ -126,10 +126,10 @@ impl TauriPlatformWebviewExt for PlatformWebview {
     fn navigate(&self, url: url::Url, clear_data_first: bool) -> Result<(), Error> {
         use webkit2gtk::{CookieManagerExt, WebContextExt, WebViewExt};
 
-        let web_view = self.inner();
+        let webview = self.inner();
 
         if clear_data_first {
-            let context = web_view.context().context(WebKit2GtkWebviewWebContextSnafu)?;
+            let context = webview.context().context(WebKit2GtkWebviewWebContextSnafu)?;
             let manager = context
                 .cookie_manager()
                 .context(WebKit2GtkWebContextCookieManagerSnafu)?;
@@ -137,7 +137,7 @@ impl TauriPlatformWebviewExt for PlatformWebview {
             manager.delete_all_cookies();
             context.clear_cache();
         }
-        web_view.load_uri(url.as_str());
+        webview.load_uri(url.as_str());
 
         Ok(())
     }
@@ -156,16 +156,16 @@ impl TauriPlatformWebviewExt for PlatformWebview {
         let url = PCWSTR::from(&HSTRING::from(url.as_str()));
 
         unsafe {
-            let web_view = Rc::new(self.controller().CoreWebView2().context(WindowsCoreWebView2Snafu)?);
+            let webview = Rc::new(self.controller().CoreWebView2().context(WindowsCoreWebView2Snafu)?);
 
             if clear_data_first {
                 // clear browser cookies
                 let (tx, rx) = mpsc::channel();
                 CallDevToolsProtocolMethodCompletedHandler::wait_for_async_operation(
                     {
-                        let web_view = web_view.clone();
+                        let webview = webview.clone();
                         Box::new(move |handler| {
-                            web_view.CallDevToolsProtocolMethod(
+                            webview.CallDevToolsProtocolMethod(
                                 w!("Network.clearBrowserCookies"),
                                 w!("{}"),
                                 &handler,
@@ -187,13 +187,9 @@ impl TauriPlatformWebviewExt for PlatformWebview {
                 let (tx, rx) = mpsc::channel();
                 CallDevToolsProtocolMethodCompletedHandler::wait_for_async_operation(
                     {
-                        let web_view = web_view.clone();
+                        let webview = webview.clone();
                         Box::new(move |handler| {
-                            web_view.clone().CallDevToolsProtocolMethod(
-                                w!("Network.clearBrowserCache"),
-                                w!("{}"),
-                                &handler,
-                            )?;
+                            webview.CallDevToolsProtocolMethod(w!("Network.clearBrowserCache"), w!("{}"), &handler)?;
                             Ok(())
                         })
                     },
@@ -209,7 +205,7 @@ impl TauriPlatformWebviewExt for PlatformWebview {
             }
 
             // navigate
-            web_view.Navigate(url).context(WindowsWebView2NavigateSnafu)?;
+            webview.Navigate(url).context(WindowsWebView2NavigateSnafu)?;
         }
 
         Ok(())
