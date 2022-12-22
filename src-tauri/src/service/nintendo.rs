@@ -87,7 +87,7 @@ const ENDPOINT_AUTHORIZE: &str = "https://accounts.nintendo.com/connect/1.0.0/au
 //     }
 // }
 
-pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>) -> Result<(), Error> {
+pub async fn authorization_flow(app: &tauri::AppHandle) -> Result<(), Error> {
     const REDIRECT_URI_PREFIX: &str = "npf71b963c1b7b6d119://auth";
 
     let AuthorizeChallenge {

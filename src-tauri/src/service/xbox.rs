@@ -30,6 +30,7 @@ pub enum Error {
     StdSyncMpscReceive {
         source: std::sync::mpsc::RecvError,
     },
+    TauriGetWindow,
     TauriSpawn {
         source: tauri::Error,
     },
@@ -61,6 +62,7 @@ pub mod api {
             ReqwestRequestSendSnafu,
             SerdeUrlEncodedSnafu,
             StdSyncMpscReceiveSnafu,
+            TauriGetWindowSnafu,
             TauriSpawnSnafu,
             TauriWindowBuilderNewSnafu,
             TauriWindowCloseSnafu,
@@ -197,7 +199,7 @@ pub mod api {
             Ok(client)
         }
 
-        pub async fn flow(app: &tauri::AppHandle<tauri::Wry>, reauthorize: bool) -> Result<(), Error> {
+        pub async fn flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error> {
             use oauth2::TokenResponse;
             use tokio::io::AsyncWriteExt;
 
@@ -241,11 +243,13 @@ pub mod api {
         }
 
         async fn flow_get_oauth2_auth_code(
-            app: &tauri::AppHandle<tauri::Wry>,
+            app: &tauri::AppHandle,
             reauthorize: bool,
             client: &oauth2::basic::BasicClient,
             pkce_code_challenge: oauth2::PkceCodeChallenge,
         ) -> Result<AuthCodeData, Error> {
+            use tauri::Manager;
+
             let (auth_url, csrf_token) = {
                 let scopes = OAUTH2_SCOPES
                     .into_iter()
@@ -258,28 +262,27 @@ pub mod api {
             };
 
             let (tx, rx) = std::sync::mpsc::channel::<String>();
+
             let window = {
-                tauri::WindowBuilder::new(
-                    app,
-                    "twitch-integration-authorization",
-                    tauri::WindowUrl::App("/html/empty".into()),
-                )
-                .on_navigation(move |url: String| {
-                    println!("navigating: {}", url);
-                    if url.starts_with(REDIRECT_URL) {
-                        tx.send(url).expect("failed to send redirect URL back from window");
-                        return false;
-                    }
-                    true
-                })
-                .build()
-                .context(TauriWindowBuilderNewSnafu)?
+                tauri::WindowBuilder::new(app, "auth-xbox", tauri::WindowUrl::App("/html/auth-init.html".into()))
+                    .on_navigation(move |url: String| {
+                        println!("navigating: {}", url);
+                        if url.starts_with(REDIRECT_URL) {
+                            tx.send(url).expect("failed to send redirect URL back from window");
+                            return false;
+                        }
+                        true
+                    })
+                    .build()
+                    .context(TauriWindowBuilderNewSnafu)?
             };
+            app.state::<crate::app::Model>()
+                .notifiers
+                .xbox_auth_ready
+                .notified()
+                .await;
             window
-                .with_webview({
-                    let reauthorize = true;
-                    move |webview| webview.navigate(auth_url, reauthorize).unwrap()
-                })
+                .with_webview(move |webview| webview.navigate(auth_url, reauthorize).unwrap())
                 .context(TauriWithWebviewSnafu)?;
 
             let auth_redirect = rx

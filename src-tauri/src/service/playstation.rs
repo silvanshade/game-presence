@@ -73,7 +73,7 @@ pub fn endpoint_authorize_url() -> Result<url::Url, Error> {
     .context(UrlParseSnafu)
 }
 
-async fn request_authorize(app: &tauri::AppHandle<tauri::Wry>, reauthorize: bool) -> Result<ResponseAuthorize, Error> {
+async fn request_authorize(app: &tauri::AppHandle, reauthorize: bool) -> Result<ResponseAuthorize, Error> {
     let (tx_response, mut rx_response) = tokio::sync::mpsc::channel::<String>(2);
 
     let window = {
@@ -137,7 +137,7 @@ async fn request_token(response_authorize: ResponseAuthorize) -> Result<Response
     Ok(response_token)
 }
 
-pub async fn authorization_flow(app: &tauri::AppHandle<tauri::Wry>, reauthorize: bool) -> Result<(), Error> {
+pub async fn authorization_flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error> {
     let response_authorize = request_authorize(app, reauthorize).await?;
     let response_token = request_token(response_authorize).await?;
     println!("{:#?}", response_token);

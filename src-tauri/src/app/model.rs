@@ -23,6 +23,10 @@ pub struct Model {
 pub struct Notifiers {
     pub gui: Arc<tokio::sync::Notify>,
     pub exit: Arc<tokio::sync::Notify>,
+    pub nintendo_auth_ready: Arc<tokio::sync::Notify>,
+    pub playstation_auth_ready: Arc<tokio::sync::Notify>,
+    pub steam_auth_ready: Arc<tokio::sync::Notify>,
+    pub xbox_auth_ready: Arc<tokio::sync::Notify>,
 }
 
 #[derive(Debug, Snafu)]

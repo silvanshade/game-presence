@@ -66,6 +66,14 @@ pub(crate) fn init(model: crate::app::Model) -> Result<(), Error> {
             .resizable(false)
             .disable_file_drop_handler() // NOTE: needed on windows for vuedraggable to work
             .build()?;
+
+        // tauri::WindowBuilder::new(app, "xbox-auth",
+        // tauri::WindowUrl::App("/html/empty/index.html".into()))     .title("xbox-authorization")
+        //     .fullscreen(false)
+        //     .resizable(false)
+        //     .visible(false)
+        //     .build()?;
+
         Ok(())
     });
 

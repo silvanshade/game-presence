@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,width=device-width"
+    />
+    <title>auth-init</title>
+    <script>
+      document.addEventListener("readystatechange", async (event) => {
+        if (document.readyState === "complete") {
+          const origin = __TAURI_METADATA__.__currentWindow.label;
+          switch (origin) {
+            case "auth-nintendo":
+              await window.__TAURI_INVOKE__("nintendo_auth_ready");
+              break;
+            case "auth-playstation":
+              await window.__TAURI_INVOKE__("playstation_auth_ready");
+              break;
+            case "auth-steam":
+              await window.__TAURI_INVOKE__("steam_auth_ready");
+              break;
+            case "auth-xbox":
+              await window.__TAURI_INVOKE__("xbox_auth_ready");
+              break;
+            default:
+              throw new Error(`cannot initialize unrecognized window: "${origin}"`);
+              break;
+          }
+        }
+      });
+    </script>
+  </head>
+  <body></body>
+</html>

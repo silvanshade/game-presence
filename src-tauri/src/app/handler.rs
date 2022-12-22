@@ -21,10 +21,14 @@ pub fn invoke() -> impl Fn(tauri::Invoke<tauri::Wry>) {
         crate::app::command::service_playstation_authorization_flow,
         crate::app::command::service_twitch_authorization_flow,
         crate::app::command::service_xbox_authorization_flow,
+        crate::app::command::nintendo_auth_ready,
+        crate::app::command::playstation_auth_ready,
+        crate::app::command::steam_auth_ready,
+        crate::app::command::xbox_auth_ready,
     ]
 }
 
-pub fn run() -> impl FnMut(&tauri::AppHandle<tauri::Wry>, tauri::RunEvent) {
+pub fn run() -> impl FnMut(&tauri::AppHandle, tauri::RunEvent) {
     use tauri::{RunEvent, WindowEvent};
     |app, run_event| match run_event {
         RunEvent::Ready => {
