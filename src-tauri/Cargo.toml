@@ -36,6 +36,7 @@ snafu = { version = "0.7", features = ["std"] }
 tap = "1.0.1"
 tauri = { version = "1.2", features = ["compression", "objc-exception", "reqwest", "shell-open", "system-tray", "wry"] }
 tauri-plugin-graphql-ipc = { version = "0.0", git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc", features = ["async-graphql"] }
+time = { version = "0.3.17", features = ["serde", "serde-well-known"] }
 tokio = { version = "1.21", features = ["fs", "macros"] }
 tracing = { version = "0.1", features = ["attributes", "std"] }
 triple_accel = { version = "0.4", features = [] }

@@ -1090,6 +1090,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-graphql-ipc",
+ "time",
  "tokio",
  "tracing",
  "triple_accel",
