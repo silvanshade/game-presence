@@ -105,7 +105,6 @@ impl TauriPlatformWebviewExt for PlatformWebview {
                 });
                 block.copy()
             };
-
             if clear_data_first {
                 let configuration: *mut Object = msg_send![web_view, configuration];
                 let data_store: *mut Object = msg_send![configuration, websiteDataStore];
