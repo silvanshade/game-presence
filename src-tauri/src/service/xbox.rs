@@ -39,6 +39,9 @@ pub enum Error {
     TauriWindowClose {
         source: tauri::Error,
     },
+    TauriWithWebview {
+        source: tauri::Error,
+    },
     UrlParse {
         source: url::ParseError,
     },
@@ -61,10 +64,12 @@ pub mod api {
             TauriSpawnSnafu,
             TauriWindowBuilderNewSnafu,
             TauriWindowCloseSnafu,
+            TauriWithWebviewSnafu,
             UrlParseSnafu,
             UrlQuerySnafu,
             XboxTokenXuiSnafu,
         };
+        use crate::service::PlatformWebviewExt;
         use serde::Deserialize;
         use snafu::prelude::*;
         use tap::prelude::*;
@@ -198,7 +203,8 @@ pub mod api {
 
             let client = client()?;
             let (pkce_code_challenge, pkce_code_verifier) = oauth2::PkceCodeChallenge::new_random_sha256();
-            let AuthCodeData { code, state } = flow_get_oauth2_auth_code(app, &client, pkce_code_challenge).await?;
+            let AuthCodeData { code, state } =
+                flow_get_oauth2_auth_code(app, reauthorize, &client, pkce_code_challenge).await?;
             let bearer_token_response = flow_get_oauth2_bearer_token(&client, code, pkce_code_verifier).await?;
 
             let xbox_user_token = flow_get_xbox_user_token(bearer_token_response.access_token()).await?;
@@ -236,6 +242,7 @@ pub mod api {
 
         async fn flow_get_oauth2_auth_code(
             app: &tauri::AppHandle<tauri::Wry>,
+            reauthorize: bool,
             client: &oauth2::basic::BasicClient,
             pkce_code_challenge: oauth2::PkceCodeChallenge,
         ) -> Result<AuthCodeData, Error> {
@@ -255,7 +262,7 @@ pub mod api {
                 tauri::WindowBuilder::new(
                     app,
                     "twitch-integration-authorization",
-                    tauri::WindowUrl::External(auth_url),
+                    tauri::WindowUrl::App("/html/empty".into()),
                 )
                 .on_navigation(move |url: String| {
                     println!("navigating: {}", url);
@@ -268,6 +275,12 @@ pub mod api {
                 .build()
                 .context(TauriWindowBuilderNewSnafu)?
             };
+            window
+                .with_webview({
+                    let reauthorize = true;
+                    move |webview| webview.navigate(auth_url, reauthorize).unwrap()
+                })
+                .context(TauriWithWebviewSnafu)?;
 
             let auth_redirect = rx
                 .recv()
