@@ -8,6 +8,7 @@ use super::{
 };
 use serde::Deserialize;
 use snafu::prelude::*;
+use tap::prelude::*;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -58,27 +59,29 @@ fn endpoint(query: &str) -> Result<url::Url, Error> {
 }
 
 pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
-    use triple_accel::levenshtein_exp;
     let url = endpoint(query)?;
-    let data = reqwest::get(url).await.context(ReqwestRequestGetSnafu)?;
-    println!("{:#?}", data);
-    let json = data
-        .json::<serde_json::Value>()
+    reqwest::get(url)
         .await
-        .context(ReqwestResponseJsonSnafu)?;
-    println!("{:#?}", json);
-    let auto_suggest = serde_json::from_value::<StoreAutoSuggest>(json).context(SerdeJsonFromValueSnafu)?;
-    let mut results = auto_suggest
+        .context(ReqwestRequestGetSnafu)?
+        .json::<StoreAutoSuggest>()
+        .await
+        .context(ReqwestResponseJsonSnafu)?
         .result_sets
         .into_iter()
         .flat_map(|result_set| result_set.suggests)
-        .filter(|suggest| suggest.source == "Game")
-        .map(|suggest| {
-            let query = query.as_bytes();
-            let title = suggest.title.as_bytes();
-            (levenshtein_exp(query, title), suggest)
+        .filter_map(|suggest| {
+            if suggest.source != "Game" {
+                None
+            } else {
+                let query = query.as_bytes();
+                let title = suggest.title.as_bytes();
+                Some((triple_accel::levenshtein_exp(query, title), suggest))
+            }
         })
-        .collect::<Vec<_>>();
-    results.sort_by(|lhs, rhs| lhs.0.cmp(&rhs.0));
-    Ok(results.into_iter().map(|suggest| suggest.1).next())
+        .collect::<Vec<_>>()
+        .tap_mut(|results| results.sort_by(|lhs, rhs| lhs.0.cmp(&rhs.0)))
+        .into_iter()
+        .map(|suggest| suggest.1)
+        .next()
+        .pipe(Ok)
 }

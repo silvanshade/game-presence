@@ -1,5 +1,6 @@
 mod authorize;
 mod autosuggest;
+mod presence;
 
 pub use self::{authorize::XstsToken, autosuggest::StoreSuggestResult};
 
