@@ -21,6 +21,7 @@ base64 = { version = "0.20" }
 built = { version = "0.5" }
 directories = { version = "4.0" }
 discord-rich-presence = { version = "0.2" }
+futures = "0.3.25"
 indoc = { version = "1.0" }
 oauth2 = "4.3.0"
 percent-encoding = { version = "2.2" }

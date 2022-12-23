@@ -1,5 +1,8 @@
+use discord_rich_presence as discord;
 use snafu::prelude::*;
 use tap::prelude::*;
+
+mod xbox;
 
 fn twitch_url(title: &str) -> Result<url::Url, Error> {
     use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
