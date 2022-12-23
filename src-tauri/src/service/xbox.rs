@@ -145,7 +145,7 @@ pub mod api {
             // issue_instant: time::OffsetDateTime,
             // #[serde(with = "time::serde::iso8601")]
             // not_after: time::OffsetDateTime,
-            // token: String,
+            pub token: String,
         }
 
         #[derive(Debug, Deserialize)]
@@ -161,10 +161,10 @@ pub mod api {
             // agg: String,
             pub gtg: String,
             // prv: String,
-            // uhs: String,
+            pub uhs: String,
             // usr: String,
             // utr: String,
-            // xid: String,
+            pub xid: String,
         }
 
         fn client() -> Result<oauth2::basic::BasicClient, Error> {
@@ -197,7 +197,7 @@ pub mod api {
             let bearer_token_response = flow_get_oauth2_bearer_token(&client, code, pkce_code_verifier).await?;
             let xbox_user_token = flow_get_xbox_user_token(bearer_token_response.access_token()).await?;
             let xbox_xsts_token = flow_get_xbox_xsts_token(&xbox_user_token).await?;
-
+            println!("{:#?}", xbox_xsts_token);
             let model = app.state::<crate::app::Model>();
             model
                 .update_gui(|gui| {
@@ -213,7 +213,6 @@ pub mod api {
                 .context(ModelUpdateGuiSnafu)?;
             model.notifiers.gui.notify_waiters();
             *model.session.xbox.write().await = Some(xbox_xsts_token);
-
             Ok(())
         }
 

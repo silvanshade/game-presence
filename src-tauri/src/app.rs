@@ -32,7 +32,7 @@ fn make_system_tray() -> tauri::SystemTray {
     tauri::SystemTray::new().with_menu(system_tray_menu)
 }
 
-pub(crate) fn init(model: crate::app::Model) -> Result<(), Error> {
+pub(crate) fn init(model: crate::app::Model, tx: tokio::sync::oneshot::Sender<tauri::AppHandle>) -> Result<(), Error> {
     let context = tauri::generate_context!();
 
     // create the default builder
@@ -79,6 +79,8 @@ pub(crate) fn init(model: crate::app::Model) -> Result<(), Error> {
 
     // build the tauri app
     let app = builder.build(context).context(TauriBuildSnafu)?;
+
+    tx.send(app.handle()).unwrap();
 
     // run the app
     app.run(handler::run());
