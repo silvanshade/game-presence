@@ -1,11 +1,4 @@
-use super::{
-    Error,
-    ReqwestRequestGetSnafu,
-    ReqwestResponseJsonSnafu,
-    SerdeJsonFromValueSnafu,
-    UrlDropResizeParamsSnafu,
-    UrlParseSnafu,
-};
+use super::{Error, ReqwestRequestGetSnafu, ReqwestResponseJsonSnafu, UrlDropResizeParamsSnafu, UrlParseSnafu};
 use serde::Deserialize;
 use snafu::prelude::*;
 use tap::prelude::*;

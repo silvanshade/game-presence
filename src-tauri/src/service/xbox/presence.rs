@@ -1,4 +1,4 @@
-use super::Error;
+use super::{Error, ReqwestRequestSendSnafu, ReqwestResponseJsonSnafu, UrlParseSnafu};
 use serde::Deserialize;
 use snafu::prelude::*;
 
@@ -47,6 +47,24 @@ pub struct TitleRecord {
     pub state: String,
 }
 
-pub async fn request(query: &str) -> Result<Option<PresenceRecord>, Error> {
-    Ok(None)
+fn endpoint() -> Result<url::Url, Error> {
+    url::Url::parse("https://userpresence.xboxlive.com/users/me").context(UrlParseSnafu)
+}
+
+pub async fn request(xsts: &super::XstsToken) -> Result<PresenceRecord, Error> {
+    let url = endpoint()?;
+    let user_hash = &xsts.display_claims.xui.uhs;
+    let token = &xsts.token;
+    reqwest::Client::new()
+        .get(url)
+        .header("Accept", "application/json")
+        .header("Accept-Language", "en-US")
+        .header("Authorization", format!("XBL3.0 x={};{}", user_hash, token))
+        .header("x-xbl-contract-version", "3")
+        .send()
+        .await
+        .context(ReqwestRequestSendSnafu)?
+        .json::<PresenceRecord>()
+        .await
+        .context(ReqwestResponseJsonSnafu)
 }
