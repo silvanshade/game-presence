@@ -139,8 +139,8 @@ pub mod api {
 
         #[derive(Debug, Deserialize)]
         #[serde(rename_all = "PascalCase")]
-        struct XboxXstsToken {
-            display_claims: XboxXstsTokenDisplayClaims,
+        pub struct XboxXstsToken {
+            pub display_claims: XboxXstsTokenDisplayClaims,
             // #[serde(with = "time::serde::iso8601")]
             // issue_instant: time::OffsetDateTime,
             // #[serde(with = "time::serde::iso8601")]
@@ -150,16 +150,16 @@ pub mod api {
 
         #[derive(Debug, Deserialize)]
         #[serde(rename_all = "camelCase")]
-        struct XboxXstsTokenDisplayClaims {
+        pub struct XboxXstsTokenDisplayClaims {
             #[serde(deserialize_with = "from_xbox_xui_datas")]
-            xui: XboxXstsTokenXuiData,
+            pub xui: XboxXstsTokenXuiData,
         }
 
         #[derive(Debug, Deserialize)]
         #[serde(rename_all = "camelCase")]
-        struct XboxXstsTokenXuiData {
+        pub struct XboxXstsTokenXuiData {
             // agg: String,
-            gtg: String,
+            pub gtg: String,
             // prv: String,
             // uhs: String,
             // usr: String,
@@ -202,7 +202,7 @@ pub mod api {
             model
                 .update_gui(|gui| {
                     use crate::app::model::gui::service::xbox::Data;
-                    let gamertag = xbox_xsts_token.display_claims.xui.gtg;
+                    let gamertag = xbox_xsts_token.display_claims.xui.gtg.clone();
                     if let Some(data) = &mut gui.services.xbox.data {
                         data.gamertag = gamertag;
                     } else {
@@ -212,6 +212,7 @@ pub mod api {
                 .await
                 .context(ModelUpdateGuiSnafu)?;
             model.notifiers.gui.notify_waiters();
+            *model.session.xbox.write().await = Some(xbox_xsts_token);
 
             Ok(())
         }

@@ -11,11 +11,13 @@ mod session;
 pub use build::BuildInfo;
 pub use config::Config;
 pub use gui::Gui;
+pub use session::Session;
 
 #[derive(Clone)]
 pub struct Model {
     pub config: Arc<RwLock<Config>>,
     pub gui: Arc<RwLock<Gui>>,
+    pub session: Session,
     pub notifiers: Notifiers,
 }
 
@@ -46,6 +48,7 @@ impl Model {
         let model = Self {
             config: Arc::new(RwLock::new(config)),
             gui: Arc::new(RwLock::new(gui)),
+            session: Default::default(),
             notifiers: Default::default(),
         };
 
