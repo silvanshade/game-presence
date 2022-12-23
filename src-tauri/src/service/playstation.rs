@@ -1,6 +1,6 @@
 // NOTE: for PSN API details see https://github.com/Tustin/PlayStationDiscord
 
-use crate::service::TauriPlatformWebviewExt;
+use crate::service::TauriWindowExt;
 use serde::Deserialize;
 use snafu::prelude::*;
 
@@ -12,7 +12,7 @@ pub enum Error {
     TauriSpawn { source: tauri::Error },
     TauriWindowBuilderNew { source: tauri::Error },
     TauriWindowClose { source: tauri::Error },
-    TauriWithWebview { source: tauri::Error },
+    TauriWindowNavigate { source: crate::service::Error },
     TokioMpscReceive,
     UrlParse { source: url::ParseError },
     UrlQuery,
@@ -25,11 +25,11 @@ struct ResponseAuthorize {
 
 #[derive(Debug, Deserialize)]
 struct ResponseToken {
-    access_token: String,
-    token_type: String,
-    refresh_token: String,
-    expires_in: u64,
-    scope: String,
+    // access_token: String,
+    // token_type: String,
+    // refresh_token: String,
+    // expires_in: u64,
+    // scope: String,
 }
 
 const APP_CLIENT_ID: &str = "YWM4ZDE2MWEtZDk2Ni00NzI4LWIwZWEtZmZlYzIyZjY5ZWRjOkRFaXhFcVhYQ2RYZHdqMHY=";
@@ -94,11 +94,8 @@ async fn request_authorize(app: &tauri::AppHandle, reauthorize: bool) -> Result<
         .context(TauriWindowBuilderNewSnafu)?
     };
     window
-        .with_webview({
-            let url = endpoint_authorize_url()?;
-            move |webview| webview.navigate(url, reauthorize).unwrap()
-        })
-        .context(TauriWithWebviewSnafu)?;
+        .navigate(endpoint_authorize_url()?, reauthorize)
+        .context(TauriWindowNavigateSnafu)?;
 
     let response = rx_response.recv().await.context(TokioMpscReceiveSnafu)?;
     println!("response: {}", response);

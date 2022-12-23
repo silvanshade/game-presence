@@ -128,7 +128,7 @@ export namespace service {
     };
 
     export interface Data {
-      apiKey: string;
+      gamertag: string;
     }
   }
 }

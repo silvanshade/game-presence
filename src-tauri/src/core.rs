@@ -52,12 +52,12 @@ struct DiscordPresence {
     details: String,
 }
 
-fn twitch_url(title: &str) -> Result<url::Url, Error> {
-    use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
-    let encoded_title = utf8_percent_encode(title, NON_ALPHANUMERIC).to_string();
-    let base = "https://www.twitch.tv/directory/game";
-    url::Url::parse(&format!("{}/{}", base, encoded_title)).context(UrlParseSnafu)
-}
+// fn twitch_url(title: &str) -> Result<url::Url, Error> {
+//     use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
+//     let encoded_title = utf8_percent_encode(title, NON_ALPHANUMERIC).to_string();
+//     let base = "https://www.twitch.tv/directory/game";
+//     url::Url::parse(&format!("{}/{}", base, encoded_title)).context(UrlParseSnafu)
+// }
 
 pub type ServiceLoop = tauri::async_runtime::JoinHandle<Result<(), Error>>;
 
@@ -69,13 +69,13 @@ pub struct Core {
 }
 
 impl Core {
-    const NINTENDO_DISCORD_APPLICATION_ID: &str = "1000779677092286524";
+    // const NINTENDO_DISCORD_APPLICATION_ID: &str = "1000779677092286524";
     const NINTENDO_TICK_RATE: u64 = u64::MAX;
-    const PLAYSTATION_DISCORD_APPLICATION_ID: &str = "1053772210713657345";
+    // const PLAYSTATION_DISCORD_APPLICATION_ID: &str = "1053772210713657345";
     const PLAYSTATION_TICK_RATE: u64 = u64::MAX;
-    const STEAM_DISCORD_APPLICATION_ID: &str = "1053777465245437953";
+    // const STEAM_DISCORD_APPLICATION_ID: &str = "1053777465245437953";
     const STEAM_TICK_RATE: u64 = u64::MAX;
-    const XBOX_DISCORD_APPLICATION_ID: &str = "1053777655020912710";
+    // const XBOX_DISCORD_APPLICATION_ID: &str = "1053777655020912710";
     const XBOX_TICK_RATE: u64 = 7;
 
     pub fn new(model: crate::app::Model) -> Self {

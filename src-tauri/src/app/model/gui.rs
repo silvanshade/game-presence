@@ -1,8 +1,5 @@
 use serde::{Deserialize, Serialize};
-use snafu::prelude::*;
-
-#[derive(Debug, Snafu)]
-pub enum Error {}
+// use snafu::prelude::*;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -13,11 +10,10 @@ pub struct Gui {
 }
 
 impl Gui {
-    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), Error> {
-        self.services.synchronize_with_config(config)?;
-        self.activity.synchronize_with_config(config)?;
-        self.games.synchronize_with_config(config)?;
-        Ok(())
+    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
+        self.services.synchronize_with_config(config);
+        self.activity.synchronize_with_config(config);
+        self.games.synchronize_with_config(config);
     }
 }
 
@@ -31,13 +27,12 @@ pub struct Activity {
 }
 
 impl Activity {
-    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), Error> {
+    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
         let activity = &config.activity;
         self.polling_active = activity.polling_active;
         self.discord_display_presence = activity.discord_display_presence;
         self.games_require_whitelisting = activity.games_require_whitelisting;
         self.service_priorities = activity.service_priorities.clone();
-        Ok(())
     }
 }
 
@@ -52,13 +47,12 @@ pub struct Services {
 }
 
 impl Services {
-    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), Error> {
-        self.nintendo.synchronize_with_config(config)?;
-        self.playstation.synchronize_with_config(config)?;
-        self.steam.synchronize_with_config(config)?;
-        self.twitch.synchronize_with_config(config)?;
-        self.xbox.synchronize_with_config(config)?;
-        Ok(())
+    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
+        self.nintendo.synchronize_with_config(config);
+        self.playstation.synchronize_with_config(config);
+        self.steam.synchronize_with_config(config);
+        self.twitch.synchronize_with_config(config);
+        self.xbox.synchronize_with_config(config);
     }
 }
 
@@ -76,12 +70,11 @@ pub mod service {
     }
 
     impl Nintendo {
-        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let nintendo = &config.services.nintendo;
             self.disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
             self.enabled = nintendo.enabled;
             self.assets_priorities = nintendo.assets_priorities.clone();
-            Ok(())
         }
     }
 
@@ -118,11 +111,10 @@ pub mod service {
     }
 
     impl Playstation {
-        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let playstation = &config.services.playstation;
             self.enabled = playstation.enabled;
             self.assets_priorities = playstation.assets_priorities.clone();
-            Ok(())
         }
     }
 
@@ -157,7 +149,7 @@ pub mod service {
     }
 
     impl Steam {
-        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let steam = &config.services.steam;
             self.enabled = steam.enabled;
             self.assets_priorities = steam.assets_priorities.clone();
@@ -165,10 +157,9 @@ pub mod service {
                 if let Some(this_data) = &mut self.data {
                     this_data.api_key = that_data.api_key.clone();
                 } else {
-                    self.data = Some(that_data.clone().try_into()?);
+                    self.data = Some(that_data.clone().into());
                 }
             }
-            Ok(())
         }
     }
 
@@ -194,12 +185,10 @@ pub mod service {
             pub api_key: String,
         }
 
-        impl TryFrom<crate::app::model::config::service::steam::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(data: crate::app::model::config::service::steam::Data) -> Result<Self, Self::Error> {
+        impl From<crate::app::model::config::service::steam::Data> for self::Data {
+            fn from(data: crate::app::model::config::service::steam::Data) -> Self {
                 let api_key = data.api_key.clone();
-                Ok(Self { api_key })
+                Self { api_key }
             }
         }
     }
@@ -213,10 +202,9 @@ pub mod service {
     }
 
     impl Twitch {
-        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let twitch = &config.services.twitch;
             self.enabled = twitch.enabled;
-            Ok(())
         }
     }
 
@@ -238,18 +226,10 @@ pub mod service {
     }
 
     impl Xbox {
-        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), super::Error> {
+        pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let xbox = &config.services.xbox;
             self.enabled = xbox.enabled;
             self.assets_priorities = xbox.assets_priorities.clone();
-            if let Some(that_data) = &xbox.data {
-                if let Some(this_data) = &mut self.data {
-                    this_data.api_key = that_data.api_key.clone();
-                } else {
-                    self.data = Some(that_data.clone().try_into()?);
-                }
-            }
-            Ok(())
         }
     }
 
@@ -272,16 +252,7 @@ pub mod service {
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {
-            pub api_key: String,
-        }
-
-        impl TryFrom<crate::app::model::config::service::xbox::Data> for self::Data {
-            type Error = super::super::Error;
-
-            fn try_from(data: crate::app::model::config::service::xbox::Data) -> Result<Self, Self::Error> {
-                let api_key = data.api_key.clone();
-                Ok(Self { api_key })
-            }
+            pub gamertag: String,
         }
     }
 }
@@ -291,7 +262,6 @@ pub mod service {
 pub struct Games {}
 
 impl Games {
-    pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) -> Result<(), Error> {
-        Ok(())
+    pub fn synchronize_with_config(&mut self, _config: &crate::app::model::Config) {
     }
 }

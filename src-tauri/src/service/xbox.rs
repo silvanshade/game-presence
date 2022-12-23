@@ -2,6 +2,9 @@ use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
+    ModelUpdateGui {
+        source: crate::app::model::Error,
+    },
     Oauth2AuthUrlNew {
         source: url::ParseError,
     },
@@ -53,6 +56,7 @@ pub mod api {
     pub mod authorize {
         use super::super::{
             Error,
+            ModelUpdateGuiSnafu,
             Oauth2AuthUrlNewSnafu,
             Oauth2ExchangeCodeSnafu,
             Oauth2RedirectUrlNewSnafu,
@@ -102,19 +106,6 @@ pub mod api {
                 .map_err(D::Error::custom)
         }
 
-        struct AuthCodeData {
-            code: oauth2::AuthorizationCode,
-            state: oauth2::CsrfToken,
-        }
-
-        impl AuthCodeData {
-            pub fn new(code: String, state: String) -> Self {
-                let code = oauth2::AuthorizationCode::new(code);
-                let state = oauth2::CsrfToken::new(state);
-                Self { code, state }
-            }
-        }
-
         #[derive(Deserialize)]
         #[serde(rename_all = "camelCase")]
         struct AuthCodeQuery {
@@ -125,36 +116,36 @@ pub mod api {
         #[derive(Debug, Deserialize)]
         #[serde(rename_all = "PascalCase")]
         struct XboxUserToken {
-            display_claims: XboxUserTokenDisplayClaims,
-            #[serde(with = "time::serde::iso8601")]
-            issue_instant: time::OffsetDateTime,
-            #[serde(with = "time::serde::iso8601")]
-            not_after: time::OffsetDateTime,
+            // display_claims: XboxUserTokenDisplayClaims,
+            // #[serde(with = "time::serde::iso8601")]
+            // issue_instant: time::OffsetDateTime,
+            // #[serde(with = "time::serde::iso8601")]
+            // not_after: time::OffsetDateTime,
             token: String,
         }
 
         #[derive(Debug, Deserialize)]
         #[serde(rename_all = "camelCase")]
         struct XboxUserTokenDisplayClaims {
-            #[serde(deserialize_with = "from_xbox_xui_datas")]
-            xui: XboxUserTokenXuiData,
+            // #[serde(deserialize_with = "from_xbox_xui_datas")]
+            // xui: XboxUserTokenXuiData,
         }
 
         #[derive(Debug, Deserialize)]
         #[serde(rename_all = "camelCase")]
         struct XboxUserTokenXuiData {
-            uhs: String,
+            // uhs: String,
         }
 
         #[derive(Debug, Deserialize)]
         #[serde(rename_all = "PascalCase")]
         struct XboxXstsToken {
             display_claims: XboxXstsTokenDisplayClaims,
-            #[serde(with = "time::serde::iso8601")]
-            issue_instant: time::OffsetDateTime,
-            #[serde(with = "time::serde::iso8601")]
-            not_after: time::OffsetDateTime,
-            token: String,
+            // #[serde(with = "time::serde::iso8601")]
+            // issue_instant: time::OffsetDateTime,
+            // #[serde(with = "time::serde::iso8601")]
+            // not_after: time::OffsetDateTime,
+            // token: String,
         }
 
         #[derive(Debug, Deserialize)]
@@ -167,13 +158,13 @@ pub mod api {
         #[derive(Debug, Deserialize)]
         #[serde(rename_all = "camelCase")]
         struct XboxXstsTokenXuiData {
-            agg: String,
+            // agg: String,
             gtg: String,
-            prv: String,
-            uhs: String,
-            usr: String,
-            utr: String,
-            xid: String,
+            // prv: String,
+            // uhs: String,
+            // usr: String,
+            // utr: String,
+            // xid: String,
         }
 
         fn client() -> Result<oauth2::basic::BasicClient, Error> {
@@ -199,43 +190,28 @@ pub mod api {
 
         pub async fn flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error> {
             use oauth2::TokenResponse;
-            use tokio::io::AsyncWriteExt;
-
+            use tauri::Manager;
             let client = client()?;
             let (pkce_code_challenge, pkce_code_verifier) = oauth2::PkceCodeChallenge::new_random_sha256();
-            let AuthCodeData { code, state } =
-                flow_get_oauth2_auth_code(app, reauthorize, &client, pkce_code_challenge).await?;
+            let code = flow_get_oauth2_auth_code(app, reauthorize, &client, pkce_code_challenge).await?;
             let bearer_token_response = flow_get_oauth2_bearer_token(&client, code, pkce_code_verifier).await?;
-
             let xbox_user_token = flow_get_xbox_user_token(bearer_token_response.access_token()).await?;
-
-            let mut file = tokio::fs::OpenOptions::new()
-                .create(true)
-                .write(true)
-                .truncate(true)
-                .open(r"C:\Users\silvanshade\Desktop\user.txt")
-                .await
-                .unwrap();
-            {
-                let bytes = format!("{:#?}", xbox_user_token);
-                let bytes = bytes.as_bytes();
-                file.write_all(bytes).await.unwrap();
-            }
-
             let xbox_xsts_token = flow_get_xbox_xsts_token(&xbox_user_token).await?;
 
-            let mut file = tokio::fs::OpenOptions::new()
-                .create(true)
-                .write(true)
-                .truncate(true)
-                .open(r"C:\Users\silvanshade\Desktop\xsts.txt")
+            let model = app.state::<crate::app::Model>();
+            model
+                .update_gui(|gui| {
+                    use crate::app::model::gui::service::xbox::Data;
+                    let gamertag = xbox_xsts_token.display_claims.xui.gtg;
+                    if let Some(data) = &mut gui.services.xbox.data {
+                        data.gamertag = gamertag;
+                    } else {
+                        gui.services.xbox.data = Some(Data { gamertag })
+                    }
+                })
                 .await
-                .unwrap();
-            {
-                let bytes = format!("{:#?}", xbox_xsts_token);
-                let bytes = bytes.as_bytes();
-                file.write_all(bytes).await.unwrap();
-            }
+                .context(ModelUpdateGuiSnafu)?;
+            model.notifiers.gui.notify_waiters();
 
             Ok(())
         }
@@ -245,7 +221,7 @@ pub mod api {
             reauthorize: bool,
             client: &oauth2::basic::BasicClient,
             pkce_code_challenge: oauth2::PkceCodeChallenge,
-        ) -> Result<AuthCodeData, Error> {
+        ) -> Result<oauth2::AuthorizationCode, Error> {
             use tauri::Manager;
 
             let (auth_url, csrf_token) = {
@@ -264,7 +240,6 @@ pub mod api {
             let window = {
                 tauri::WindowBuilder::new(app, "auth-xbox", tauri::WindowUrl::App("/html/auth-init.html".into()))
                     .on_navigation(move |url: String| {
-                        println!("navigating: {}", url);
                         if url.starts_with(REDIRECT_URL) {
                             tx.send(url).expect("failed to send redirect URL back from window");
                             return false;
@@ -279,9 +254,6 @@ pub mod api {
                 .xbox_auth_ready
                 .notified()
                 .await;
-            // window
-            //     .with_webview(move |webview| webview.navigate(auth_url, reauthorize).unwrap())
-            //     .context(TauriWithWebviewSnafu)?;
             window
                 .navigate(auth_url, reauthorize)
                 .context(TauriWindowNavigateSnafu)?;
@@ -307,7 +279,7 @@ pub mod api {
                 return Err(Error::Oauth2CsrfTokenStateSecretMismatch { state, csrf_token });
             }
 
-            Ok(AuthCodeData::new(code, state))
+            Ok(oauth2::AuthorizationCode::new(code))
         }
 
         async fn flow_get_oauth2_bearer_token(

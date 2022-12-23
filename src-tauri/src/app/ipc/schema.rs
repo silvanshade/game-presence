@@ -22,9 +22,9 @@ pub struct Mutation;
 #[Object]
 impl Mutation {
     async fn gui<'ctx>(&self, ctx: &Context<'ctx>, data: serde_json::Value) -> async_graphql::Result<bool> {
-        let gui = serde_json::from_value(data)?;
+        let this = serde_json::from_value(data)?;
         let model = ctx.data::<crate::app::Model>()?;
-        model.write_gui(gui).await?;
+        model.update_gui(|that| *that = this).await?;
         Ok(true)
     }
 }

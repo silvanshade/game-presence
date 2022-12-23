@@ -4,7 +4,7 @@ use tokio::sync::RwLock;
 
 mod build;
 pub mod config;
-mod gui;
+pub mod gui;
 mod presence;
 mod session;
 
@@ -33,8 +33,7 @@ pub struct Notifiers {
 pub enum Error {
     ConfigLoad { source: crate::app::model::config::Error },
     ConfigSave { source: crate::app::model::config::Error },
-    ConfigTryIntoGui { source: crate::app::model::gui::Error },
-    GuiSynchronizeWithConfig { source: crate::app::model::gui::Error },
+    // GuiSynchronizeWithConfig { source: crate::app::model::gui::Error },
 }
 
 impl Model {
@@ -42,8 +41,7 @@ impl Model {
         let config = crate::app::model::Config::load().await.context(ConfigLoadSnafu)?;
 
         let mut gui = crate::app::model::Gui::default();
-        gui.synchronize_with_config(&config)
-            .context(GuiSynchronizeWithConfigSnafu)?;
+        gui.synchronize_with_config(&config);
 
         let model = Self {
             config: Arc::new(RwLock::new(config)),
@@ -54,25 +52,26 @@ impl Model {
         Ok(model)
     }
 
-    pub async fn read_config(&self) -> tokio::sync::RwLockReadGuard<crate::app::model::Config> {
-        self.config.read().await
-    }
+    // pub async fn read_config(&self) -> tokio::sync::RwLockReadGuard<crate::app::model::Config> {
+    //     self.config.read().await
+    // }
 
-    pub async fn write_config(&self, config: crate::app::model::Config) -> Result<(), Error> {
+    // pub async fn write_config(&self, config: crate::app::model::Config) -> Result<(), Error> {
+    //     let mut gui = self.gui.write().await;
+    //     gui.synchronize_with_config(&config)
+    //         .context(GuiSynchronizeWithConfigSnafu)?;
+    //     config.save().await.context(ConfigSaveSnafu)?;
+    //     *self.config.write().await = config;
+    //     self.notifiers.gui.notify_waiters();
+    //     Ok(())
+    // }
+
+    pub async fn update_gui(&self, update: impl FnOnce(&mut crate::app::model::Gui)) -> Result<(), Error> {
         let mut gui = self.gui.write().await;
-        gui.synchronize_with_config(&config)
-            .context(GuiSynchronizeWithConfigSnafu)?;
-        config.save().await.context(ConfigSaveSnafu)?;
-        *self.config.write().await = config;
-        self.notifiers.gui.notify_waiters();
-        Ok(())
-    }
-
-    pub async fn write_gui(&self, gui: crate::app::model::Gui) -> Result<(), Error> {
+        update(&mut gui);
         let mut config = self.config.write().await;
         config.synchronize_with_gui(&gui);
         config.save().await.context(ConfigSaveSnafu)?;
-        *self.gui.write().await = gui;
         Ok(())
     }
 }

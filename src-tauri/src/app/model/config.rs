@@ -318,9 +318,7 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {
-            pub api_key: String,
-        }
+        pub struct Data {}
     }
 }
 
@@ -346,6 +344,6 @@ pub enum ServicePrioritiesEntry {
 pub struct Games {}
 
 impl Games {
-    fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
+    fn synchronize_with_gui(&mut self, _gui: &crate::app::model::Gui) {
     }
 }

@@ -94,7 +94,7 @@
         <q-separator />
         <q-item class="no-padding q-mr-md justify-end no-pointer-events">
           <q-input
-            v-model="widget$servicesXboxDataUsername.model.value"
+            v-model="model$gui.services.xbox.data.gamertag"
             class="no-pointer-events non-selectable"
             dense
             filled
@@ -103,7 +103,7 @@
             <template #before>
               <q-btn
                 :icon-right="icon$matBadge"
-                label="xbox username"
+                label="xbox gamertag"
                 unelevated
                 class="no-pointer-events non-selectable"
                 disable
@@ -114,7 +114,7 @@
                 :name="icon$matInfo"
                 class="all-pointer-events cursor-pointer"
               >
-                <q-tooltip>Xbox username is set automatically after connecting your account</q-tooltip>
+                <q-tooltip>Xbox gamertag is set automatically after connecting your account</q-tooltip>
               </q-icon>
             </template>
             <template #after>
@@ -124,45 +124,6 @@
                 unelevated
                 class="no-pointer-events non-selectable"
                 disable
-              />
-            </template>
-          </q-input>
-        </q-item>
-        <q-item class="no-padding q-mr-md justify-end">
-          <q-input
-            ref="servicesSteamApiKeyRef"
-            v-model="widget$servicesXboxDataApiKey.model.value"
-            dense
-            filled
-            hide-bottom-space
-            no-error-icon
-            :rules="widget$servicesXboxDataApiKey.behaviorRules"
-            @update:model-value="widget$servicesXboxDataApiKey.eventUpdate"
-          >
-            <template #before>
-              <q-btn
-                :icon-right="icon$matVpnKey"
-                label="xbox api key"
-                unelevated
-                class="no-pointer-events non-selectable"
-                disable
-              />
-            </template>
-            <template #prepend>
-              <q-icon
-                :name="icon$matContentPasteSearch"
-                class="cursor-pointer"
-                @click="widget$servicesXboxDataApiKey.slotAppend.icon.eventClick"
-              >
-                <q-tooltip>Click to open API key page then paste the key here and click the save button</q-tooltip>
-              </q-icon>
-            </template>
-            <template #after>
-              <q-btn
-                :color="widget$servicesXboxDataApiKey.slotAfter.btn.color.value"
-                :disable="widget$servicesXboxDataApiKey.slotAfter.btn.disable.value"
-                :icon="icon$matSaveAs"
-                @click="widget$servicesXboxDataApiKey.slotAfter.btn.eventClick"
               />
             </template>
           </q-input>
@@ -184,7 +145,6 @@ import {
 import { symOutlinedFormatListNumbered, symOutlinedSwipeVertical } from "@quasar/extras/material-symbols-outlined";
 import { mdiMicrosoftXbox } from "@quasar/extras/mdi-v7";
 import * as api from "@tauri-apps/api";
-import type * as quasar from "quasar";
 import * as vue from "vue";
 import Draggable from "vuedraggable";
 import * as models from "../models";
@@ -245,58 +205,6 @@ export default vue.defineComponent({
       })(),
     };
 
-    const widget$servicesXboxDataUsername = {
-      model: vue.ref<string | undefined>(),
-    };
-
-    const widget$servicesXboxDataApiKey = new (class {
-      readonly behaviorRules = [(value: string) => /^[0-9A-Z]{32}$/.test(value)];
-      readonly eventUpdate = (value: string, event: Event) => {
-        // NOTE: this is called before
-        void event;
-        console.debug(`widget$servicesSteamDataKey.@update("` + value + `")`);
-        if (widget$servicesXboxDataApiKeyRef.value && widget$servicesXboxDataApiKeyRef.value.validate(value)) {
-          this.internalSaveAllow();
-        } else {
-          this.internalSaveReset();
-        }
-      };
-      readonly internalSaveAllow = () => {
-        this.slotAfter.btn.color.value = "positive";
-        this.slotAfter.btn.disable.value = false;
-      };
-      readonly internalSaveReset = () => {
-        this.slotAfter.btn.color.value = "grey";
-        this.slotAfter.btn.disable.value = true;
-      };
-      readonly model = vue.ref("servicesSteamApiKey");
-      readonly slotAfter = {
-        btn: new (class {
-          readonly root: { internalSaveReset: () => void };
-          readonly color = vue.ref("grey");
-          readonly disable = vue.ref(true);
-          readonly eventClick = () => {
-            console.debug("widget$servicesSteamDataKey.#after.btn.click");
-            this.root.internalSaveReset();
-          };
-          constructor(root: { internalSaveReset: () => void }) {
-            this.root = root;
-            return this;
-          }
-        })(this),
-      };
-      readonly slotAppend = {
-        icon: {
-          eventClick: async () => {
-            console.debug("widget$servicesSteamDataKey.#append.icon.click");
-            await api.shell.open("https://steamcommunity.com/dev/apikey");
-          },
-        },
-      };
-      readonly slotBefore = {};
-    })();
-    const widget$servicesXboxDataApiKeyRef = vue.ref<quasar.QInput>();
-
     ctx.expose([]);
 
     return {
@@ -311,9 +219,6 @@ export default vue.defineComponent({
       icon$symOutlinedSwipeVertical: symOutlinedSwipeVertical,
       model$gui,
       widget$servicesXboxAssetsPriorities,
-      widget$servicesXboxDataApiKey,
-      widget$servicesXboxDataApiKeyRef,
-      widget$servicesXboxDataUsername,
       widget$servicesXboxEnabled,
       widget$servicesXboxManuallyReauthorizeAccount,
     };
