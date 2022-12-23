@@ -119,11 +119,12 @@ impl Core {
     const XBOX_TICK_RATE: u64 = 7;
 
     pub fn new(
-        model: crate::app::Model,
         rx: tokio::sync::oneshot::Receiver<tauri::AppHandle>,
     ) -> tauri::async_runtime::JoinHandle<Result<Self, Error>> {
+        use tauri::Manager;
         tauri::async_runtime::spawn(async move {
             let app = rx.await.context(TokioSyncOneshotReceiveSnafu)?;
+            let model = app.state::<crate::app::Model>().inner().clone();
             let nintendo = tauri::async_runtime::spawn(Self::nintendo(app.clone(), model.clone()));
             let playstation = tauri::async_runtime::spawn(Self::playstation(app.clone(), model.clone()));
             let steam = tauri::async_runtime::spawn(Self::steam(app.clone(), model.clone()));
@@ -206,6 +207,7 @@ impl Core {
         use discord::{DiscordIpc, DiscordIpcClient};
         use discord_rich_presence as discord;
         use std::sync::Arc;
+        use tauri::Manager;
         use tokio::sync::RwLock;
 
         let mut presence = None::<DiscordPresence>;
@@ -214,6 +216,7 @@ impl Core {
             .map_err(Into::into)
             .context(DiscordNewSnafu)?;
         discord.connect().map_err(Into::into).context(DiscordConnectSnafu)?;
+        let discord = Arc::new(RwLock::new(discord));
 
         let is_noteworthy = |presence: serde_json::Value| {
             let state = presence.get("state").context(SerdeJsonGetSnafu)?;
@@ -235,7 +238,8 @@ impl Core {
             Ok::<Option<String>, Error>(None)
         };
 
-        let tick = || async {
+        let tick = move |app: tauri::AppHandle, discord: Arc<RwLock<DiscordIpcClient>>| async move {
+            let model = app.state::<crate::app::Model>();
             if !model.config.read().await.services.xbox.enabled {
                 return Ok(());
             }
@@ -264,7 +268,12 @@ impl Core {
                     .context(ReqwestRequestJsonSnafu)?;
 
                 if let Some(presence) = is_noteworthy(presence_response)? {
-                    discord.reconnect();
+                    discord
+                        .write()
+                        .await
+                        .reconnect()
+                        .map_err(Into::into)
+                        .context(DiscordReconnectSnafu)?;
                 }
             }
             Ok(())
@@ -275,7 +284,7 @@ impl Core {
                     break;
                 }
                 _ = Self::tick(Self::XBOX_TICK_RATE) => {
-                    tick().await?;
+                    tick(app.clone(), discord.clone()).await?;
                 }
             }
         }
