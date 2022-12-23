@@ -1,10 +1,14 @@
 use discord_rich_presence as discord;
-use futures::{future::BoxFuture, prelude::*};
+use futures::future::BoxFuture;
 use serde::Deserialize;
 use snafu::prelude::*;
-use std::pin::Pin;
+use tauri::Manager;
 
-use crate::core::{DiscordNewSnafu, Error};
+#[derive(Debug, Snafu)]
+enum Error {
+    DiscordNew { source: crate::core::DiscordError },
+    XboxApiAuthorizeFlow { source: crate::service::xbox::Error },
+}
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -62,7 +66,7 @@ impl XboxCore {
     const DISCORD_APPLICATION_ID: &str = "1053777655020912710";
     const TICK_RATE: u64 = 10;
 
-    fn new(app: tauri::AppHandle) -> Result<Self, Error> {
+    pub fn new(app: tauri::AppHandle) -> Result<Self, Error> {
         let discord_client = discord::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID)
             .map_err(Into::into)
             .context(DiscordNewSnafu)?;
@@ -76,7 +80,7 @@ impl XboxCore {
         })
     }
 
-    fn start(self) -> tauri::async_runtime::JoinHandle<Result<(), Error>> {
+    pub fn start(self) -> tauri::async_runtime::JoinHandle<Result<(), Error>> {
         tauri::async_runtime::spawn(async move { self.run().await })
     }
 
@@ -84,12 +88,8 @@ impl XboxCore {
         Box::pin(async {
             loop {
                 tokio::select! {
-                    _ = self.exit() => {
-                        break;
-                    }
-                    _ = self.wait() => {
-                        self.tick().await?;
-                    }
+                    _ = self.exit() => break,
+                    _ = self.wait() => self.tick().await?,
                 }
             }
             Ok(())
@@ -97,7 +97,6 @@ impl XboxCore {
     }
 
     async fn exit(&self) -> tokio::sync::futures::Notified {
-        use tauri::Manager;
         self.app.state::<crate::app::Model>().inner().notifiers.exit.notified()
     }
 
@@ -107,6 +106,23 @@ impl XboxCore {
     }
 
     async fn tick(&self) -> Result<(), Error> {
+        use crate::service::xbox;
+
+        let model = self.app.state::<crate::app::Model>();
+
+        if !model.config.read().await.services.xbox.enabled {
+            return Ok(());
+        }
+
+        if model.session.xbox.read().await.is_none() {
+            let reauthorize = false;
+            xbox::authorize(&self.app, reauthorize)
+                .await
+                .context(XboxApiAuthorizeFlowSnafu)?;
+        }
+
+        if let Some(xbox) = &*model.session.xbox.read().await {}
+
         Ok(())
     }
 

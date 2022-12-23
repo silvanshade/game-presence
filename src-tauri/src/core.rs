@@ -218,7 +218,7 @@ impl Core {
     }
 
     async fn xbox(app: tauri::AppHandle, model: crate::app::Model) -> Result<(), Error> {
-        use crate::service::xbox::api;
+        use crate::service::xbox;
         use discord::{DiscordIpc, DiscordIpcClient};
         use discord_rich_presence as discord;
         use std::sync::Arc;
@@ -270,7 +270,7 @@ impl Core {
             }
             if model.session.xbox.read().await.is_none() {
                 let reauthorize = false;
-                api::authorize(&app, reauthorize)
+                xbox::authorize(&app, reauthorize)
                     .await
                     .context(XboxApiAuthorizeFlowSnafu)?;
             }
@@ -303,7 +303,7 @@ impl Core {
                         .map_err(Into::into)
                         .context(DiscordReconnectSnafu)?;
 
-                    if let Some(suggest) = api::autosuggest(&next_presence.name).await.context(ServiceXboxSnafu)? {
+                    if let Some(suggest) = xbox::autosuggest(&next_presence.name).await.context(ServiceXboxSnafu)? {
                         let large_image = suggest.image_url().context(XboxSuggestImageUrlSnafu)?;
                         let large_text = next_presence.name.clone();
                         let small_image = "small-icon";

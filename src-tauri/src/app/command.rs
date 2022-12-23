@@ -14,7 +14,7 @@ pub async fn service_twitch_authorization_flow(app: tauri::AppHandle, reauthoriz
 
 #[tauri::command]
 pub async fn service_xbox_authorization_flow(app: tauri::AppHandle, reauthorize: bool) -> Result<(), String> {
-    crate::service::xbox::api::authorize::flow(&app, reauthorize)
+    crate::service::xbox::authorize(&app, reauthorize)
         .await
         .map_err(|err| err.to_string())
 }
