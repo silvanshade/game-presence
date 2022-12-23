@@ -1,7 +1,12 @@
 use snafu::prelude::*;
 use tap::prelude::*;
 
-use crate::app::model::config::service::nintendo::Data;
+fn twitch_url(title: &str) -> Result<url::Url, Error> {
+    use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
+    let encoded_title = utf8_percent_encode(title, NON_ALPHANUMERIC).to_string();
+    let base = "https://www.twitch.tv/directory/game";
+    url::Url::parse(&format!("{}/{}", base, encoded_title)).context(UrlParseSnafu)
+}
 
 pub struct DiscordError(Box<dyn std::error::Error + 'static + Sync + Send>);
 
@@ -82,6 +87,12 @@ pub enum Error {
     XboxApiAuthorizeFlow {
         source: crate::service::xbox::Error,
     },
+    XboxSuggestImageUrl {
+        source: crate::service::xbox::Error,
+    },
+    XboxSuggestStoreUrl {
+        source: crate::service::xbox::Error,
+    },
     UrlParse {
         source: url::ParseError,
     },
@@ -89,7 +100,7 @@ pub enum Error {
 
 #[derive(Debug, Eq, PartialEq)]
 struct DiscordPresence {
-    details: String,
+    name: String,
 }
 
 // fn twitch_url(title: &str) -> Result<url::Url, Error> {
@@ -116,7 +127,7 @@ impl Core {
     // const STEAM_DISCORD_APPLICATION_ID: &str = "1053777465245437953";
     const STEAM_TICK_RATE: u64 = u64::MAX;
     const XBOX_DISCORD_APPLICATION_ID: &str = "1053777655020912710";
-    const XBOX_TICK_RATE: u64 = 7;
+    const XBOX_TICK_RATE: u64 = 10;
 
     pub fn new(
         rx: tokio::sync::oneshot::Receiver<tauri::AppHandle>,
@@ -204,13 +215,14 @@ impl Core {
     }
 
     async fn xbox(app: tauri::AppHandle, model: crate::app::Model) -> Result<(), Error> {
+        use crate::service::xbox::api;
         use discord::{DiscordIpc, DiscordIpcClient};
         use discord_rich_presence as discord;
         use std::sync::Arc;
         use tauri::Manager;
         use tokio::sync::RwLock;
 
-        let mut presence = None::<DiscordPresence>;
+        let prev_presence = Arc::new(RwLock::new(None::<DiscordPresence>));
 
         let mut discord = DiscordIpcClient::new(Self::XBOX_DISCORD_APPLICATION_ID)
             .map_err(Into::into)
@@ -221,31 +233,41 @@ impl Core {
         let is_noteworthy = |presence: serde_json::Value| {
             let state = presence.get("state").context(SerdeJsonGetSnafu)?;
             if state == "Online" {
-                let devices = presence.get("devices").context(SerdeJsonGetSnafu)?;
-                let title = devices
-                    .get(0)
+                let devices = presence
+                    .get("devices")
                     .context(SerdeJsonGetSnafu)?
-                    .get("titles")
-                    .context(SerdeJsonGetSnafu)?
-                    .get(0)
-                    .context(SerdeJsonGetSnafu)?;
-                let name = title.get("name").context(SerdeJsonGetSnafu)?;
-                if name != "Online" {
-                    let data = serde_json::from_value::<String>(name.clone()).context(SerdeJsonFromSnafu)?;
-                    return Ok(Some(data));
+                    .pipe(Clone::clone)
+                    .pipe(serde_json::from_value::<Vec<serde_json::Value>>)
+                    .context(SerdeJsonFromSnafu)?;
+                for device in devices {
+                    let titles = device
+                        .get("titles")
+                        .context(SerdeJsonGetSnafu)?
+                        .pipe(Clone::clone)
+                        .pipe(serde_json::from_value::<Vec<serde_json::Value>>)
+                        .context(SerdeJsonFromSnafu)?;
+                    for title in titles {
+                        let name = title.get("name").context(SerdeJsonGetSnafu)?;
+                        if name != "Online" {
+                            let name = serde_json::from_value::<String>(name.clone()).context(SerdeJsonFromSnafu)?;
+                            return Ok(Some(DiscordPresence { name }));
+                        }
+                    }
                 }
             }
-            Ok::<Option<String>, Error>(None)
+            Ok::<Option<DiscordPresence>, Error>(None)
         };
 
-        let tick = move |app: tauri::AppHandle, discord: Arc<RwLock<DiscordIpcClient>>| async move {
+        let tick = move |app: tauri::AppHandle,
+                         discord: Arc<RwLock<DiscordIpcClient>>,
+                         prev_presence: Arc<RwLock<Option<DiscordPresence>>>| async move {
             let model = app.state::<crate::app::Model>();
             if !model.config.read().await.services.xbox.enabled {
                 return Ok(());
             }
             if model.session.xbox.read().await.is_none() {
                 let reauthorize = false;
-                crate::service::xbox::api::authorize::flow(&app, reauthorize)
+                api::authorize(&app, reauthorize)
                     .await
                     .context(XboxApiAuthorizeFlowSnafu)?;
             }
@@ -267,136 +289,91 @@ impl Core {
                     .await
                     .context(ReqwestRequestJsonSnafu)?;
 
-                if let Some(presence) = is_noteworthy(presence_response)? {
+                if let Some(next_presence) = is_noteworthy(presence_response)? {
+                    if prev_presence.read().await.as_ref() == Some(&next_presence) {
+                        return Ok(());
+                    }
                     discord
                         .write()
                         .await
                         .reconnect()
                         .map_err(Into::into)
                         .context(DiscordReconnectSnafu)?;
+
+                    if let Some(suggest) = api::autosuggest(&next_presence.name).await.context(ServiceXboxSnafu)? {
+                        let large_image = suggest.image_url().context(XboxSuggestImageUrlSnafu)?;
+                        let large_text = next_presence.name.clone();
+                        let small_image = "small-icon";
+                        let small_text = "playing on xbox";
+
+                        let assets = discord::activity::Assets::new()
+                            .large_image(large_image.as_str())
+                            .large_text(large_text.as_str())
+                            .small_image(small_image)
+                            .small_text(small_text);
+
+                        let timestamps = {
+                            let start = std::time::SystemTime::now()
+                                .duration_since(std::time::UNIX_EPOCH)
+                                .context(StdTimeDurationSinceSnafu)?
+                                .as_secs() as i64;
+                            discord::activity::Timestamps::new().start(start)
+                        };
+
+                        let store_url = suggest.store_url().context(XboxSuggestStoreUrlSnafu)?;
+                        let store_button = discord::activity::Button::new("xbox.com", store_url.as_str());
+
+                        let twitch_url = twitch_url(&next_presence.name)?;
+                        let twitch_button = discord::activity::Button::new("twitch", twitch_url.as_str());
+
+                        let buttons = vec![store_button, twitch_button];
+
+                        let activity = discord::activity::Activity::new()
+                            .details(&next_presence.name)
+                            .assets(assets)
+                            .timestamps(timestamps)
+                            .buttons(buttons);
+
+                        discord
+                            .write()
+                            .await
+                            .set_activity(activity)
+                            .map_err(Into::into)
+                            .context(DiscordSetActivitySnafu)?;
+
+                        *prev_presence.write().await = Some(DiscordPresence {
+                            name: next_presence.name,
+                        });
+
+                        println!("presence: updated: {:#?}", prev_presence.read().await);
+                    }
+                } else {
+                    discord
+                        .write()
+                        .await
+                        .close()
+                        .map_err(Into::into)
+                        .context(DiscordCloseSnafu)?;
+                    *prev_presence.write().await = None;
+                    return Ok(());
                 }
             }
             Ok(())
         };
         loop {
+            println!("xbox: loop");
             tokio::select! {
                 _ = Self::exit(&model) => {
                     break;
                 }
                 _ = Self::tick(Self::XBOX_TICK_RATE) => {
-                    tick(app.clone(), discord.clone()).await?;
+                    println!("xbox: tick");
+                    tick(app.clone(), discord.clone(), prev_presence.clone()).await?;
                 }
             }
         }
         Ok(())
     }
-
-    // async fn welp(model: crate::app::Model) -> Result<(), Error> {
-    //     // FIXME: tweaks to exclude demos?
-
-    //     use discord::{DiscordIpc, DiscordIpcClient};
-    //     use discord_rich_presence as discord;
-
-    //     let last_seen = regex::Regex::new(r"^Last seen
-    // \b[[:digit:]]+[[:alpha:]]+\bago:.*$").context(RegexNewSnafu)?;
-
-    //     let mut presence = None::<DiscordPresence>;
-
-    //     let mut client = DiscordIpcClient::new(Self::XBOX_DISCORD_APPLICATION_ID)
-    //         .map_err(Into::into)
-    //         .context(DiscordNewSnafu)?;
-    //     client.connect().map_err(Into::into).context(DiscordConnectSnafu)?;
-
-    //     loop {
-    //         // println!("xbox: loop");
-    //         tokio::select! {
-    //                     _ = Self::exit(&model) => {
-    //                         break;
-    //                     }
-    //                     _ = Self::tick(Self::XBOX_TICK_RATE) => {
-    //                         use crate::service::xbox::api;
-    //                         if !model.config.read().await.services.xbox.enabled {
-    //                             // println!("xbox: disabled");
-    //                             continue;
-    //                         }
-    //                         if let Some(data) = &model.config.read().await.services.xbox.data {
-    //                             // println!("xbox: has data");
-    //                             if let Some(person) =
-    //         api::summary(&data.api_key).await.context(ServiceXboxSnafu)? {                         //
-    //         println!("xbox: person: {:#?}", person);                         if
-    //         last_seen.is_match(&person.presence_text) {                             //
-    //         println!(r#"presence: "last seen"; skipping"#);                             // NOTE: not
-    // an         active game presence, so skip to next tick                             client
-    //                                         .clear_activity()
-    //                                         .map_err(Into::into)
-    //                                         .context(DiscordClearActivitySnafu)?;
-    //
-    // client.close().map_err(Into::into).context(DiscordCloseSnafu)?;
-    // presence = None;                                     continue;
-    //                                 }
-    //                                 if let Some(suggest) = api::autosuggest(&person.presence_text)
-    //                                     .await
-    //                                     .context(ServiceXboxSnafu)?
-    //                                 {
-    //                                     // println!("xbox: suggest: {:#?}", suggest);
-    //                                     if presence.as_ref().map(|p| &p.details) ==
-    //         Some(&person.presence_text) {                                 continue;
-    //                                     }
-    //                                     let details = person.presence_text;
-
-    //         client.reconnect().map_err(Into::into).context(DiscordReconnectSnafu)?;
-
-    //                                     let large_image =
-    // suggest.image_url().context(SuggestImageUrlSnafu)?;                                     let
-    // large_text = details.clone();                                     let small_image =
-    // "small-icon";                                     let small_text = "playing on xbox";
-
-    //                                     let assets = discord::activity::Assets::new()
-    //                                         .large_image(large_image.as_str())
-    //                                         .large_text(large_text.as_str())
-    //                                         .small_image(small_image)
-    //                                         .small_text(small_text);
-
-    //                                     let timestamps = {
-    //                                         let start = std::time::SystemTime::now()
-    //                                             .duration_since(std::time::UNIX_EPOCH)
-    //                                             .context(StdTimeDurationSinceSnafu)?
-    //                                             .as_secs() as i64;
-    //                                         discord::activity::Timestamps::new().start(start)
-    //                                     };
-
-    //                                     let store_url =
-    // suggest.store_url().context(SuggestStoreUrlSnafu)?;                                     let
-    // store_button = discord::activity::Button::new("xbox.com",         store_url.as_str());
-
-    //                                     let twitch_url = twitch_url(&details)?;
-    //                                     let twitch_button = discord::activity::Button::new("twitch",
-    //         twitch_url.as_str());
-
-    //                                     let buttons = vec![store_button, twitch_button];
-
-    //                                     let activity = discord::activity::Activity::new()
-    //                                         .details(&details)
-    //                                         .assets(assets)
-    //                                         .timestamps(timestamps)
-    //                                         .buttons(buttons);
-
-    //                                     client
-    //                                         .set_activity(activity)
-    //                                         .map_err(Into::into)
-    //                                         .context(DiscordSetActivitySnafu)?;
-
-    //                                     presence = Some(DiscordPresence { details });
-
-    //                                     println!("presence: updated: {:#?}", presence);
-    //                                 }
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //     }
-    //     Ok(())
-    // }
 
     pub async fn finish(self) -> Result<(), Error> {
         self.nintendo.await.context(TauriSpawnSnafu)??;
