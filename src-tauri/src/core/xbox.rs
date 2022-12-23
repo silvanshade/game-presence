@@ -121,7 +121,9 @@ impl XboxCore {
                 .context(XboxApiAuthorizeFlowSnafu)?;
         }
 
-        if let Some(xbox) = &*model.session.xbox.read().await {}
+        if let Some(xsts) = &*model.session.xbox.read().await {
+            let xbox_presence = xbox::presence(xsts).await;
+        }
 
         Ok(())
     }

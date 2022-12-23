@@ -2,7 +2,7 @@ mod authorize;
 mod autosuggest;
 mod presence;
 
-pub use self::{authorize::XstsToken, autosuggest::StoreSuggestResult};
+pub use self::{authorize::XstsToken, autosuggest::StoreSuggestResult, presence::PresenceRecord};
 
 use snafu::prelude::*;
 
@@ -73,6 +73,6 @@ pub async fn autosuggest(query: &str) -> Result<Option<StoreSuggestResult>, Erro
     self::autosuggest::request(query).await
 }
 
-pub async fn presence() -> Result<(), Error> {
-    Ok(())
+pub async fn presence(xsts: &XstsToken) -> Result<PresenceRecord, Error> {
+    self::presence::request(xsts).await
 }
