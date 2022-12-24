@@ -75,7 +75,6 @@ impl XboxCore {
     }
 
     fn exit(&self) -> &tokio::sync::Notify {
-        println!("XboxCore::exit");
         &*self.app.state::<crate::app::Model>().inner().notifiers.exit
     }
 
@@ -118,17 +117,19 @@ impl XboxCore {
         println!("XboxCore::process_xbox_presence");
         if let Some(xbox_presence) = &self.xbox_presence {
             println!("XboxCore::process_xbox_presence: presence updating");
-            self.discord_presence = discord::Presence::from_xbox(&xbox_presence)
+            let discord_presence = discord::Presence::from_xbox(&xbox_presence)
                 .await
                 .context(DiscordPresenceFromXboxSnafu)?;
+            if self.discord_presence != discord_presence {
+                self.discord_presence = discord_presence;
+                self.refresh_discord_presence()?;
+            }
         }
-        self.refresh_discord_presence()?;
         Ok(())
     }
 
     fn refresh_discord_presence(&mut self) -> Result<(), Error> {
         println!("XboxCore::refresh_discord_presence");
-        use discord_rich_presence::DiscordIpc;
         if let Some(discord_presence) = &self.discord_presence {
             print!(
                 "XboxCore::refresh_discord_presence: discord_presence: {:#?}",
