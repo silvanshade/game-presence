@@ -59,6 +59,8 @@ fn endpoint(query: &str) -> Result<url::Url, Error> {
 }
 
 pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
+    // FIXME: don't recompile this every time
+    let demo = regex::Regex::new(r"(?i)\bdemo\b").unwrap();
     let url = endpoint(query)?;
     reqwest::get(url)
         .await
@@ -66,25 +68,26 @@ pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
         .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?
-        // .tap(|value| println!("store_auto_suggest: {:#?}", value))
+        .tap(|value| println!("store_auto_suggest: {:#?}", value))
         .pipe(serde_json::from_value::<StoreAutoSuggest>)
         .context(SerdeJsonFromValueSnafu)?
         .result_sets
         .into_iter()
         .flat_map(|result_set| result_set.suggests)
         .filter_map(|suggest| {
-            if suggest.source != "Game" {
+            if [suggest.source != "Game", demo.is_match(&suggest.title) && !demo.is_match(query)].iter().any(|p| *p) {
                 None
             } else {
-                let query = query.as_bytes();
-                let title = suggest.title.as_bytes();
-                Some((triple_accel::levenshtein_exp(query, title), suggest))
+                Some(suggest)
+                // let query = query.as_bytes();
+                // let title = suggest.title.as_bytes();
+                // Some((triple_accel::levenshtein_exp(query, title), suggest))
             }
         })
-        .collect::<Vec<_>>()
-        .tap_mut(|results| results.sort_by(|lhs, rhs| lhs.0.cmp(&rhs.0)))
-        .into_iter()
-        .map(|suggest| suggest.1)
+        // .collect::<Vec<_>>()
+        // .tap_mut(|results| results.sort_by(|lhs, rhs| lhs.0.cmp(&rhs.0)))
+        // .into_iter()
+        // .map(|suggest| suggest.1)
         .next()
         .pipe(Ok)
 }

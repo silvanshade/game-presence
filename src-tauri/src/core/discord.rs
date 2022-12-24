@@ -14,7 +14,7 @@ pub enum Error {
 #[derive(Debug, Eq, PartialEq)]
 pub struct Presence {
     pub details: String,
-    pub state: Option<String>,
+    pub state: String,
     pub assets_large_image: String,
     pub assets_large_text: String,
     pub assets_small_image: String,
@@ -43,7 +43,7 @@ impl Presence {
 
     pub async fn from_xbox(xbox_presence: &xbox::PresenceRecord) -> Result<Option<Self>, Error> {
         if let Some(name) = xbox_presence
-            // .tap(|p| println!("xbox_presence: {:#?}", p))
+            .tap(|p| println!("xbox_presence: {:#?}", p))
             .devices
             .iter()
             .map(|devices| {
@@ -65,7 +65,7 @@ impl Presence {
             let autosuggest_result = xbox::autosuggest(name).await.context(XboxAutosuggestSnafu);
             if let Some(suggest) = autosuggest_result? {
                 let details = name.into();
-                let state = None;
+                let state = String::from("playing on pc/xbox");
                 let assets_large_image = suggest.image_url().context(XboxSuggestImageUrlSnafu)?.into();
                 let assets_large_text = name.into();
                 let assets_small_image = "small-icon".into();

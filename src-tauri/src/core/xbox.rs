@@ -109,11 +109,12 @@ impl XboxCore {
         if let Some(discord_presence) = &self.discord_presence {
             use discord_ipc::activity::{Activity, Assets, Button, Timestamps};
             let details = &discord_presence.details;
+            let state = &discord_presence.state;
             let assets = Assets::new()
                 .large_image(&discord_presence.assets_large_image)
-                .large_text(&discord_presence.assets_large_text)
-                .small_image(&discord_presence.assets_small_image)
-                .small_text(&discord_presence.assets_small_text);
+                .large_text(&discord_presence.assets_large_text);
+            // .small_image(&discord_presence.assets_small_image)
+            // .small_text(&discord_presence.assets_small_text);
             let timestamps = Timestamps::new().start(discord_presence.time_start as i64);
             let buttons = std::iter::empty()
                 .chain(&discord_presence.button_store)
@@ -122,6 +123,7 @@ impl XboxCore {
                 .collect();
             let activity = Activity::new()
                 .details(details)
+                .state(state)
                 .assets(assets)
                 .timestamps(timestamps)
                 .buttons(buttons);
