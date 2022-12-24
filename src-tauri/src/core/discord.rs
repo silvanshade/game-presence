@@ -7,7 +7,6 @@ pub enum Error {
     StdTimeDurationSince { source: std::time::SystemTimeError },
     UrlParse { source: url::ParseError },
     XboxAutosuggest { source: crate::service::xbox::Error },
-    XboxPresenceEmptyName,
     XboxSuggestImageUrl { source: crate::service::xbox::Error },
     XboxSuggestStoreUrl { source: crate::service::xbox::Error },
 }
@@ -58,7 +57,8 @@ impl Presence {
             })
         {
             if name == "" {
-                return Err(Error::XboxPresenceEmptyName);
+                println!("xbox_presence: empty name; skipping");
+                return Ok(None);
             }
             println!("from_xbox::name: {:#?}", name);
             println!("from_xbox: 1");
