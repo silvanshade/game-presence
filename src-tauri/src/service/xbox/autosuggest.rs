@@ -48,10 +48,8 @@ impl StoreSuggestResult {
 const ENDPOINT_AUTOSUGGEST: &str = "https://www.microsoft.com/msstoreapiprod/api/autosuggest";
 
 fn endpoint(query: &str) -> Result<url::Url, Error> {
-    println!("endpoint::query: {:#?}", query);
     use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
     let encoded_query = utf8_percent_encode(query, NON_ALPHANUMERIC).to_string();
-    println!("endpoint::encoded_query: {:#?}", encoded_query);
     let params = [
         ("market", "en-us"),
         ("sources", "DCatAll-Products"),
@@ -61,7 +59,6 @@ fn endpoint(query: &str) -> Result<url::Url, Error> {
 }
 
 pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
-    println!("request::query: {:#?}", query);
     let url = endpoint(query)?;
     reqwest::get(url)
         .await
@@ -69,7 +66,7 @@ pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
         .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?
-        .tap(|value| println!("store_auto_suggest: {:#?}", value))
+        // .tap(|value| println!("store_auto_suggest: {:#?}", value))
         .pipe(serde_json::from_value::<StoreAutoSuggest>)
         .context(SerdeJsonFromValueSnafu)?
         .result_sets

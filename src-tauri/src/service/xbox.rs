@@ -70,7 +70,6 @@ pub async fn authorize(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), 
 }
 
 pub async fn autosuggest(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
-    println!("autosuggest::query: {:#?}", query);
     self::autosuggest::request(query).await
 }
 

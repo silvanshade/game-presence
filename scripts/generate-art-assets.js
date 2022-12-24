@@ -8,6 +8,7 @@ const inputSvgsPrefix = ["node_modules", "@mdi", "svg", "svg"];
 /** @type {string[]} */
 const inputSvgs = [
   path.join(...inputSvgsPrefix, "microsoft-xbox.svg"),
+  path.join(...inputSvgsPrefix, "microsoft-windows.svg"),
   path.join(...inputSvgsPrefix, "nintendo-switch.svg"),
   path.join(...inputSvgsPrefix, "sony-playstation.svg"),
   path.join(...inputSvgsPrefix, "steam.svg"),

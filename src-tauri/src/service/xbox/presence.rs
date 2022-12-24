@@ -70,6 +70,6 @@ pub async fn request(xsts: &super::XstsToken) -> Result<PresenceRecord, Error> {
         .context(ReqwestResponseJsonSnafu)?
         .pipe(serde_json::from_value::<PresenceRecord>)
         .context(SerdeJsonFromValueSnafu)?
-        .tap(|value| println!("presence_record: {:#?}", value))
+        // .tap(|value| println!("presence_record: {:#?}", value))
         .pipe(Ok)
 }

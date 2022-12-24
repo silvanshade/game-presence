@@ -259,7 +259,7 @@ async fn flow_get_xbox_user_token(access_token: &oauth2::AccessToken) -> Result<
         .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?
-        .tap(|value| println!("xbox_user_token: {:#?}", value))
+        // .tap(|value| println!("xbox_user_token: {:#?}", value))
         .pipe(serde_json::from_value)
         .context(SerdeJsonFromValueSnafu)
 }
@@ -284,7 +284,7 @@ async fn flow_get_xbox_xsts_token(xbox_user_token: &UserToken) -> Result<XstsTok
         .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?
-        .tap(|value| println!("xbox_xsts_token: {:#?}", value))
+        // .tap(|value| println!("xbox_xsts_token: {:#?}", value))
         .pipe(serde_json::from_value)
         .context(SerdeJsonFromValueSnafu)
 }

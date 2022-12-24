@@ -20,20 +20,29 @@ pub enum Error {
 
 pub struct XboxCore {
     app: tauri::AppHandle,
-    discord_client: discord_ipc::DiscordIpcClient,
+    discord_client_windows: discord_ipc::DiscordIpcClient,
+    discord_client_xbox: discord_ipc::DiscordIpcClient,
     discord_presence: Option<discord::Presence>,
     xbox_presence: Option<xbox::PresenceRecord>,
 }
 
 impl XboxCore {
-    const DISCORD_APPLICATION_ID: &str = "1053777655020912710";
+    const DISCORD_APPLICATION_ID_WINDOWS: &str = "1053777655020912710";
+    const DISCORD_APPLICATION_ID_XBOX: &str = "1056148753528131654";
     const TICK_RATE: u64 = 7;
 
     fn new(app: tauri::AppHandle) -> Result<Self, Error> {
-        let mut discord_client = discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID)
+        let mut discord_client_windows = discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID_WINDOWS)
             .map_err(Into::into)
             .context(DiscordIpcNewSnafu)?;
-        discord_client
+        discord_client_windows
+            .connect()
+            .map_err(Into::into)
+            .context(DiscordIpcConnectSnafu)?;
+        let mut discord_client_xbox = discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID_XBOX)
+            .map_err(Into::into)
+            .context(DiscordIpcNewSnafu)?;
+        discord_client_xbox
             .connect()
             .map_err(Into::into)
             .context(DiscordIpcConnectSnafu)?;
@@ -41,7 +50,8 @@ impl XboxCore {
         let xbox_presence = None;
         Ok(Self {
             app,
-            discord_client,
+            discord_client_windows,
+            discord_client_xbox,
             discord_presence,
             xbox_presence,
         })
@@ -55,7 +65,6 @@ impl XboxCore {
     fn run(&mut self) -> BoxFuture<Result<(), Error>> {
         Box::pin(async {
             loop {
-                println!("XboxCore::run: loop");
                 tokio::select! {
                     _ = self.exit().notified() => break,
                     _ = self.wait() => self.tick().await?,
@@ -70,61 +79,38 @@ impl XboxCore {
     }
 
     async fn wait(&self) {
-        println!("XboxCore::wait");
         use tokio::time;
         time::sleep(time::Duration::from_secs(Self::TICK_RATE)).await
     }
 
     async fn tick(&mut self) -> Result<(), Error> {
-        println!("XboxCore::tick: 0");
         let app = self.app.clone();
-        println!("XboxCore::tick: 1");
         let model = app.state::<crate::app::Model>();
-        println!("XboxCore::tick: 2");
         if !model.config.read().await.services.xbox.enabled {
-            println!("XboxCore::tick: 3");
             return Ok(());
         }
-        println!("XboxCore::tick: 4");
         if model.session.xbox.read().await.is_none() {
-            println!("XboxCore::tick: 5");
             let reauthorize = false;
-            println!("XboxCore::tick: 6");
             let authorize_result = xbox::authorize(&self.app, reauthorize).await;
-            println!("authorize: {:#?}", authorize_result);
             authorize_result.context(XboxAuthorizeSnafu)?;
-            println!("XboxCore::tick: 7");
         }
-        println!("XboxCore::tick: 8");
         if let Some(xsts) = &*model.session.xbox.read().await {
-            println!("XboxCore::tick: 8");
             let xbox_presence_result = xbox::presence(xsts).await;
-            println!("xbox_presence: {:#?}", xbox_presence_result);
             self.xbox_presence = xbox_presence_result.context(XboxPresenceSnafu)?.pipe(Some);
-            println!("XboxCore::tick: 9");
             self.process_xbox_presence().await?;
-            println!("XboxCore::tick: 10");
         }
-        println!("XboxCore::tick: 11");
         Ok(())
     }
 
     async fn process_xbox_presence(&mut self) -> Result<(), Error> {
-        println!("XboxCore::process_xbox_presence: 0");
         if let Some(xbox_presence) = &self.xbox_presence {
-            println!("XboxCore::process_xbox_presence: 1");
             let discord_presence = discord::Presence::from_xbox(&xbox_presence)
                 .await
                 .context(DiscordPresenceFromXboxSnafu)?;
-            println!("XboxCore::process_xbox_presence: 2");
             if discord::Presence::differs_modulo_time(&self.discord_presence, &discord_presence) {
-                println!("XboxCore::process_xbox_presence: 3");
                 self.discord_presence = discord_presence;
-                println!("XboxCore::process_xbox_presence: 4");
                 self.refresh_discord_presence()?;
-                println!("XboxCore::process_xbox_presence: 5");
             }
-            println!("XboxCore::process_xbox_presence: 6");
         }
         Ok(())
     }
@@ -149,17 +135,19 @@ impl XboxCore {
                 .assets(assets)
                 .timestamps(timestamps)
                 .buttons(buttons);
-            self.discord_client
+
+            self.discord_client_xbox
                 .reconnect()
                 .map_err(Into::into)
                 .context(DiscordIpcReconnectSnafu)?;
-            self.discord_client
+            self.discord_client_xbox
                 .set_activity(activity)
                 .map_err(Into::into)
                 .context(DiscordIpcSetActivitySnafu)?;
-            println!("updating presence");
+
+            println!("presence updated");
         } else {
-            self.discord_client
+            self.discord_client_xbox
                 .close()
                 .map_err(Into::into)
                 .context(DiscordIpcCloseSnafu)?;
