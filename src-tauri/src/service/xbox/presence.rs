@@ -1,6 +1,7 @@
 use super::{Error, ReqwestRequestSendSnafu, ReqwestResponseJsonSnafu, SerdeJsonFromValueSnafu, UrlParseSnafu};
 use serde::Deserialize;
 use snafu::prelude::*;
+use tap::prelude::*;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -55,8 +56,7 @@ pub async fn request(xsts: &super::XstsToken) -> Result<PresenceRecord, Error> {
     let url = endpoint()?;
     let user_hash = &xsts.display_claims.xui.uhs;
     let token = &xsts.token;
-
-    let value = reqwest::Client::new()
+    reqwest::Client::new()
         .get(url)
         .header("Accept", "application/json")
         .header("Accept-Language", "en-US")
@@ -67,9 +67,9 @@ pub async fn request(xsts: &super::XstsToken) -> Result<PresenceRecord, Error> {
         .context(ReqwestRequestSendSnafu)?
         .json::<serde_json::Value>()
         .await
-        .context(ReqwestResponseJsonSnafu)?;
-    println!("value: {:#?}", value);
-    let presence_record = serde_json::from_value(value).context(SerdeJsonFromValueSnafu);
-    println!("presence_record: {:#?}", presence_record);
-    Ok(presence_record.unwrap())
+        .context(ReqwestResponseJsonSnafu)?
+        .pipe(serde_json::from_value::<PresenceRecord>)
+        .context(SerdeJsonFromValueSnafu)?
+        .tap(|value| println!("presence_record: {:#?}", value))
+        .pipe(Ok)
 }

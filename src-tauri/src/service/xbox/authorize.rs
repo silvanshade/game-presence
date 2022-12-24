@@ -7,6 +7,7 @@ use super::{
     Oauth2TokenUrlNewSnafu,
     ReqwestRequestSendSnafu,
     ReqwestResponseJsonSnafu,
+    SerdeJsonFromValueSnafu,
     SerdeUrlEncodedSnafu,
     StdSyncMpscReceiveSnafu,
     TauriSpawnSnafu,
@@ -141,7 +142,6 @@ pub async fn flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error
     let bearer_token_response = flow_get_oauth2_bearer_token(&client, code, pkce_code_verifier).await?;
     let xbox_user_token = flow_get_xbox_user_token(bearer_token_response.access_token()).await?;
     let xbox_xsts_token = flow_get_xbox_xsts_token(&xbox_user_token).await?;
-    println!("{:#?}", xbox_xsts_token);
     let model = app.state::<crate::app::Model>();
     model
         .update_gui(|gui| {
@@ -256,9 +256,12 @@ async fn flow_get_xbox_user_token(access_token: &oauth2::AccessToken) -> Result<
         .send()
         .await
         .context(ReqwestRequestSendSnafu)?
-        .json::<UserToken>()
+        .json::<serde_json::Value>()
         .await
-        .context(ReqwestResponseJsonSnafu)
+        .context(ReqwestResponseJsonSnafu)?
+        .tap(|value| println!("xbox_user_token: {:#?}", value))
+        .pipe(serde_json::from_value)
+        .context(SerdeJsonFromValueSnafu)
 }
 
 async fn flow_get_xbox_xsts_token(xbox_user_token: &UserToken) -> Result<XstsToken, Error> {
@@ -278,7 +281,10 @@ async fn flow_get_xbox_xsts_token(xbox_user_token: &UserToken) -> Result<XstsTok
         .send()
         .await
         .context(ReqwestRequestSendSnafu)?
-        .json::<XstsToken>()
+        .json::<serde_json::Value>()
         .await
-        .context(ReqwestResponseJsonSnafu)
+        .context(ReqwestResponseJsonSnafu)?
+        .tap(|value| println!("xbox_xsts_token: {:#?}", value))
+        .pipe(serde_json::from_value)
+        .context(SerdeJsonFromValueSnafu)
 }

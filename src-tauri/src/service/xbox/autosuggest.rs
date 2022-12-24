@@ -1,4 +1,11 @@
-use super::{Error, ReqwestRequestGetSnafu, ReqwestResponseJsonSnafu, UrlDropResizeParamsSnafu, UrlParseSnafu};
+use super::{
+    Error,
+    ReqwestRequestGetSnafu,
+    ReqwestResponseJsonSnafu,
+    SerdeJsonFromValueSnafu,
+    UrlDropResizeParamsSnafu,
+    UrlParseSnafu,
+};
 use serde::Deserialize;
 use snafu::prelude::*;
 use tap::prelude::*;
@@ -56,9 +63,12 @@ pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
     reqwest::get(url)
         .await
         .context(ReqwestRequestGetSnafu)?
-        .json::<StoreAutoSuggest>()
+        .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?
+        .tap(|value| println!("store_auto_suggest: {:#?}", value))
+        .pipe(serde_json::from_value::<StoreAutoSuggest>)
+        .context(SerdeJsonFromValueSnafu)?
         .result_sets
         .into_iter()
         .flat_map(|result_set| result_set.suggests)
