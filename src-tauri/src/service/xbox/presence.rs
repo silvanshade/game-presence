@@ -7,7 +7,7 @@ use tap::prelude::*;
 #[serde(rename_all = "camelCase")]
 pub struct PresenceRecord {
     pub state: String,
-    pub devices: Vec<DeviceRecord>,
+    pub devices: Option<Vec<DeviceRecord>>,
     pub last_seen: Option<LastSeenRecord>,
 }
 

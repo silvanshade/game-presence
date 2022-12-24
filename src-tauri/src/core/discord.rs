@@ -47,14 +47,17 @@ impl Presence {
             .tap(|p| println!("xbox_presence: {:#?}", p))
             .devices
             .iter()
-            .flat_map(|device| &device.titles)
-            .find_map(|title| {
-                if title.name != "Online" {
-                    Some(title.name.as_str())
-                } else {
-                    None
-                }
+            .map(|devices| {
+                devices.iter().flat_map(|device| &device.titles).find_map(|title| {
+                    if title.name != "Online" {
+                        Some(title.name.as_str())
+                    } else {
+                        None
+                    }
+                })
             })
+            .next()
+            .flatten()
         {
             if name == "" {
                 println!("xbox_presence: empty name; skipping");
