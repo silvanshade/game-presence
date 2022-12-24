@@ -7,6 +7,7 @@ pub enum Error {
     StdTimeDurationSince { source: std::time::SystemTimeError },
     UrlParse { source: url::ParseError },
     XboxAutosuggest { source: crate::service::xbox::Error },
+    XboxPresenceEmptyName,
     XboxSuggestImageUrl { source: crate::service::xbox::Error },
     XboxSuggestStoreUrl { source: crate::service::xbox::Error },
 }
@@ -44,6 +45,7 @@ impl Presence {
     pub async fn from_xbox(xbox_presence: &xbox::PresenceRecord) -> Result<Option<Self>, Error> {
         println!("from_xbox: 0");
         if let Some(name) = xbox_presence
+            .tap(|p| println!("xbox_presence: {:#?}", p))
             .devices
             .iter()
             .flat_map(|device| &device.titles)
@@ -55,6 +57,10 @@ impl Presence {
                 }
             })
         {
+            if name == "" {
+                return Err(Error::XboxPresenceEmptyName);
+            }
+            println!("from_xbox::name: {:#?}", name);
             println!("from_xbox: 1");
             let autosuggest_result = xbox::autosuggest(name).await.context(XboxAutosuggestSnafu);
             println!("autosuggest: {:#?}", autosuggest_result);
