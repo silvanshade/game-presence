@@ -60,7 +60,9 @@ fn endpoint(query: &str) -> Result<url::Url, Error> {
 
 pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
     // FIXME: don't recompile this every time
-    let demo = regex::Regex::new(r"(?i)\bdemo\b").unwrap();
+    // FIXME: try to do filtering for game of the year or special editions (unless there is only one
+    // catalog entry)
+    let filter = regex::Regex::new(r"(?i)\bdemo\b").unwrap();
     let url = endpoint(query)?;
     reqwest::get(url)
         .await
@@ -75,7 +77,7 @@ pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
         .into_iter()
         .flat_map(|result_set| result_set.suggests)
         .filter_map(|suggest| {
-            if [suggest.source != "Game", demo.is_match(&suggest.title) && !demo.is_match(query)].iter().any(|p| *p) {
+            if [suggest.source != "Game", filter.is_match(&suggest.title) && !filter.is_match(query)].iter().any(|p| *p) {
                 None
             } else {
                 Some(suggest)
