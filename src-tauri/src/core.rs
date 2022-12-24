@@ -1,7 +1,8 @@
-use discord_rich_presence as discord;
+use discord_rich_presence as discord_ipc;
 use snafu::prelude::*;
 use tap::prelude::*;
 
+mod discord;
 mod xbox;
 
 fn twitch_url(title: &str) -> Result<url::Url, Error> {
@@ -11,54 +12,54 @@ fn twitch_url(title: &str) -> Result<url::Url, Error> {
     url::Url::parse(&format!("{}/{}", base, encoded_title)).context(UrlParseSnafu)
 }
 
-pub struct DiscordError(Box<dyn std::error::Error + 'static + Sync + Send>);
+pub struct DiscordIpcError(Box<dyn std::error::Error + 'static + Sync + Send>);
 
-impl std::fmt::Debug for DiscordError {
+impl std::fmt::Debug for DiscordIpcError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_tuple("DiscordError").field(&self.0).finish()
     }
 }
 
-impl std::fmt::Display for DiscordError {
+impl std::fmt::Display for DiscordIpcError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         self.0.fmt(f)
     }
 }
 
-impl std::error::Error for DiscordError {
+impl std::error::Error for DiscordIpcError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         self.0.source()
     }
 }
 
-impl From<Box<dyn std::error::Error>> for DiscordError {
+impl From<Box<dyn std::error::Error>> for DiscordIpcError {
     fn from(error: Box<dyn std::error::Error>) -> Self {
         error
             .to_string()
             .conv::<Box<dyn std::error::Error + 'static + Sync + Send>>()
-            .pipe(DiscordError)
+            .pipe(DiscordIpcError)
     }
 }
 
 #[derive(Debug, Snafu)]
 pub enum Error {
     DiscordClearActivity {
-        source: DiscordError,
+        source: DiscordIpcError,
     },
     DiscordClose {
-        source: DiscordError,
+        source: DiscordIpcError,
     },
     DiscordConnect {
-        source: DiscordError,
+        source: DiscordIpcError,
     },
     DiscordNew {
-        source: DiscordError,
+        source: DiscordIpcError,
     },
     DiscordReconnect {
-        source: DiscordError,
+        source: DiscordIpcError,
     },
     DiscordSetActivity {
-        source: DiscordError,
+        source: DiscordIpcError,
     },
     RegexNew {
         source: regex::Error,
@@ -99,11 +100,6 @@ pub enum Error {
     UrlParse {
         source: url::ParseError,
     },
-}
-
-#[derive(Debug, Eq, PartialEq)]
-struct DiscordPresence {
-    name: String,
 }
 
 // fn twitch_url(title: &str) -> Result<url::Url, Error> {
@@ -218,163 +214,6 @@ impl Core {
     }
 
     async fn xbox(app: tauri::AppHandle, model: crate::app::Model) -> Result<(), Error> {
-        use crate::service::xbox;
-        use discord::{DiscordIpc, DiscordIpcClient};
-        use discord_rich_presence as discord;
-        use std::sync::Arc;
-        use tauri::Manager;
-        use tokio::sync::RwLock;
-
-        let prev_presence = Arc::new(RwLock::new(None::<DiscordPresence>));
-
-        let mut discord = DiscordIpcClient::new(Self::XBOX_DISCORD_APPLICATION_ID)
-            .map_err(Into::into)
-            .context(DiscordNewSnafu)?;
-        discord.connect().map_err(Into::into).context(DiscordConnectSnafu)?;
-        let discord = Arc::new(RwLock::new(discord));
-
-        let is_noteworthy = |presence: serde_json::Value| {
-            let state = presence.get("state").context(SerdeJsonGetSnafu)?;
-            if state == "Online" {
-                let devices = presence
-                    .get("devices")
-                    .context(SerdeJsonGetSnafu)?
-                    .pipe(Clone::clone)
-                    .pipe(serde_json::from_value::<Vec<serde_json::Value>>)
-                    .context(SerdeJsonFromSnafu)?;
-                for device in devices {
-                    let titles = device
-                        .get("titles")
-                        .context(SerdeJsonGetSnafu)?
-                        .pipe(Clone::clone)
-                        .pipe(serde_json::from_value::<Vec<serde_json::Value>>)
-                        .context(SerdeJsonFromSnafu)?;
-                    for title in titles {
-                        let name = title.get("name").context(SerdeJsonGetSnafu)?;
-                        if name != "Online" {
-                            let name = serde_json::from_value::<String>(name.clone()).context(SerdeJsonFromSnafu)?;
-                            return Ok(Some(DiscordPresence { name }));
-                        }
-                    }
-                }
-            }
-            Ok::<Option<DiscordPresence>, Error>(None)
-        };
-
-        let tick = move |app: tauri::AppHandle,
-                         discord: Arc<RwLock<DiscordIpcClient>>,
-                         prev_presence: Arc<RwLock<Option<DiscordPresence>>>| async move {
-            let model = app.state::<crate::app::Model>();
-            if !model.config.read().await.services.xbox.enabled {
-                return Ok(());
-            }
-            if model.session.xbox.read().await.is_none() {
-                let reauthorize = false;
-                xbox::authorize(&app, reauthorize)
-                    .await
-                    .context(XboxApiAuthorizeFlowSnafu)?;
-            }
-            if let Some(xbox) = &*model.session.xbox.read().await {
-                let url = "https://userpresence.xboxlive.com/users/me";
-                let user_hash = &xbox.display_claims.xui.uhs;
-                let token = &xbox.token;
-
-                let presence_response = reqwest::Client::new()
-                    .get(url)
-                    .header("Accept", "application/json")
-                    .header("Accept-Language", "en-US")
-                    .header("Authorization", format!("XBL3.0 x={};{}", user_hash, token))
-                    .header("x-xbl-contract-version", "3")
-                    .send()
-                    .await
-                    .context(ReqwestRequestSendSnafu)?
-                    .json::<serde_json::Value>()
-                    .await
-                    .context(ReqwestRequestJsonSnafu)?;
-
-                if let Some(next_presence) = is_noteworthy(presence_response)? {
-                    if prev_presence.read().await.as_ref() == Some(&next_presence) {
-                        return Ok(());
-                    }
-                    discord
-                        .write()
-                        .await
-                        .reconnect()
-                        .map_err(Into::into)
-                        .context(DiscordReconnectSnafu)?;
-
-                    if let Some(suggest) = xbox::autosuggest(&next_presence.name).await.context(ServiceXboxSnafu)? {
-                        let large_image = suggest.image_url().context(XboxSuggestImageUrlSnafu)?;
-                        let large_text = next_presence.name.clone();
-                        let small_image = "small-icon";
-                        let small_text = "playing on xbox";
-
-                        let assets = discord::activity::Assets::new()
-                            .large_image(large_image.as_str())
-                            .large_text(large_text.as_str())
-                            .small_image(small_image)
-                            .small_text(small_text);
-
-                        let timestamps = {
-                            let start = std::time::SystemTime::now()
-                                .duration_since(std::time::UNIX_EPOCH)
-                                .context(StdTimeDurationSinceSnafu)?
-                                .as_secs() as i64;
-                            discord::activity::Timestamps::new().start(start)
-                        };
-
-                        let store_url = suggest.store_url().context(XboxSuggestStoreUrlSnafu)?;
-                        let store_button = discord::activity::Button::new("xbox.com", store_url.as_str());
-
-                        let twitch_url = twitch_url(&next_presence.name)?;
-                        let twitch_button = discord::activity::Button::new("twitch", twitch_url.as_str());
-
-                        let buttons = vec![store_button, twitch_button];
-
-                        let activity = discord::activity::Activity::new()
-                            .details(&next_presence.name)
-                            .assets(assets)
-                            .timestamps(timestamps)
-                            .buttons(buttons);
-
-                        discord
-                            .write()
-                            .await
-                            .set_activity(activity)
-                            .map_err(Into::into)
-                            .context(DiscordSetActivitySnafu)?;
-
-                        *prev_presence.write().await = Some(DiscordPresence {
-                            name: next_presence.name,
-                        });
-
-                        println!("presence: updated: {:#?}", prev_presence.read().await);
-                    }
-                } else {
-                    discord
-                        .write()
-                        .await
-                        .close()
-                        .map_err(Into::into)
-                        .context(DiscordCloseSnafu)?;
-                    *prev_presence.write().await = None;
-                    return Ok(());
-                }
-            }
-            Ok(())
-        };
-        loop {
-            println!("xbox: loop");
-            tokio::select! {
-                _ = Self::exit(&model) => {
-                    break;
-                }
-                _ = Self::tick(Self::XBOX_TICK_RATE) => {
-                    println!("xbox: tick");
-                    tick(app.clone(), discord.clone(), prev_presence.clone()).await?;
-                }
-            }
-        }
         Ok(())
     }
 

@@ -36,7 +36,7 @@ serde_urlencoded = { version = "0.7", features = [] }
 snafu = { version = "0.7", features = ["std"] }
 tap = "1.0.1"
 tauri = { version = "1.2", features = ["compression", "objc-exception", "reqwest", "shell-open", "system-tray", "wry"] }
-tauri-plugin-graphql-ipc = { version = "0.0", git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc", features = ["async-graphql"] }
+tauri-plugin-graphql-ipc = { version = "0.0", features = ["async-graphql"], git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc" }
 time = { version = "0.3.17", features = ["serde", "serde-well-known"] }
 tokio = { version = "1.21", features = ["fs", "macros"] }
 tracing = { version = "0.1", features = ["attributes", "std"] }
@@ -65,3 +65,10 @@ custom-protocol = ["tauri/custom-protocol"]
 tauri = { path = "../../tauri/core/tauri" }
 tauri-runtime = { path = "../../tauri/core/tauri-runtime" }
 tauri-runtime-wry = { path = "../../tauri/core/tauri-runtime-wry" }
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = "z"
+panic = "abort"
+strip = true
