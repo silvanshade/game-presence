@@ -20,29 +20,20 @@ pub enum Error {
 
 pub struct XboxCore {
     app: tauri::AppHandle,
-    discord_client_windows: discord_ipc::DiscordIpcClient,
-    discord_client_xbox: discord_ipc::DiscordIpcClient,
+    discord_client: discord_ipc::DiscordIpcClient,
     discord_presence: Option<discord::Presence>,
     xbox_presence: Option<xbox::PresenceRecord>,
 }
 
 impl XboxCore {
-    const DISCORD_APPLICATION_ID_WINDOWS: &str = "1053777655020912710";
-    const DISCORD_APPLICATION_ID_XBOX: &str = "1056148753528131654";
+    const DISCORD_APPLICATION_ID: &str = "1056148753528131654";
     const TICK_RATE: u64 = 7;
 
     fn new(app: tauri::AppHandle) -> Result<Self, Error> {
-        let mut discord_client_windows = discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID_WINDOWS)
+        let mut discord_client = discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID)
             .map_err(Into::into)
             .context(DiscordIpcNewSnafu)?;
-        discord_client_windows
-            .connect()
-            .map_err(Into::into)
-            .context(DiscordIpcConnectSnafu)?;
-        let mut discord_client_xbox = discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID_XBOX)
-            .map_err(Into::into)
-            .context(DiscordIpcNewSnafu)?;
-        discord_client_xbox
+        discord_client
             .connect()
             .map_err(Into::into)
             .context(DiscordIpcConnectSnafu)?;
@@ -50,8 +41,7 @@ impl XboxCore {
         let xbox_presence = None;
         Ok(Self {
             app,
-            discord_client_windows,
-            discord_client_xbox,
+            discord_client,
             discord_presence,
             xbox_presence,
         })
@@ -136,18 +126,18 @@ impl XboxCore {
                 .timestamps(timestamps)
                 .buttons(buttons);
 
-            self.discord_client_xbox
+            self.discord_client
                 .reconnect()
                 .map_err(Into::into)
                 .context(DiscordIpcReconnectSnafu)?;
-            self.discord_client_xbox
+            self.discord_client
                 .set_activity(activity)
                 .map_err(Into::into)
                 .context(DiscordIpcSetActivitySnafu)?;
 
             println!("presence updated");
         } else {
-            self.discord_client_xbox
+            self.discord_client
                 .close()
                 .map_err(Into::into)
                 .context(DiscordIpcCloseSnafu)?;
