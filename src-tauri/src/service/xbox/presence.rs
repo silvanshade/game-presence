@@ -1,23 +1,23 @@
-use super::{Error, ReqwestRequestSendSnafu, ReqwestResponseJsonSnafu, UrlParseSnafu};
+use super::{Error, ReqwestRequestSendSnafu, ReqwestResponseJsonSnafu, SerdeJsonFromValueSnafu, UrlParseSnafu};
 use serde::Deserialize;
 use snafu::prelude::*;
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PresenceRecord {
     pub state: String,
     pub devices: Vec<DeviceRecord>,
-    pub last_seen: LastSeenRecord,
+    pub last_seen: Option<LastSeenRecord>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityRecord {
     pub rich_presence: String,
     pub media: Option<serde_json::Value>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DeviceRecord {
     #[serde(rename = "type")]
@@ -25,20 +25,20 @@ pub struct DeviceRecord {
     pub titles: Vec<TitleRecord>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LastSeenRecord {
     pub device_type: String,
-    pub title_id: u32,
+    pub title_id: String,
     pub title_name: String,
     #[serde(with = "time::serde::iso8601")]
     pub timestamp: time::OffsetDateTime,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TitleRecord {
-    pub id: u32,
+    pub id: String,
     pub name: String,
     pub activity: Option<ActivityRecord>,
     #[serde(with = "time::serde::iso8601")]
@@ -55,7 +55,8 @@ pub async fn request(xsts: &super::XstsToken) -> Result<PresenceRecord, Error> {
     let url = endpoint()?;
     let user_hash = &xsts.display_claims.xui.uhs;
     let token = &xsts.token;
-    reqwest::Client::new()
+
+    let value = reqwest::Client::new()
         .get(url)
         .header("Accept", "application/json")
         .header("Accept-Language", "en-US")
@@ -64,7 +65,11 @@ pub async fn request(xsts: &super::XstsToken) -> Result<PresenceRecord, Error> {
         .send()
         .await
         .context(ReqwestRequestSendSnafu)?
-        .json::<PresenceRecord>()
+        .json::<serde_json::Value>()
         .await
-        .context(ReqwestResponseJsonSnafu)
+        .context(ReqwestResponseJsonSnafu)?;
+    println!("value: {:#?}", value);
+    let presence_record = serde_json::from_value(value).context(SerdeJsonFromValueSnafu);
+    println!("presence_record: {:#?}", presence_record);
+    Ok(presence_record.unwrap())
 }

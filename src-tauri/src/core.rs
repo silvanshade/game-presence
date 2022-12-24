@@ -1,6 +1,6 @@
-use discord_rich_presence as discord_ipc;
 use snafu::prelude::*;
 use tap::prelude::*;
+use tauri::async_runtime::JoinHandle;
 
 mod discord;
 mod xbox;
@@ -88,6 +88,9 @@ pub enum Error {
     TokioSyncOneshotReceive {
         source: tokio::sync::oneshot::error::RecvError,
     },
+    XboxCoreStart {
+        source: crate::core::xbox::Error,
+    },
     XboxApiAuthorizeFlow {
         source: crate::service::xbox::Error,
     },
@@ -109,13 +112,11 @@ pub enum Error {
 //     url::Url::parse(&format!("{}/{}", base, encoded_title)).context(UrlParseSnafu)
 // }
 
-pub type ServiceLoop = tauri::async_runtime::JoinHandle<Result<(), Error>>;
-
 pub struct Core {
-    nintendo: ServiceLoop,
-    playstation: ServiceLoop,
-    steam: ServiceLoop,
-    xbox: ServiceLoop,
+    nintendo: JoinHandle<Result<(), Error>>,
+    playstation: JoinHandle<Result<(), Error>>,
+    steam: JoinHandle<Result<(), Error>>,
+    xbox: JoinHandle<Result<(), crate::core::xbox::Error>>,
 }
 
 impl Core {
@@ -138,7 +139,8 @@ impl Core {
             let nintendo = tauri::async_runtime::spawn(Self::nintendo(app.clone(), model.clone()));
             let playstation = tauri::async_runtime::spawn(Self::playstation(app.clone(), model.clone()));
             let steam = tauri::async_runtime::spawn(Self::steam(app.clone(), model.clone()));
-            let xbox = tauri::async_runtime::spawn(Self::xbox(app.clone(), model.clone()));
+            // let xbox = tauri::async_runtime::spawn(Self::xbox(app.clone(), model.clone()));
+            let xbox = crate::core::xbox::XboxCore::start(&app);
             Ok(Self {
                 nintendo,
                 playstation,
@@ -221,7 +223,7 @@ impl Core {
         self.nintendo.await.context(TauriSpawnSnafu)??;
         self.playstation.await.context(TauriSpawnSnafu)??;
         self.steam.await.context(TauriSpawnSnafu)??;
-        self.xbox.await.context(TauriSpawnSnafu)??;
+        self.xbox.await.context(TauriSpawnSnafu)?.context(XboxCoreStartSnafu)?;
         Ok(())
     }
 }
