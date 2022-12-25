@@ -11,6 +11,24 @@ pub struct PresenceRecord {
     pub last_seen: Option<LastSeenRecord>,
 }
 
+impl PresenceRecord {
+    pub fn relevant_name(&self) -> Option<&str> {
+        self.devices
+            .iter()
+            .map(|devices| {
+                devices.iter().flat_map(|device| &device.titles).find_map(|title| {
+                    if !["Home", "Online"].contains(&title.name.as_str()) {
+                        Some(title.name.as_str())
+                    } else {
+                        None
+                    }
+                })
+            })
+            .next()
+            .flatten()
+    }
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityRecord {

@@ -41,29 +41,14 @@ impl Presence {
         url::Url::parse(&format!("{}/{}", base, encoded_title)).context(UrlParseSnafu)
     }
 
-    pub async fn from_xbox(xbox_presence: &xbox::PresenceRecord) -> Result<Option<Self>, Error> {
-        if let Some(name) = xbox_presence
-            // .tap(|p| println!("xbox_presence: {:#?}", p))
-            .devices
-            .iter()
-            .map(|devices| {
-                devices.iter().flat_map(|device| &device.titles).find_map(|title| {
-                    if !["Home", "Online"].contains(&title.name.as_str()) {
-                        Some(title.name.as_str())
-                    } else {
-                        None
-                    }
-                })
-            })
-            .next()
-            .flatten()
-        {
+    pub async fn from_xbox_presence_name(name: Option<&str>) -> Result<Option<Self>, Error> {
+        if let Some(name) = name {
             if name == "" {
                 println!("xbox_presence: empty name; skipping");
                 return Ok(None);
             }
-            let autosuggest_result = xbox::autosuggest(name).await.context(XboxAutosuggestSnafu);
-            if let Some(suggest) = autosuggest_result? {
+            let autosuggest = xbox::autosuggest(name).await.context(XboxAutosuggestSnafu);
+            if let Some(suggest) = autosuggest? {
                 let details = name.into();
                 let state = String::from("playing on pc/xbox");
                 let assets_large_image = suggest.image_url().context(XboxSuggestImageUrlSnafu)?.into();
@@ -92,26 +77,5 @@ impl Presence {
             }
         }
         Ok(None)
-    }
-
-    pub fn differs_modulo_time(lhs: &Option<Self>, rhs: &Option<Self>) -> bool {
-        let mut result = false;
-        match (lhs, rhs) {
-            (None, None) => {},
-            (Some(lhs), Some(rhs)) => {
-                result |= lhs.details != rhs.details;
-                result |= lhs.state != rhs.state;
-                result |= lhs.assets_large_image != rhs.assets_large_image;
-                result |= lhs.assets_large_text != rhs.assets_large_text;
-                result |= lhs.assets_small_image != rhs.assets_small_image;
-                result |= lhs.assets_small_text != rhs.assets_small_text;
-                result |= lhs.button_store != rhs.button_store;
-                result |= lhs.button_twitch != rhs.button_twitch;
-            },
-            _ => {
-                result |= true;
-            },
-        }
-        result
     }
 }

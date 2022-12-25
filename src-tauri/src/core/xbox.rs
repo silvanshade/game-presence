@@ -81,12 +81,15 @@ impl XboxCore {
         }
         if model.session.xbox.read().await.is_none() {
             let reauthorize = false;
-            let authorize_result = xbox::authorize(&self.app, reauthorize).await;
-            authorize_result.context(XboxAuthorizeSnafu)?;
+            let authorize = xbox::authorize(&self.app, reauthorize).await;
+            authorize.context(XboxAuthorizeSnafu)?;
         }
         if let Some(xsts) = &*model.session.xbox.read().await {
-            let xbox_presence_result = xbox::presence(xsts).await;
-            self.xbox_presence = xbox_presence_result.context(XboxPresenceSnafu)?.pipe(Some);
+            let xbox_presence = xbox::presence(xsts).await.context(XboxPresenceSnafu)?;
+            if self.xbox_presence.as_ref().map(|xp| xp.relevant_name()).flatten() == xbox_presence.relevant_name() {
+                return Ok(());
+            }
+            self.xbox_presence = Some(xbox_presence);
             self.process_xbox_presence().await?;
         }
         Ok(())
@@ -94,13 +97,12 @@ impl XboxCore {
 
     async fn process_xbox_presence(&mut self) -> Result<(), Error> {
         if let Some(xbox_presence) = &self.xbox_presence {
-            let discord_presence = discord::Presence::from_xbox(&xbox_presence)
+            let name = xbox_presence.relevant_name();
+            let discord_presence = discord::Presence::from_xbox_presence_name(name)
                 .await
                 .context(DiscordPresenceFromXboxSnafu)?;
-            if discord::Presence::differs_modulo_time(&self.discord_presence, &discord_presence) {
-                self.discord_presence = discord_presence;
-                self.refresh_discord_presence()?;
-            }
+            self.discord_presence = discord_presence;
+            self.refresh_discord_presence()?;
         }
         Ok(())
     }
