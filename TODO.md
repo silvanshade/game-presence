@@ -2,3 +2,4 @@
 - fix blurry icon on windows
 - set min-height for services pages
 - module visibility
+- tap debug, tap tracing

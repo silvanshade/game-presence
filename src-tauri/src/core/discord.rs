@@ -43,7 +43,7 @@ impl Presence {
 
     pub async fn from_xbox(xbox_presence: &xbox::PresenceRecord) -> Result<Option<Self>, Error> {
         if let Some(name) = xbox_presence
-            .tap(|p| println!("xbox_presence: {:#?}", p))
+            // .tap(|p| println!("xbox_presence: {:#?}", p))
             .devices
             .iter()
             .map(|devices| {

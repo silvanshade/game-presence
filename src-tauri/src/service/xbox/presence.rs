@@ -65,6 +65,7 @@ pub async fn request(xsts: &super::XstsToken) -> Result<PresenceRecord, Error> {
         .send()
         .await
         .context(ReqwestRequestSendSnafu)?
+        .tap(|request| println!("presence: {:#?}", request.status()))
         .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?

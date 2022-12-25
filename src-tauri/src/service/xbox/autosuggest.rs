@@ -67,10 +67,11 @@ pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
     reqwest::get(url)
         .await
         .context(ReqwestRequestGetSnafu)?
+        .tap(|request| println!("autosuggest: {:#?}", request.status()))
         .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?
-        .tap(|value| println!("store_auto_suggest: {:#?}", value))
+        // .tap(|value| println!("store_auto_suggest: {:#?}", value))
         .pipe(serde_json::from_value::<StoreAutoSuggest>)
         .context(SerdeJsonFromValueSnafu)?
         .result_sets

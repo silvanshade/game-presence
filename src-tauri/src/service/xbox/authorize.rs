@@ -256,6 +256,7 @@ async fn flow_get_xbox_user_token(access_token: &oauth2::AccessToken) -> Result<
         .send()
         .await
         .context(ReqwestRequestSendSnafu)?
+        .tap(|request| println!("user token: {:#?}", request.status()))
         .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?
@@ -281,6 +282,7 @@ async fn flow_get_xbox_xsts_token(xbox_user_token: &UserToken) -> Result<XstsTok
         .send()
         .await
         .context(ReqwestRequestSendSnafu)?
+        .tap(|request| println!("xsts token: {:#?}", request.status()))
         .json::<serde_json::Value>()
         .await
         .context(ReqwestResponseJsonSnafu)?

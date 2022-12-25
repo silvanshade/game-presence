@@ -27,7 +27,7 @@ pub struct XboxCore {
 
 impl XboxCore {
     const DISCORD_APPLICATION_ID: &str = "1056148753528131654";
-    const TICK_RATE: u64 = 7;
+    const TICK_RATE: u64 = 15;
 
     fn new(app: tauri::AppHandle) -> Result<Self, Error> {
         let mut discord_client = discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID)
@@ -136,7 +136,6 @@ impl XboxCore {
                 .set_activity(activity)
                 .map_err(Into::into)
                 .context(DiscordIpcSetActivitySnafu)?;
-
             println!("presence updated");
         } else {
             self.discord_client
