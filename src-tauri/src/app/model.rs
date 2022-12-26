@@ -36,7 +36,6 @@ pub struct Notifiers {
 pub enum Error {
     ConfigLoad { source: crate::app::model::config::Error },
     ConfigSave { source: crate::app::model::config::Error },
-    StdTimeDurationSince { source: std::time::SystemTimeError },
     UrlParse { source: url::ParseError },
 }
 

@@ -8,9 +8,6 @@ use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    ModelPresenceTimestamp {
-        source: crate::app::model::Error,
-    },
     ModelPresenceTwitchUrl {
         source: crate::app::model::Error,
     },

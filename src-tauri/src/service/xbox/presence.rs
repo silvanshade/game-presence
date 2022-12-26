@@ -1,6 +1,5 @@
 use super::{
     Error,
-    ModelPresenceTimestampSnafu,
     ModelPresenceTwitchUrlSnafu,
     ReqwestRequestSendSnafu,
     ReqwestResponseJsonSnafu,
@@ -51,8 +50,7 @@ impl PresenceRecord {
                 let assets_large_text = name.into();
                 let assets_small_image = "small-icon".into();
                 let assets_small_text = "playing on xbox".into();
-                let time_start = crate::app::model::Presence::timestamp().context(ModelPresenceTimestampSnafu)?;
-                let time_end = None;
+                let time_start = time::OffsetDateTime::now_utc();
                 let button_store = Some((String::from("xbox.com"), suggest.store_url()?));
                 let button_twitch = Some((
                     String::from("twitch"),
@@ -66,7 +64,6 @@ impl PresenceRecord {
                     assets_small_image,
                     assets_small_text,
                     time_start,
-                    time_end,
                     button_store,
                     button_twitch,
                 }));

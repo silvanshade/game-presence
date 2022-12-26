@@ -116,7 +116,7 @@ impl XboxCore {
                 .large_text(&discord_presence.assets_large_text);
             // .small_image(&discord_presence.assets_small_image)
             // .small_text(&discord_presence.assets_small_text);
-            let timestamps = Timestamps::new().start(discord_presence.time_start as i64);
+            let timestamps = Timestamps::new().start(discord_presence.time_start.unix_timestamp());
             let buttons = std::iter::empty()
                 .chain(&discord_presence.button_store)
                 .chain(&discord_presence.button_twitch)

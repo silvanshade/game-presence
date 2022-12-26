@@ -1,4 +1,5 @@
 import { mdiTwitch } from "@quasar/extras/mdi-v7";
+import type Presence from "./presence";
 
 export interface Gui {
   services: Services;
@@ -42,7 +43,7 @@ export namespace service {
     disclaimerAcknowledged: boolean;
     enabled: boolean;
     assetsPriorities: AssetsPrioritiesEntry[];
-    data: null | Nintendo.Data;
+    data: Nintendo.Data | null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -55,13 +56,15 @@ export namespace service {
       return { disclaimerAcknowledged, enabled, assetsPriorities, data };
     };
 
-    export type Data = Record<string, never>;
+    export interface Data {
+      presence: Presence | null;
+    }
   }
 
   export interface Playstation {
     enabled: boolean;
     assetsPriorities: AssetsPrioritiesEntry[];
-    data: null | Playstation.Data;
+    data: Playstation.Data | null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -73,13 +76,15 @@ export namespace service {
       return { enabled, assetsPriorities, data };
     };
 
-    export type Data = Record<string, never>;
+    export interface Data {
+      presence: Presence | null;
+    }
   }
 
   export interface Steam {
     enabled: boolean;
     assetsPriorities: AssetsPrioritiesEntry[];
-    data: null | Steam.Data;
+    data: Steam.Data | null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -93,12 +98,13 @@ export namespace service {
 
     export interface Data {
       apiKey: string;
+      presence: Presence | null;
     }
   }
 
   export interface Twitch {
     enabled: boolean;
-    data: null | Twitch.Data;
+    data: Twitch.Data | null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -115,7 +121,7 @@ export namespace service {
   export interface Xbox {
     enabled: boolean;
     assetsPriorities: AssetsPrioritiesEntry[];
-    data: null | Xbox.Data;
+    data: Xbox.Data | null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -129,6 +135,7 @@ export namespace service {
 
     export interface Data {
       gamertag: string;
+      presence: Presence | null;
     }
   }
 }
