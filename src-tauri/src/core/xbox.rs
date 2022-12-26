@@ -12,6 +12,7 @@ pub enum Error {
     DiscordIpcNew { source: crate::core::DiscordIpcError },
     DiscordIpcReconnect { source: crate::core::DiscordIpcError },
     DiscordIpcSetActivity { source: crate::core::DiscordIpcError },
+    ModelUpdateGui { source: crate::app::model::Error },
     XboxAuthorize { source: crate::service::xbox::Error },
     XboxPresence { source: crate::service::xbox::Error },
     XboxPresenceIntoDiscordPresence { source: crate::service::xbox::Error },
@@ -20,7 +21,6 @@ pub enum Error {
 pub struct XboxCore {
     app: tauri::AppHandle,
     discord_client: discord_ipc::DiscordIpcClient,
-    discord_presence: Option<crate::app::model::Presence>,
     xbox_presence: Option<xbox::PresenceRecord>,
 }
 
@@ -36,12 +36,10 @@ impl XboxCore {
             .connect()
             .map_err(Into::into)
             .context(DiscordIpcConnectSnafu)?;
-        let discord_presence = None;
         let xbox_presence = None;
         Ok(Self {
             app,
             discord_client,
-            discord_presence,
             xbox_presence,
         })
     }
@@ -96,18 +94,40 @@ impl XboxCore {
 
     async fn process_xbox_presence(&mut self) -> Result<(), Error> {
         if let Some(xbox_presence) = &self.xbox_presence {
-            let discord_presence = xbox_presence
+            let presence = xbox_presence
                 .into_discord_presence()
                 .await
                 .context(XboxPresenceIntoDiscordPresenceSnafu)?;
-            self.discord_presence = discord_presence;
-            self.refresh_discord_presence()?;
+            let model = self.app.state::<crate::app::Model>();
+            model
+                .update_gui(|gui| {
+                    if let Some(data) = &mut gui.services.xbox.data {
+                        println!("process_xbox_presence: subscription");
+                        data.presence = presence;
+                    }
+                })
+                .await
+                .context(ModelUpdateGuiSnafu)?;
+            model.notifiers.gui.notify_waiters();
+            self.refresh_discord_activity().await?;
         }
         Ok(())
     }
 
-    fn refresh_discord_presence(&mut self) -> Result<(), Error> {
-        if let Some(discord_presence) = &self.discord_presence {
+    async fn refresh_discord_activity(&mut self) -> Result<(), Error> {
+        if let Some(discord_presence) = self
+            .app
+            .state::<crate::app::Model>()
+            .gui
+            .read()
+            .await
+            .services
+            .xbox
+            .data
+            .iter()
+            .flat_map(|data| &data.presence)
+            .next()
+        {
             use discord_ipc::activity::{Activity, Assets, Button, Timestamps};
             let details = &discord_presence.details;
             let state = &discord_presence.state;
