@@ -5,47 +5,42 @@
       vertical
       inline-label
       dense
-      class="col-auto"
     >
-      <div class="column fit">
-        <div>
-          <q-tab
-            name="nintendo"
-            label="nintendo"
-            :icon="icon$mdiNintendoSwitch"
-            class="text-brand-nintendo"
-            style="justify-content: initial"
-          />
-          <q-tab
-            name="playstation"
-            label="playstation"
-            :icon="icon$mdiSonyPlaystation"
-            class="text-brand-playstation"
-            style="justify-content: initial"
-          />
-          <q-tab
-            name="steam"
-            label="steam"
-            :icon="icon$mdiSteam"
-            class="text-brand-steam"
-            style="justify-content: initial"
-          />
-          <q-tab
-            name="twitch"
-            label="twitch"
-            :icon="icon$mdiTwitch"
-            class="text-brand-twitch"
-            style="justify-content: initial"
-          />
-          <q-tab
-            name="xbox"
-            label="xbox"
-            :icon="icon$mdiMicrosoftXbox"
-            class="text-brand-xbox"
-            style="justify-content: initial"
-          />
-        </div>
-      </div>
+      <q-tab
+        name="nintendo"
+        label="nintendo"
+        :icon="icon$mdiNintendoSwitch"
+        class="text-brand-nintendo"
+        style="justify-content: initial"
+      />
+      <q-tab
+        name="playstation"
+        label="playstation"
+        :icon="icon$mdiSonyPlaystation"
+        class="text-brand-playstation"
+        style="justify-content: initial"
+      />
+      <q-tab
+        name="steam"
+        label="steam"
+        :icon="icon$mdiSteam"
+        class="text-brand-steam"
+        style="justify-content: initial"
+      />
+      <q-tab
+        name="twitch"
+        label="twitch"
+        :icon="icon$mdiTwitch"
+        class="text-brand-twitch"
+        style="justify-content: initial"
+      />
+      <q-tab
+        name="xbox"
+        label="xbox"
+        :icon="icon$mdiMicrosoftXbox"
+        class="text-brand-xbox"
+        style="justify-content: initial"
+      />
     </q-tabs>
     <q-separator vertical />
     <q-tab-panels
@@ -56,28 +51,33 @@
       <q-tab-panel
         name="nintendo"
         class="no-padding"
-        ><SettingsPageServicesNintendo
-      /></q-tab-panel>
+      >
+        <SettingsPageServicesNintendo />
+      </q-tab-panel>
       <q-tab-panel
         name="playstation"
         class="no-padding"
-        ><SettingsPageServicesPlaystation
-      /></q-tab-panel>
+      >
+        <SettingsPageServicesPlaystation />
+      </q-tab-panel>
       <q-tab-panel
         name="steam"
         class="no-padding"
-        ><SettingsPageServicesSteam
-      /></q-tab-panel>
+      >
+        <SettingsPageServicesSteam />
+      </q-tab-panel>
       <q-tab-panel
         name="twitch"
         class="no-padding"
-        ><SettingsPageServicesTwitch
-      /></q-tab-panel>
+      >
+        <SettingsPageServicesTwitch />
+      </q-tab-panel>
       <q-tab-panel
         name="xbox"
         class="no-padding"
-        ><SettingsPageServicesXbox
-      /></q-tab-panel>
+      >
+        <SettingsPageServicesXbox />
+      </q-tab-panel>
     </q-tab-panels>
   </div>
 </template>
