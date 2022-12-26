@@ -150,7 +150,8 @@ pub async fn flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error
             if let Some(data) = &mut gui.services.xbox.data {
                 data.gamertag = gamertag;
             } else {
-                gui.services.xbox.data = Some(Data { gamertag })
+                let presence = None;
+                gui.services.xbox.data = Some(Data { gamertag, presence })
             }
         })
         .await

@@ -98,7 +98,9 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {}
+        pub struct Data {
+            pub presence: Option<crate::app::model::Presence>,
+        }
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -136,7 +138,9 @@ pub mod service {
 
         #[derive(Clone, Debug, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
-        pub struct Data {}
+        pub struct Data {
+            presence: Option<crate::app::model::Presence>,
+        }
     }
 
     #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -183,12 +187,14 @@ pub mod service {
         #[serde(rename_all = "camelCase")]
         pub struct Data {
             pub api_key: String,
+            presence: Option<crate::app::model::Presence>,
         }
 
         impl From<crate::app::model::config::service::steam::Data> for self::Data {
             fn from(data: crate::app::model::config::service::steam::Data) -> Self {
                 let api_key = data.api_key.clone();
-                Self { api_key }
+                let presence = None;
+                Self { api_key, presence }
             }
         }
     }
@@ -253,6 +259,7 @@ pub mod service {
         #[serde(rename_all = "camelCase")]
         pub struct Data {
             pub gamertag: String,
+            pub presence: Option<crate::app::model::Presence>,
         }
     }
 }

@@ -1,8 +1,9 @@
 use super::{Error, StdTimeDurationSinceSnafu, UrlParseSnafu};
+use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 use tap::prelude::*;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Presence {
     pub details: String,
     pub state: String,
