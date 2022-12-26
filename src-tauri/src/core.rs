@@ -2,15 +2,7 @@ use snafu::prelude::*;
 use tap::prelude::*;
 use tauri::async_runtime::JoinHandle;
 
-mod discord;
 mod xbox;
-
-fn twitch_url(title: &str) -> Result<url::Url, Error> {
-    use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
-    let encoded_title = utf8_percent_encode(title, NON_ALPHANUMERIC).to_string();
-    let base = "https://www.twitch.tv/directory/game";
-    url::Url::parse(&format!("{}/{}", base, encoded_title)).context(UrlParseSnafu)
-}
 
 pub struct DiscordIpcError(Box<dyn std::error::Error + 'static + Sync + Send>);
 
@@ -126,8 +118,9 @@ impl Core {
     const PLAYSTATION_TICK_RATE: u64 = u64::MAX;
     // const STEAM_DISCORD_APPLICATION_ID: &str = "1053777465245437953";
     const STEAM_TICK_RATE: u64 = u64::MAX;
-    const XBOX_DISCORD_APPLICATION_ID: &str = "1053777655020912710";
-    const XBOX_TICK_RATE: u64 = 10;
+
+    // const XBOX_DISCORD_APPLICATION_ID: &str = "1053777655020912710";
+    // const XBOX_TICK_RATE: u64 = 10;
 
     pub fn new(
         rx: tokio::sync::oneshot::Receiver<tauri::AppHandle>,
@@ -212,10 +205,6 @@ impl Core {
                 }
             }
         }
-        Ok(())
-    }
-
-    async fn xbox(app: tauri::AppHandle, model: crate::app::Model) -> Result<(), Error> {
         Ok(())
     }
 

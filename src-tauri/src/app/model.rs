@@ -5,12 +5,13 @@ use tokio::sync::RwLock;
 mod build;
 pub mod config;
 pub mod gui;
-mod presence;
+pub mod presence;
 mod session;
 
 pub use build::BuildInfo;
 pub use config::Config;
 pub use gui::Gui;
+pub use presence::Presence;
 pub use session::Session;
 
 #[derive(Clone)]
@@ -35,7 +36,8 @@ pub struct Notifiers {
 pub enum Error {
     ConfigLoad { source: crate::app::model::config::Error },
     ConfigSave { source: crate::app::model::config::Error },
-    // GuiSynchronizeWithConfig { source: crate::app::model::gui::Error },
+    StdTimeDurationSince { source: std::time::SystemTimeError },
+    UrlParse { source: url::ParseError },
 }
 
 impl Model {

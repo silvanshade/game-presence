@@ -42,7 +42,7 @@ tokio = { version = "1.21", features = ["fs", "macros"] }
 tracing = { version = "0.1", features = ["attributes", "std"] }
 triple_accel = { version = "0.4", features = [] }
 twitch_api2 = { version = "0.6", features = [] }
-twitch_oauth2 = { version = "0.9", features = [] }
+twitch_oauth2 = { version = "0.10", features = [] }
 url = { version = "2.3", features = [] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
@@ -62,9 +62,7 @@ default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 [patch.crates-io]
-tauri = { path = "../../tauri/core/tauri" }
-tauri-runtime = { path = "../../tauri/core/tauri-runtime" }
-tauri-runtime-wry = { path = "../../tauri/core/tauri-runtime-wry" }
+tauri = { git = "https://github.com/silvanshade/tauri", branch = "feature/navigation_handler" }
 
 [profile.release]
 codegen-units = 1

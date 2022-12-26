@@ -1,4 +1,12 @@
-use super::{Error, ReqwestRequestSendSnafu, ReqwestResponseJsonSnafu, SerdeJsonFromValueSnafu, UrlParseSnafu};
+use super::{
+    Error,
+    ModelPresenceTimestampSnafu,
+    ModelPresenceTwitchUrlSnafu,
+    ReqwestRequestSendSnafu,
+    ReqwestResponseJsonSnafu,
+    SerdeJsonFromValueSnafu,
+    UrlParseSnafu,
+};
 use serde::Deserialize;
 use snafu::prelude::*;
 use tap::prelude::*;
@@ -26,6 +34,45 @@ impl PresenceRecord {
             })
             .next()
             .flatten()
+    }
+
+    pub async fn into_discord_presence(&self) -> Result<Option<crate::app::model::Presence>, Error> {
+        let name = self.relevant_name();
+        if let Some(name) = name {
+            if name == "" {
+                println!("xbox_presence: empty name; skipping");
+                return Ok(None);
+            }
+            let autosuggest = super::autosuggest(name).await;
+            if let Some(suggest) = autosuggest? {
+                let details = name.into();
+                let state = String::from("playing on pc/xbox");
+                let assets_large_image = suggest.image_url()?.into();
+                let assets_large_text = name.into();
+                let assets_small_image = "small-icon".into();
+                let assets_small_text = "playing on xbox".into();
+                let time_start = crate::app::model::Presence::timestamp().context(ModelPresenceTimestampSnafu)?;
+                let time_end = None;
+                let button_store = Some((String::from("xbox.com"), suggest.store_url()?));
+                let button_twitch = Some((
+                    String::from("twitch"),
+                    crate::app::model::Presence::twitch_url(name).context(ModelPresenceTwitchUrlSnafu)?,
+                ));
+                return Ok(Some(crate::app::model::Presence {
+                    details,
+                    state,
+                    assets_large_image,
+                    assets_large_text,
+                    assets_small_image,
+                    assets_small_text,
+                    time_start,
+                    time_end,
+                    button_store,
+                    button_twitch,
+                }));
+            }
+        }
+        Ok(None)
     }
 }
 

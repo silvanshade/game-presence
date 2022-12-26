@@ -1,9 +1,8 @@
-use crate::{core::discord, service::xbox};
+use crate::service::xbox;
 use discord_ipc::DiscordIpc;
 use discord_rich_presence as discord_ipc;
 use futures::future::BoxFuture;
 use snafu::prelude::*;
-use tap::prelude::*;
 use tauri::Manager;
 
 #[derive(Debug, Snafu)]
@@ -13,15 +12,15 @@ pub enum Error {
     DiscordIpcNew { source: crate::core::DiscordIpcError },
     DiscordIpcReconnect { source: crate::core::DiscordIpcError },
     DiscordIpcSetActivity { source: crate::core::DiscordIpcError },
-    DiscordPresenceFromXbox { source: crate::core::discord::Error },
     XboxAuthorize { source: crate::service::xbox::Error },
     XboxPresence { source: crate::service::xbox::Error },
+    XboxPresenceIntoDiscordPresence { source: crate::service::xbox::Error },
 }
 
 pub struct XboxCore {
     app: tauri::AppHandle,
     discord_client: discord_ipc::DiscordIpcClient,
-    discord_presence: Option<discord::Presence>,
+    discord_presence: Option<crate::app::model::Presence>,
     xbox_presence: Option<xbox::PresenceRecord>,
 }
 
@@ -97,10 +96,10 @@ impl XboxCore {
 
     async fn process_xbox_presence(&mut self) -> Result<(), Error> {
         if let Some(xbox_presence) = &self.xbox_presence {
-            let name = xbox_presence.relevant_name();
-            let discord_presence = discord::Presence::from_xbox_presence_name(name)
+            let discord_presence = xbox_presence
+                .into_discord_presence()
                 .await
-                .context(DiscordPresenceFromXboxSnafu)?;
+                .context(XboxPresenceIntoDiscordPresenceSnafu)?;
             self.discord_presence = discord_presence;
             self.refresh_discord_presence()?;
         }

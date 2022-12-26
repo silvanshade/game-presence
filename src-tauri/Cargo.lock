@@ -377,9 +377,9 @@ dependencies = [
 
 [[package]]
 name = "cargo_toml"
-version = "0.13.0"
+version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa0e3586af56b3bfa51fca452bd56e8dbbbd5d8d81cbf0b7e4e35b695b537eb8"
+checksum = "497049e9477329f8f6a559972ee42e117487d01d1e8c2cc9f836ea6fa23a9e1a"
 dependencies = [
  "serde",
  "toml",
@@ -1815,9 +1815,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.138"
+version = "0.2.139"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db6d7e329c562c5dfab7a46a2afabc8b987ab9a4834c9d1ca04dc54c1546cef8"
+checksum = "201de327520df007757c1f0adce6e827fe8562fbc28bfd9c15571c66ca1f5f79"
 
 [[package]]
 name = "libgit2-sys"
@@ -2332,9 +2332,9 @@ checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
 
 [[package]]
 name = "pest"
-version = "2.5.1"
+version = "2.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc8bed3549e0f9b0a2a78bf7c0018237a2cdf085eecbbc048e52612438e4e9d0"
+checksum = "0f6e86fb9e7026527a0d46bc308b841d73170ef8f443e1807f6ef88526a816d4"
 dependencies = [
  "thiserror",
  "ucd-trie",
@@ -3324,6 +3324,7 @@ dependencies = [
 [[package]]
 name = "tauri"
 version = "1.2.1"
+source = "git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler#af055e321b18daf6954df2b2300d26aa05136f8b"
 dependencies = [
  "anyhow",
  "cocoa",
@@ -3356,7 +3357,7 @@ dependencies = [
  "tauri-macros",
  "tauri-runtime",
  "tauri-runtime-wry",
- "tauri-utils 1.2.1",
+ "tauri-utils 1.2.1 (git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler)",
  "tempfile",
  "thiserror",
  "tokio",
@@ -3386,6 +3387,7 @@ dependencies = [
 [[package]]
 name = "tauri-codegen"
 version = "1.2.1"
+source = "git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler#af055e321b18daf6954df2b2300d26aa05136f8b"
 dependencies = [
  "base64 0.13.1",
  "brotli",
@@ -3400,7 +3402,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "tauri-utils 1.2.1",
+ "tauri-utils 1.2.1 (git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler)",
  "thiserror",
  "time",
  "uuid 1.2.2",
@@ -3410,19 +3412,20 @@ dependencies = [
 [[package]]
 name = "tauri-macros"
 version = "1.2.1"
+source = "git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler#af055e321b18daf6954df2b2300d26aa05136f8b"
 dependencies = [
  "heck 0.4.0",
  "proc-macro2",
  "quote",
  "syn",
  "tauri-codegen",
- "tauri-utils 1.2.1",
+ "tauri-utils 1.2.1 (git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler)",
 ]
 
 [[package]]
 name = "tauri-plugin-graphql-ipc"
 version = "0.0.0"
-source = "git+https://github.com/silvanshade/tauri-plugin-graphql-ipc#f676dddc425c7d7465d5ec2aa0b9f3555d38d75e"
+source = "git+https://github.com/silvanshade/tauri-plugin-graphql-ipc#ae3bd20ea4ae6d6e12e9dff83a5d023dfe1dd23d"
 dependencies = [
  "async-graphql",
  "serde",
@@ -3433,6 +3436,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime"
 version = "0.12.1"
+source = "git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler#af055e321b18daf6954df2b2300d26aa05136f8b"
 dependencies = [
  "gtk",
  "http",
@@ -3441,7 +3445,7 @@ dependencies = [
  "raw-window-handle",
  "serde",
  "serde_json",
- "tauri-utils 1.2.1",
+ "tauri-utils 1.2.1 (git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler)",
  "thiserror",
  "uuid 1.2.2",
  "webview2-com",
@@ -3451,6 +3455,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime-wry"
 version = "0.12.1"
+source = "git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler#af055e321b18daf6954df2b2300d26aa05136f8b"
 dependencies = [
  "cocoa",
  "gtk",
@@ -3458,7 +3463,7 @@ dependencies = [
  "rand 0.8.5",
  "raw-window-handle",
  "tauri-runtime",
- "tauri-utils 1.2.1",
+ "tauri-utils 1.2.1 (git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler)",
  "uuid 1.2.2",
  "webkit2gtk",
  "webview2-com",
@@ -3469,8 +3474,9 @@ dependencies = [
 [[package]]
 name = "tauri-utils"
 version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5abbc109a6eb45127956ffcc26ef0e875d160150ac16cfa45d26a6b2871686f1"
 dependencies = [
- "brotli",
  "ctor",
  "glob",
  "heck 0.4.0",
@@ -3495,9 +3501,9 @@ dependencies = [
 [[package]]
 name = "tauri-utils"
 version = "1.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5abbc109a6eb45127956ffcc26ef0e875d160150ac16cfa45d26a6b2871686f1"
+source = "git+https://github.com/silvanshade/tauri?branch=feature/navigation_handler#af055e321b18daf6954df2b2300d26aa05136f8b"
 dependencies = [
+ "brotli",
  "ctor",
  "glob",
  "heck 0.4.0",
@@ -3812,9 +3818,9 @@ dependencies = [
 
 [[package]]
 name = "twitch_oauth2"
-version = "0.9.2"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b310aca127ff211e6eaeb6a92f5028ca0060e85bb337eecbdfbc72d4e8308f58"
+checksum = "a56903ec87be83c54f57c123df3101ea7b97f54eb617e8493fde8978c43b0a8a"
 dependencies = [
  "aliri_braid 0.3.1",
  "base64 0.13.1",
