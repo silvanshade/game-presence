@@ -195,7 +195,7 @@ export default vue.defineComponent({
   components: {
     Draggable,
   },
-  setup(_props, ctx) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
     const widget$servicesSteamEnabled = new (class {
@@ -292,8 +292,6 @@ export default vue.defineComponent({
       readonly slotBefore = {};
     })();
     const widget$servicesSteamDataApiKeyRef = vue.ref<quasar.QInput>();
-
-    ctx.expose([]);
 
     return {
       icon$matBadge: matBadge,

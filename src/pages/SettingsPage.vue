@@ -58,12 +58,10 @@ import SettingsPageServices from "pages/SettingsPageServices.vue";
 export default vue.defineComponent({
   name: "SettingsPage",
   components: { SettingsPageActivity, SettingsPageServices },
-  setup(_props, ctx) {
+  setup() {
     const widget$settingsTabs = new (class {
       readonly model = vue.ref<"services" | "activity" | "games">("activity");
     })();
-
-    ctx.expose([]);
 
     return {
       icon$matPermMedia: matPermMedia,

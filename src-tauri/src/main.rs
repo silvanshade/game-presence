@@ -8,14 +8,29 @@ use crate::core::Core;
 
 #[derive(Debug, Snafu)]
 enum Error {
-    AppInit { source: crate::app::Error },
-    CoreNew { source: crate::core::Error },
-    CoreFinish { source: crate::core::Error },
-    ModelInit { source: crate::app::model::Error },
-    StdIoFlush { source: std::io::Error },
-    TauriSpawn { source: tauri::Error },
+    AppInit {
+        source: crate::app::Error,
+    },
+    CoreNew {
+        source: crate::core::Error,
+    },
+    CoreFinish {
+        source: crate::core::Error,
+    },
+    ModelInit {
+        source: crate::app::model::Error,
+    },
+    StdIoFlush {
+        backtrace: snafu::Backtrace,
+        source: std::io::Error,
+    },
+    TauriSpawn {
+        backtrace: snafu::Backtrace,
+        source: tauri::Error,
+    },
 }
 
+#[snafu::report]
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     tauri::async_runtime::set(tokio::runtime::Handle::current());

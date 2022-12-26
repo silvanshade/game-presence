@@ -168,7 +168,7 @@ export default vue.defineComponent({
   components: {
     Draggable,
   },
-  setup(_props, ctx) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
     const widget$servicesNintendoDisclaimerAcknowledged = new (class {
@@ -232,8 +232,6 @@ export default vue.defineComponent({
     const widget$servicesNintendoDataUsername = {
       model: vue.ref<string | undefined>(),
     };
-
-    ctx.expose([]);
 
     return {
       icon$matBadge: matBadge,

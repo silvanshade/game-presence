@@ -114,8 +114,7 @@ import * as stores from "../stores";
 
 export default vue.defineComponent({
   name: "HeaderBar",
-  components: {},
-  setup(_props, ctx) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
     const pausePlayActivity = new (class {
@@ -214,8 +213,6 @@ export default vue.defineComponent({
         return color;
       });
     })();
-
-    ctx.expose([]);
 
     return {
       hideShowAll,

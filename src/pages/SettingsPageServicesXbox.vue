@@ -155,7 +155,7 @@ export default vue.defineComponent({
   components: {
     Draggable,
   },
-  setup(_props, ctx) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
     const widget$servicesXboxEnabled = new (class {
@@ -204,8 +204,6 @@ export default vue.defineComponent({
         };
       })(),
     };
-
-    ctx.expose([]);
 
     return {
       icon$matBadge: matBadge,

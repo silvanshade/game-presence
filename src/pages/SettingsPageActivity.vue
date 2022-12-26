@@ -173,7 +173,7 @@ export default vue.defineComponent({
   components: {
     Draggable,
   },
-  setup(_props, ctx) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
     const widget$activityPollingActive = new (class {
@@ -216,8 +216,6 @@ export default vue.defineComponent({
         return n.toString() + suffix;
       }
     })();
-
-    ctx.expose([]);
 
     return {
       icon$matFactCheck: matFactCheck,

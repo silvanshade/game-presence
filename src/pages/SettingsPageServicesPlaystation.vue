@@ -146,7 +146,7 @@ export default vue.defineComponent({
   components: {
     Draggable,
   },
-  setup(_props, ctx) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
     const widget$servicesPlaystationEnabled = new (class {
@@ -196,8 +196,6 @@ export default vue.defineComponent({
     const widget$servicesPlaystationDataUsername = {
       model: vue.ref<string | undefined>(),
     };
-
-    ctx.expose([]);
 
     return {
       icon$matBadge: matBadge,

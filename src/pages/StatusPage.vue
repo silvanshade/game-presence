@@ -28,13 +28,6 @@
         style="justify-content: initial"
       />
       <q-tab
-        name="twitch"
-        label="twitch"
-        :icon="icon$mdiTwitch"
-        class="text-brand-twitch"
-        style="justify-content: initial"
-      />
-      <q-tab
         name="xbox"
         label="xbox"
         :icon="icon$mdiMicrosoftXbox"
@@ -52,31 +45,25 @@
         name="nintendo"
         class="no-padding"
       >
-        <PresenceView />
+        <PresenceView :presence="model$gui.services.nintendo.data?.presence || null" />
       </q-tab-panel>
       <q-tab-panel
         name="playstation"
         class="no-padding"
       >
-        <PresenceView />
+        <PresenceView :presence="model$gui.services.playstation.data?.presence || null" />
       </q-tab-panel>
       <q-tab-panel
         name="steam"
         class="no-padding"
       >
-        <PresenceView />
-      </q-tab-panel>
-      <q-tab-panel
-        name="twitch"
-        class="no-padding"
-      >
-        <PresenceView />
+        <PresenceView :presence="model$gui.services.steam.data?.presence || null" />
       </q-tab-panel>
       <q-tab-panel
         name="xbox"
         class="no-padding"
       >
-        <PresenceView />
+        <PresenceView :presence="model$gui.services.xbox.data?.presence || null" />
       </q-tab-panel>
     </q-tab-panels>
   </div>
@@ -86,18 +73,19 @@
 import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam, mdiTwitch } from "@quasar/extras/mdi-v7";
 import * as vue from "vue";
 import PresenceView from "../components/PresenceView.vue";
+import * as stores from "../stores";
 
 export default vue.defineComponent({
   name: "SettingsPageServices",
   components: {
     PresenceView,
   },
-  setup(_props, ctx) {
+  setup() {
+    const model$gui = stores.gui.useStore();
+
     const widget$servicesTabs = new (class {
       readonly model = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("steam");
     })();
-
-    ctx.expose([]);
 
     return {
       icon$mdiMicrosoftXbox: mdiMicrosoftXbox,
@@ -105,6 +93,7 @@ export default vue.defineComponent({
       icon$mdiSonyPlaystation: mdiSonyPlaystation,
       icon$mdiSteam: mdiSteam,
       icon$mdiTwitch: mdiTwitch,
+      model$gui,
       widget$servicesTabs,
     };
   },

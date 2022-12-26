@@ -17,6 +17,7 @@ tauri-build = { version = "1.1", features = [] }
 [dependencies]
 async-graphql = { version = "5.0", features = [] }
 async-stream = { version = "0.3" }
+backtrace = "0.3.67"
 base64 = { version = "0.20" }
 built = { version = "0.5" }
 directories = { version = "4.0" }
@@ -33,7 +34,7 @@ ring = { version = "0.16" }
 serde = { version = "1.0", features = ["derive", "serde_derive", "std"] }
 serde_json = { version = "1.0", features = ["std"] }
 serde_urlencoded = { version = "0.7", features = [] }
-snafu = { version = "0.7", features = ["std"] }
+snafu = { version = "0.7", features = ["backtrace", "backtraces-impl-backtrace-crate", "std"] }
 tap = "1.0.1"
 tauri = { version = "1.2", features = ["compression", "objc-exception", "reqwest", "shell-open", "system-tray", "wry"] }
 tauri-plugin-graphql-ipc = { version = "0.0", features = ["async-graphql"], git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc" }

@@ -1,17 +1,32 @@
+use crate::app::{
+    Error,
+    TauriGetWindowSnafu,
+    TauriMenuItemSetTitleSnafu,
+    TauriWindowHideSnafu,
+    TauriWindowIsVisibleSnafu,
+    TauriWindowShowSnafu,
+};
 use snafu::prelude::*;
 use tauri::Manager;
 
-fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(), crate::app::Error> {
-    let window = app.get_window("main").expect(r#"failed to get "main" window"#);
-    let item = app.tray_handle().get_item(crate::app::tray::visibility::ID);
-    if window.is_visible().context(crate::app::TauriWindowIsVisibleSnafu)? {
-        item.set_title(crate::app::tray::visibility::show::TITLE)
-            .context(crate::app::TauriMenuItemSetTitleSnafu)?;
-        window.hide().context(crate::app::TauriWindowHideSnafu)?;
+fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(), Error> {
+    let label = "main";
+    let window = app.get_window(label).context(TauriGetWindowSnafu { label })?;
+    let id = crate::app::tray::visibility::ID;
+    let item = app.tray_handle().get_item(id);
+    if window
+        .is_visible()
+        .context(TauriWindowIsVisibleSnafu { label: window.label() })?
+    {
+        let title = crate::app::tray::visibility::show::TITLE;
+        item.set_title(title)
+            .context(TauriMenuItemSetTitleSnafu { id, title })?;
+        window.hide().context(TauriWindowHideSnafu { label: window.label() })?;
     } else {
-        item.set_title(crate::app::tray::visibility::hide::TITLE)
-            .context(crate::app::TauriMenuItemSetTitleSnafu)?;
-        window.show().context(crate::app::TauriWindowShowSnafu)?;
+        let title = crate::app::tray::visibility::hide::TITLE;
+        item.set_title(title)
+            .context(TauriMenuItemSetTitleSnafu { id, title })?;
+        window.show().context(TauriWindowShowSnafu { label: window.label() })?;
     }
     Ok(())
 }
@@ -41,7 +56,11 @@ pub fn run() -> impl FnMut(&tauri::AppHandle, tauri::RunEvent) {
             self::toggle_visibility(app).unwrap();
         },
         RunEvent::Exit => {
-            app.state::<crate::app::Model>().notifiers.exit.notify_waiters();
+            app.try_state::<crate::app::Model>()
+                .expect("model should have already been managed by state")
+                .notifiers
+                .exit
+                .notify_waiters();
         },
         _ => {},
     }

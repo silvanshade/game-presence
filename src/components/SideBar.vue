@@ -26,9 +26,7 @@ import { matContactSupport, matDisplaySettings, matMms } from "@quasar/extras/ma
 
 export default vue.defineComponent({
   name: "SideBar",
-  components: {},
-  setup(_props, ctx) {
-    ctx.expose([]);
+  setup() {
     return { matContactSupport, matDisplaySettings, matMms };
   },
 });

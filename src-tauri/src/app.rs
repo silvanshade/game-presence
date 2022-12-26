@@ -1,4 +1,4 @@
-use snafu::prelude::*;
+use snafu::{prelude::*, Backtrace};
 
 pub mod command;
 mod handler;
@@ -10,12 +10,35 @@ pub use model::Model;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    TauriBuild { source: tauri::Error },
-    TauriMenuItemSetTitle { source: tauri::Error },
-    TauriGetWindow,
-    TauriWindowHide { source: tauri::Error },
-    TauriWindowIsVisible { source: tauri::Error },
-    TauriWindowShow { source: tauri::Error },
+    #[snafu(display("Failed to build the tauri app"))]
+    TauriBuild { backtrace: Backtrace, source: tauri::Error },
+    #[snafu(display("Failed to set title {title} for menu item {id}"))]
+    TauriMenuItemSetTitle {
+        backtrace: Backtrace,
+        source: tauri::Error,
+        id: String,
+        title: String,
+    },
+    #[snafu(display("Failed to get window {label}"))]
+    TauriGetWindow { backtrace: Backtrace, label: String },
+    #[snafu(display("Failed to hide window {label}"))]
+    TauriWindowHide {
+        backtrace: Backtrace,
+        source: tauri::Error,
+        label: String,
+    },
+    #[snafu(display("Failed to get visibility for window {label}"))]
+    TauriWindowIsVisible {
+        backtrace: Backtrace,
+        source: tauri::Error,
+        label: String,
+    },
+    #[snafu(display("Failed to show window {label}"))]
+    TauriWindowShow {
+        backtrace: Backtrace,
+        source: tauri::Error,
+        label: String,
+    },
 }
 
 fn make_system_tray() -> tauri::SystemTray {

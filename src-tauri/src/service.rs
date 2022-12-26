@@ -7,8 +7,13 @@ pub mod steam;
 pub mod twitch;
 pub mod xbox;
 
-#[derive(Debug)]
 pub struct Webview2Error(webview2_com::Error);
+
+impl std::fmt::Debug for Webview2Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
 
 impl std::fmt::Display for Webview2Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -29,42 +34,52 @@ impl From<webview2_com::Error> for Webview2Error {
 pub enum Error {
     #[cfg(windows)]
     ClearState {
+        backtrace: snafu::Backtrace,
         source: windows::core::Error,
     },
 
     StdMpscChannelRecv {
+        backtrace: snafu::Backtrace,
         source: std::sync::mpsc::RecvError,
     },
     StdTimeDurationSince {
+        backtrace: snafu::Backtrace,
         source: std::time::SystemTimeError,
     },
     StdU64TryIntoI64 {
+        backtrace: snafu::Backtrace,
         source: std::num::TryFromIntError,
     },
     TauriWindowWithWebview {
+        backtrace: snafu::Backtrace,
         source: tauri::Error,
     },
     TauriWithWebview {
+        backtrace: snafu::Backtrace,
         source: tauri::Error,
     },
     #[cfg(target_os = "linux")]
     WebKit2GtkWebsiteDataManagerClear {
+        backtrace: snafu::Backtrace,
         source: webkit2gtk::glib::Error,
     },
     #[cfg(target_os = "linux")]
-    WebKit2GtkWebviewWebContext,
+    WebKit2GtkWebviewWebContext { backtrace: snafu::Backtrace },
     #[cfg(target_os = "linux")]
-    WebKit2GtkWebContextCookieManager,
+    WebKit2GtkWebContextCookieManager { backtrace: snafu::Backtrace },
     #[cfg(target_os = "windows")]
     WindowsCoreWebView2 {
+        backtrace: snafu::Backtrace,
         source: windows::core::Error,
     },
     #[cfg(target_os = "windows")]
     WindowsWebView2CallDevToolsProtocolMethodCompletedHandler {
+        backtrace: snafu::Backtrace,
         source: Webview2Error,
     },
     #[cfg(target_os = "windows")]
     WindowsWebView2Navigate {
+        backtrace: snafu::Backtrace,
         source: windows::core::Error,
     },
 }

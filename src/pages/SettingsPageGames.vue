@@ -7,9 +7,7 @@ import * as vue from "vue";
 
 export default vue.defineComponent({
   name: "SettingsPageGames",
-  components: {},
-  setup(_props, ctx) {
-    ctx.expose([]);
+  setup() {
     return {};
   },
 });

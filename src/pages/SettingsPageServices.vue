@@ -100,12 +100,10 @@ export default vue.defineComponent({
     SettingsPageServicesTwitch,
     SettingsPageServicesXbox,
   },
-  setup(_props, ctx) {
+  setup() {
     const widget$servicesTabs = new (class {
       readonly model = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("steam");
     })();
-
-    ctx.expose([]);
 
     return {
       icon$mdiMicrosoftXbox: mdiMicrosoftXbox,

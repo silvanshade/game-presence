@@ -1,4 +1,4 @@
-export default interface Presence {
+export interface Presence {
   details: string;
   state: string;
   assetsLargeImage: string;

@@ -48,17 +48,18 @@ pub enum Error {
     StdSyncMpscReceive {
         source: std::sync::mpsc::RecvError,
     },
-    TauriWindowNavigate {
-        source: crate::service::Error,
-    },
     TauriSpawn {
         source: tauri::Error,
     },
+    TauriTryState,
     TauriWindowBuilderNew {
         source: tauri::Error,
     },
     TauriWindowClose {
         source: tauri::Error,
+    },
+    TauriWindowNavigate {
+        source: crate::service::Error,
     },
     UrlDropResizeParams,
     UrlParse {

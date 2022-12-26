@@ -1,4 +1,4 @@
-use crate::service::xbox;
+use crate::{core::DiscordIpcErrorChain, service::xbox};
 use discord_ipc::DiscordIpc;
 use discord_rich_presence as discord_ipc;
 use futures::future::BoxFuture;
@@ -7,15 +7,39 @@ use tauri::Manager;
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    DiscordIpcClose { source: crate::core::DiscordIpcError },
-    DiscordIpcConnect { source: crate::core::DiscordIpcError },
-    DiscordIpcNew { source: crate::core::DiscordIpcError },
-    DiscordIpcReconnect { source: crate::core::DiscordIpcError },
-    DiscordIpcSetActivity { source: crate::core::DiscordIpcError },
-    ModelUpdateGui { source: crate::app::model::Error },
-    XboxAuthorize { source: crate::service::xbox::Error },
-    XboxPresence { source: crate::service::xbox::Error },
-    XboxPresenceIntoDiscordPresence { source: crate::service::xbox::Error },
+    DiscordIpcClose {
+        #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+        source: DiscordIpcErrorChain,
+    },
+    DiscordIpcConnect {
+        #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+        source: DiscordIpcErrorChain,
+    },
+    DiscordIpcNew {
+        #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+        source: DiscordIpcErrorChain,
+    },
+    DiscordIpcReconnect {
+        #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+        source: DiscordIpcErrorChain,
+    },
+    DiscordIpcSetActivity {
+        #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+        source: DiscordIpcErrorChain,
+    },
+    ModelUpdateGui {
+        source: crate::app::model::Error,
+    },
+    TauriTryState,
+    XboxAuthorize {
+        source: crate::service::xbox::Error,
+    },
+    XboxPresence {
+        source: crate::service::xbox::Error,
+    },
+    XboxPresenceIntoDiscordPresence {
+        source: crate::service::xbox::Error,
+    },
 }
 
 pub struct XboxCore {
@@ -29,13 +53,9 @@ impl XboxCore {
     const TICK_RATE: u64 = 15;
 
     fn new(app: tauri::AppHandle) -> Result<Self, Error> {
-        let mut discord_client = discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID)
-            .map_err(Into::into)
-            .context(DiscordIpcNewSnafu)?;
-        discord_client
-            .connect()
-            .map_err(Into::into)
-            .context(DiscordIpcConnectSnafu)?;
+        let mut discord_client =
+            discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID).context(DiscordIpcNewSnafu)?;
+        discord_client.connect().context(DiscordIpcConnectSnafu)?;
         let xbox_presence = None;
         Ok(Self {
             app,
@@ -53,7 +73,7 @@ impl XboxCore {
         Box::pin(async {
             loop {
                 tokio::select! {
-                    _ = self.exit().notified() => break,
+                    _ = self.exit()?.notified() => break,
                     _ = self.wait() => self.tick().await?,
                 }
             }
@@ -61,8 +81,15 @@ impl XboxCore {
         })
     }
 
-    fn exit(&self) -> &tokio::sync::Notify {
-        &*self.app.state::<crate::app::Model>().inner().notifiers.exit
+    fn exit(&self) -> Result<&tokio::sync::Notify, Error> {
+        let result = &*self
+            .app
+            .try_state::<crate::app::Model>()
+            .context(TauriTryStateSnafu)?
+            .inner()
+            .notifiers
+            .exit;
+        Ok(result)
     }
 
     async fn wait(&self) {
@@ -72,7 +99,7 @@ impl XboxCore {
 
     async fn tick(&mut self) -> Result<(), Error> {
         let app = self.app.clone();
-        let model = app.state::<crate::app::Model>();
+        let model = app.try_state::<crate::app::Model>().context(TauriTryStateSnafu)?;
         if !model.config.read().await.services.xbox.enabled {
             return Ok(());
         }
@@ -117,7 +144,8 @@ impl XboxCore {
     async fn refresh_discord_activity(&mut self) -> Result<(), Error> {
         if let Some(discord_presence) = self
             .app
-            .state::<crate::app::Model>()
+            .try_state::<crate::app::Model>()
+            .context(TauriTryStateSnafu)?
             .gui
             .read()
             .await
@@ -149,20 +177,13 @@ impl XboxCore {
                 .timestamps(timestamps)
                 .buttons(buttons);
 
-            self.discord_client
-                .reconnect()
-                .map_err(Into::into)
-                .context(DiscordIpcReconnectSnafu)?;
+            self.discord_client.reconnect().context(DiscordIpcReconnectSnafu)?;
             self.discord_client
                 .set_activity(activity)
-                .map_err(Into::into)
                 .context(DiscordIpcSetActivitySnafu)?;
             println!("presence updated");
         } else {
-            self.discord_client
-                .close()
-                .map_err(Into::into)
-                .context(DiscordIpcCloseSnafu)?;
+            self.discord_client.close().context(DiscordIpcCloseSnafu)?;
         }
         Ok(())
     }

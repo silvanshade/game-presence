@@ -85,8 +85,7 @@ import * as stores from "../stores";
 
 export default vue.defineComponent({
   name: "SettingsPageServicesTwitch",
-  components: {},
-  setup(_props, ctx) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
     const widget$servicesTwitchEnabled = new (class {
@@ -116,8 +115,6 @@ export default vue.defineComponent({
     const widget$servicesTwitchDataUsername = {
       model: vue.ref<string | undefined>(),
     };
-
-    ctx.expose([]);
 
     return {
       icon$matBadge: matBadge,

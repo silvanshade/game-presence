@@ -1,5 +1,5 @@
 import { mdiTwitch } from "@quasar/extras/mdi-v7";
-import type Presence from "./presence";
+import type { Presence } from "./presence";
 
 export interface Gui {
   services: Services;

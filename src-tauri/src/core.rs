@@ -1,108 +1,147 @@
 use snafu::prelude::*;
-use tap::prelude::*;
 use tauri::async_runtime::JoinHandle;
 
 mod xbox;
 
-pub struct DiscordIpcError(Box<dyn std::error::Error + 'static + Sync + Send>);
-
-impl std::fmt::Debug for DiscordIpcError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("DiscordError").field(&self.0).finish()
-    }
+pub struct DiscordIpcErrorChain {
+    error: Box<dyn std::error::Error + 'static + Sync + Send>,
+    source: Option<Box<DiscordIpcErrorChain>>,
 }
 
-impl std::fmt::Display for DiscordIpcError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        self.0.fmt(f)
+impl DiscordIpcErrorChain {
+    fn chain(error: &dyn std::error::Error) -> Self {
+        let source = error.source().map(DiscordIpcErrorChain::chain).map(Box::new);
+        let error = error.to_string().into();
+        Self { error, source }
     }
-}
 
-impl std::error::Error for DiscordIpcError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.0.source()
-    }
-}
-
-impl From<Box<dyn std::error::Error>> for DiscordIpcError {
     fn from(error: Box<dyn std::error::Error>) -> Self {
-        error
-            .to_string()
-            .conv::<Box<dyn std::error::Error + 'static + Sync + Send>>()
-            .pipe(DiscordIpcError)
+        DiscordIpcErrorChain::chain(&*error)
+    }
+}
+
+impl std::fmt::Debug for DiscordIpcErrorChain {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("DiscordIpcErrorChain")
+            .field("error", &self.error)
+            .field("source", &self.source)
+            .finish()
+    }
+}
+
+impl std::fmt::Display for DiscordIpcErrorChain {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl std::error::Error for DiscordIpcErrorChain {
+    fn source(&self) -> Option<&(dyn snafu::Error + 'static)> {
+        self.source.as_ref().map(|chain| &*chain.error as &_)
+    }
+
+    #[allow(deprecated)]
+    fn description(&self) -> &str {
+        self.error.description()
+    }
+
+    fn cause(&self) -> Option<&dyn snafu::Error> {
+        self.source()
     }
 }
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    DiscordClearActivity {
-        source: DiscordIpcError,
-    },
-    DiscordClose {
-        source: DiscordIpcError,
-    },
-    DiscordConnect {
-        source: DiscordIpcError,
-    },
-    DiscordNew {
-        source: DiscordIpcError,
-    },
-    DiscordReconnect {
-        source: DiscordIpcError,
-    },
-    DiscordSetActivity {
-        source: DiscordIpcError,
-    },
-    RegexNew {
-        source: regex::Error,
-    },
-    ReqwestRequestJson {
-        source: reqwest::Error,
-    },
-    ReqwestRequestSend {
-        source: reqwest::Error,
-    },
-    SerdeJsonGet,
-    SerdeJsonFrom {
-        source: serde_json::Error,
-    },
-    ServiceXbox {
-        source: crate::service::xbox::Error,
-    },
-    // SuggestImageUrl { source: crate::service::xbox::Error },
-    // SuggestStoreUrl { source: crate::service::xbox::Error },
-    StdTimeDurationSince {
-        source: std::time::SystemTimeError,
+    // DiscordClearActivity {
+    //     backtrace: snafu::Backtrace,
+    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+    //     source: DiscordIpcErrorChain,
+    //     client_id: String,
+    // },
+    // DiscordClose {
+    //     backtrace: snafu::Backtrace,
+    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+    //     source: DiscordIpcErrorChain,
+    //     client_id: String,
+    // },
+    // DiscordConnect {
+    //     backtrace: snafu::Backtrace,
+    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+    //     source: DiscordIpcErrorChain,
+    //     client_id: String,
+    // },
+    // DiscordNew {
+    //     backtrace: snafu::Backtrace,
+    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+    //     source: DiscordIpcErrorChain,
+    //     client_id: String,
+    // },
+    // DiscordReconnect {
+    //     backtrace: snafu::Backtrace,
+    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+    //     source: DiscordIpcErrorChain,
+    //     client_id: String,
+    // },
+    // DiscordSetActivity {
+    //     backtrace: snafu::Backtrace,
+    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
+    //     source: DiscordIpcErrorChain,
+    //     client_id: String,
+    // },
+    // RegexNew {
+    //     backtrace: snafu::Backtrace,
+    //     source: regex::Error,
+    // },
+    // ReqwestRequestJson {
+    //     backtrace: snafu::Backtrace,
+    //     source: reqwest::Error,
+    // },
+    // ReqwestRequestSend {
+    //     backtrace: snafu::Backtrace,
+    //     source: reqwest::Error,
+    // },
+    // SerdeJsonGet {
+    //     backtrace: snafu::Backtrace,
+    // },
+    // SerdeJsonFrom {
+    //     backtrace: snafu::Backtrace,
+    //     source: serde_json::Error,
+    // },
+    // ServiceXbox {
+    //     source: crate::service::xbox::Error,
+    // },
+    // StdTimeDurationSince {
+    //     backtrace: snafu::Backtrace,
+    //     source: std::time::SystemTimeError,
+    // },
+    TauriTryState {
+        backtrace: snafu::Backtrace,
     },
     TauriSpawn {
+        backtrace: snafu::Backtrace,
         source: tauri::Error,
     },
     TokioSyncOneshotReceive {
+        backtrace: snafu::Backtrace,
         source: tokio::sync::oneshot::error::RecvError,
     },
     XboxCoreStart {
         source: crate::core::xbox::Error,
     },
-    XboxApiAuthorizeFlow {
-        source: crate::service::xbox::Error,
-    },
-    XboxSuggestImageUrl {
-        source: crate::service::xbox::Error,
-    },
-    XboxSuggestStoreUrl {
-        source: crate::service::xbox::Error,
-    },
-    UrlParse {
-        source: url::ParseError,
-    },
+    // XboxApiAuthorizeFlow {
+    //     source: crate::service::xbox::Error,
+    // },
+    // XboxSuggestImageUrl {
+    //     source: crate::service::xbox::Error,
+    // },
+    // XboxSuggestStoreUrl {
+    //     source: crate::service::xbox::Error,
+    // },
+    // UrlParse {
+    //     backtrace: snafu::Backtrace,
+    //     source: url::ParseError,
+    // },
 }
-
-// fn twitch_url(title: &str) -> Result<url::Url, Error> {
-//     use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
-//     let encoded_title = utf8_percent_encode(title, NON_ALPHANUMERIC).to_string();
-//     let base = "https://www.twitch.tv/directory/game";
-//     url::Url::parse(&format!("{}/{}", base, encoded_title)).context(UrlParseSnafu)
-// }
 
 pub struct Core {
     nintendo: JoinHandle<Result<(), Error>>,
@@ -128,7 +167,11 @@ impl Core {
         use tauri::Manager;
         tauri::async_runtime::spawn(async move {
             let app = rx.await.context(TokioSyncOneshotReceiveSnafu)?;
-            let model = app.state::<crate::app::Model>().inner().clone();
+            let model = app
+                .try_state::<crate::app::Model>()
+                .context(TauriTryStateSnafu)?
+                .inner()
+                .clone();
             let nintendo = tauri::async_runtime::spawn(Self::nintendo(app.clone(), model.clone()));
             let playstation = tauri::async_runtime::spawn(Self::playstation(app.clone(), model.clone()));
             let steam = tauri::async_runtime::spawn(Self::steam(app.clone(), model.clone()));

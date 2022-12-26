@@ -11,6 +11,7 @@ use super::{
     SerdeUrlEncodedSnafu,
     StdSyncMpscReceiveSnafu,
     TauriSpawnSnafu,
+    TauriTryStateSnafu,
     TauriWindowBuilderNewSnafu,
     TauriWindowCloseSnafu,
     TauriWindowNavigateSnafu,
@@ -142,7 +143,7 @@ pub async fn flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error
     let bearer_token_response = flow_get_oauth2_bearer_token(&client, code, pkce_code_verifier).await?;
     let xbox_user_token = flow_get_xbox_user_token(bearer_token_response.access_token()).await?;
     let xbox_xsts_token = flow_get_xbox_xsts_token(&xbox_user_token).await?;
-    let model = app.state::<crate::app::Model>();
+    let model = app.try_state::<crate::app::Model>().context(TauriTryStateSnafu)?;
     model
         .update_gui(|gui| {
             use crate::app::model::gui::service::xbox::Data;
@@ -194,7 +195,8 @@ async fn flow_get_oauth2_auth_code(
             .build()
             .context(TauriWindowBuilderNewSnafu)?
     };
-    app.state::<crate::app::Model>()
+    app.try_state::<crate::app::Model>()
+        .context(TauriTryStateSnafu)?
         .notifiers
         .xbox_auth_ready
         .notified()

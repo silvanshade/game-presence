@@ -55,8 +55,7 @@ interface BuildInfo {
 
 export default vue.defineComponent({
   name: "AboutPage",
-  components: {},
-  async setup(_props, ctx) {
+  async setup() {
     const result = await urql.useQuery<{ buildInfo: BuildInfo }>({
       query: gql`
         query {
@@ -119,8 +118,6 @@ export default vue.defineComponent({
         };
       }
     })();
-
-    ctx.expose([]);
 
     return {
       about,
