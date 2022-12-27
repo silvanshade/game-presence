@@ -1,9 +1,6 @@
 <template>
-  <q-card>
-    <q-card-section
-      horizontal
-      class="bg-warning text-white"
-    >
+  <q-card class="bg-warning text-white">
+    <q-card-section horizontal>
       <q-card-section class="column flex-center q-pa-sm">
         <div style="font-size: 18px; font-variant: small-caps">activity</div>
       </q-card-section>

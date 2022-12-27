@@ -1,17 +1,17 @@
 <template>
   <q-toolbar
     dense
-    class="q-px-none bg-black text-white"
+    class="q-pa-none q-py-sm bg-black text-white"
   >
-    <HeaderBarPlatformWidget class="q-ml-xs" />
-    <HeaderBarActivityWidget class="q-ma-xs q-mr-sm" />
+    <HeaderBarPlatformWidget class="q-ml-sm" />
+    <HeaderBarActivityWidget class="q-ml-sm" />
     <q-toolbar-title
-      class="text-center q-pa-none bg-red"
+      class="q-mx-sm text-center"
       style="font-size: 16px"
     >
       {{ model$gui.services.xbox.data?.presence?.details || "« no presence »" }}
     </q-toolbar-title>
-    <HeaderBarVisibilityWidget class="q-ma-xs q-ml-sm" />
+    <HeaderBarVisibilityWidget class="q-mr-sm" />
   </q-toolbar>
 </template>
 
@@ -34,6 +34,8 @@ export default vue.defineComponent({
   },
   setup() {
     const model$gui = stores.gui.useStore();
+
+    const platform = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("nintendo");
 
     const hideShowGame = new (class {
       readonly model = vue.ref<"hide" | "show">("hide");

@@ -102,7 +102,7 @@ export default vue.defineComponent({
   },
   setup() {
     const widget$servicesTabs = new (class {
-      readonly model = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("steam");
+      readonly model = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("nintendo");
     })();
 
     return {

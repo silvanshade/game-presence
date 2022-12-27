@@ -1,9 +1,6 @@
 <template>
-  <q-card>
-    <q-card-section
-      horizontal
-      class="bg-brand-discord"
-    >
+  <q-card class="bg-brand-discord">
+    <q-card-section horizontal>
       <q-card-section class="column flex-center q-pa-sm text-white">
         <div style="font-size: 18px; font-variant: small-caps">visibility</div>
       </q-card-section>

@@ -1,87 +1,42 @@
 <template>
-  <q-card>
-    <q-card-section
-      horizontal
-      class="bg-warning text-white"
-    >
-      <q-card-section class="column flex-center q-pa-sm">
-        <div style="font-size: 18px; font-variant: small-caps">activity</div>
-      </q-card-section>
-      <q-separator
-        dark
-        inset
-        vertical
-        class="q-px-none"
-      />
-      <q-card-section class="q-pa-sm">
-        <q-btn-toggle
-          v-model="pausePlayActivity.model.value"
-          :options="pausePlayActivity.options"
-          :toggle-color="pausePlayActivity.toggleColor.value"
-          dense
-          push
-          size="md"
-          class="bg-white text-black"
-        >
-          <template #pause>
-            <q-icon :name="symOutlinedAutoReadPause" />
-            <q-tooltip style="white-space: nowrap"> pause activity polling </q-tooltip>
-          </template>
-          <template #play>
-            <q-icon :name="symOutlinedAutoReadPlay" />
-            <q-tooltip style="white-space: nowrap"> continue activity polling </q-tooltip>
-          </template>
-        </q-btn-toggle>
-      </q-card-section>
-    </q-card-section>
-  </q-card>
+  <q-btn-toggle
+    v-model="pausePlayActivity.model.value"
+    :options="pausePlayActivity.options"
+    :toggle-color="pausePlayActivity.toggleColor.value"
+    dense
+    push
+    size="lg"
+    class="bg-white text-black"
+  >
+  </q-btn-toggle>
 </template>
 
 <script lang="ts">
 import * as vue from "vue";
 import type * as quasar from "quasar";
-import { symOutlinedAutoReadPause, symOutlinedAutoReadPlay } from "@quasar/extras/material-symbols-outlined";
-
-import * as stores from "../stores";
+import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } from "@quasar/extras/mdi-v7";
 
 export default vue.defineComponent({
   name: "HeaderBarPlatformWidget",
   setup() {
-    const model$gui = stores.gui.useStore();
-
     const pausePlayActivity = new (class {
-      readonly model = vue.computed({
-        get: () => {
-          switch (model$gui.activity.pollingActive) {
-            case false:
-              return "pause";
-            case true:
-              return "play";
-            default:
-              return undefined as never;
-          }
-        },
-        set: (value: "pause" | "play") => {
-          switch (value) {
-            case "pause":
-              model$gui.activity.pollingActive = false;
-              break;
-            case "play":
-              model$gui.activity.pollingActive = true;
-              break;
-          }
-        },
-      });
+      readonly model = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("nintendo");
       readonly options: quasar.QBtnToggleProps["options"] = [
-        { value: "pause", slot: "pause" },
-        { value: "play", slot: "play" },
+        { value: "nintendo", icon: mdiNintendoSwitch },
+        { value: "playstation", icon: mdiSonyPlaystation },
+        { value: "steam", icon: mdiSteam },
+        { value: "xbox", icon: mdiMicrosoftXbox },
       ];
-      readonly toggleColor = vue.computed<"negative" | "positive">(() => {
+      readonly toggleColor = vue.computed<"brand-nintendo" | "brand-playstation" | "brand-steam" | "brand-xbox">(() => {
         switch (this.model.value) {
-          case "pause":
-            return "negative";
-          case "play":
-            return "positive";
+          case "nintendo":
+            return "brand-nintendo";
+          case "playstation":
+            return "brand-playstation";
+          case "steam":
+            return "brand-steam";
+          case "xbox":
+            return "brand-xbox";
           default:
             return undefined as never;
         }
@@ -90,8 +45,6 @@ export default vue.defineComponent({
 
     return {
       pausePlayActivity,
-      symOutlinedAutoReadPause,
-      symOutlinedAutoReadPlay,
     };
   },
 });
