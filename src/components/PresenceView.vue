@@ -4,40 +4,19 @@
     class="fit flex-center row"
     style="gap: 0rem 1rem"
   >
-    <div
-      class="relative-position"
-      style="height: 352px; width: 264px"
-    >
-      <div
-        class="absolute bg-yellow"
-        style="height: 352px; width: 264px"
-      >
-        <q-img :src="presence.assetsLargeImage" />
-      </div>
-      <div
-        class="absolute-bottom-right bg-grey"
-        style="height: 64px; width: 64px"
-      >
-        {{ presence.assetsSmallImage }}
-      </div>
-    </div>
-    <div class="bg-green">
-      <div>games</div>
-      <div>{{ presence.details }}</div>
+    <img :src="presence.assetsLargeImage" />
+    <div>
+      <div style="font-weight: bold">games</div>
+      <div>{{ presence?.details }}</div>
       <div>
-        <span>{{ presence.state }}</span>
+        <span>{{ presence?.state }}</span>
       </div>
       <div>
-        <span>time</span>
+        <span>{{ elapsed }}</span>
       </div>
     </div>
   </div>
-  <div
-    v-else
-    class="fit flex-center row"
-  >
-    « no presence data »
-  </div>
+  <div v-else>« no presence »</div>
 </template>
 
 <script lang="ts">
@@ -53,8 +32,19 @@ export default vue.defineComponent({
     },
   },
   setup(props) {
+    const elapsed = vue.ref<string>("00:00:00");
     const presence = vue.toRef(props, "presence");
+    const tick = () => {
+      if (presence.value != null) {
+        const time = presence.value.timeStart;
+        const diff = Date.now() - new Date(time).getTime();
+        elapsed.value = new Date(diff).toISOString().substring(11, 19);
+      }
+      setTimeout(tick, 1000);
+    };
+    tick();
     return {
+      elapsed,
       presence,
     };
   },

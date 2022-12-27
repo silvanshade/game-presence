@@ -43,7 +43,7 @@
       class="text-center q-pa-none"
       style="font-size: 16px"
     >
-      Sekiro: Shadows Die Twice
+      {{ model$gui.services.xbox.data?.presence?.details || "« no presence »" }}
     </q-toolbar-title>
     <q-card class="q-ma-xs q-ml-sm">
       <q-card-section
@@ -221,6 +221,7 @@ export default vue.defineComponent({
       matImage,
       matVisibility,
       matVisibilityOff,
+      model$gui,
       pausePlayActivity,
       symOutlinedAutoReadPause,
       symOutlinedAutoReadPlay,

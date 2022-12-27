@@ -52,95 +52,20 @@ impl std::error::Error for DiscordIpcErrorChain {
 
 #[derive(Debug, Snafu)]
 pub enum Error {
-    // DiscordClearActivity {
-    //     backtrace: snafu::Backtrace,
-    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
-    //     source: DiscordIpcErrorChain,
-    //     client_id: String,
-    // },
-    // DiscordClose {
-    //     backtrace: snafu::Backtrace,
-    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
-    //     source: DiscordIpcErrorChain,
-    //     client_id: String,
-    // },
-    // DiscordConnect {
-    //     backtrace: snafu::Backtrace,
-    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
-    //     source: DiscordIpcErrorChain,
-    //     client_id: String,
-    // },
-    // DiscordNew {
-    //     backtrace: snafu::Backtrace,
-    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
-    //     source: DiscordIpcErrorChain,
-    //     client_id: String,
-    // },
-    // DiscordReconnect {
-    //     backtrace: snafu::Backtrace,
-    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
-    //     source: DiscordIpcErrorChain,
-    //     client_id: String,
-    // },
-    // DiscordSetActivity {
-    //     backtrace: snafu::Backtrace,
-    //     #[snafu(source(from(Box<dyn std::error::Error>, DiscordIpcErrorChain::from)))]
-    //     source: DiscordIpcErrorChain,
-    //     client_id: String,
-    // },
-    // RegexNew {
-    //     backtrace: snafu::Backtrace,
-    //     source: regex::Error,
-    // },
-    // ReqwestRequestJson {
-    //     backtrace: snafu::Backtrace,
-    //     source: reqwest::Error,
-    // },
-    // ReqwestRequestSend {
-    //     backtrace: snafu::Backtrace,
-    //     source: reqwest::Error,
-    // },
-    // SerdeJsonGet {
-    //     backtrace: snafu::Backtrace,
-    // },
-    // SerdeJsonFrom {
-    //     backtrace: snafu::Backtrace,
-    //     source: serde_json::Error,
-    // },
-    // ServiceXbox {
-    //     source: crate::service::xbox::Error,
-    // },
-    // StdTimeDurationSince {
-    //     backtrace: snafu::Backtrace,
-    //     source: std::time::SystemTimeError,
-    // },
-    TauriTryState {
-        backtrace: snafu::Backtrace,
-    },
-    TauriSpawn {
+    #[snafu(display("Failed to spawn a future onto the async runtime"))]
+    TauriSpawnFuture {
         backtrace: snafu::Backtrace,
         source: tauri::Error,
     },
+    #[snafu(display("Failed to get tauri managed state"))]
+    TauriTryState { backtrace: snafu::Backtrace },
+    #[snafu(display("Failed to get receive on oneshot channel"))]
     TokioSyncOneshotReceive {
         backtrace: snafu::Backtrace,
         source: tokio::sync::oneshot::error::RecvError,
     },
-    XboxCoreStart {
-        source: crate::core::xbox::Error,
-    },
-    // XboxApiAuthorizeFlow {
-    //     source: crate::service::xbox::Error,
-    // },
-    // XboxSuggestImageUrl {
-    //     source: crate::service::xbox::Error,
-    // },
-    // XboxSuggestStoreUrl {
-    //     source: crate::service::xbox::Error,
-    // },
-    // UrlParse {
-    //     backtrace: snafu::Backtrace,
-    //     source: url::ParseError,
-    // },
+    #[snafu(display("Failed to start xbox core loop"))]
+    XboxCoreStart { source: crate::core::xbox::Error },
 }
 
 pub struct Core {
@@ -161,7 +86,7 @@ impl Core {
     // const XBOX_DISCORD_APPLICATION_ID: &str = "1053777655020912710";
     // const XBOX_TICK_RATE: u64 = 10;
 
-    pub fn new(
+    pub fn init(
         rx: tokio::sync::oneshot::Receiver<tauri::AppHandle>,
     ) -> tauri::async_runtime::JoinHandle<Result<Self, Error>> {
         use tauri::Manager;
@@ -251,11 +176,14 @@ impl Core {
         Ok(())
     }
 
-    pub async fn finish(self) -> Result<(), Error> {
-        self.nintendo.await.context(TauriSpawnSnafu)??;
-        self.playstation.await.context(TauriSpawnSnafu)??;
-        self.steam.await.context(TauriSpawnSnafu)??;
-        self.xbox.await.context(TauriSpawnSnafu)?.context(XboxCoreStartSnafu)?;
+    pub async fn terminate(self) -> Result<(), Error> {
+        self.nintendo.await.context(TauriSpawnFutureSnafu)??;
+        self.playstation.await.context(TauriSpawnFutureSnafu)??;
+        self.steam.await.context(TauriSpawnFutureSnafu)??;
+        self.xbox
+            .await
+            .context(TauriSpawnFutureSnafu)?
+            .context(XboxCoreStartSnafu)?;
         Ok(())
     }
 }
