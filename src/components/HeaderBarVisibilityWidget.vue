@@ -1,37 +1,71 @@
 <template>
-  <q-toolbar
-    dense
-    class="q-px-none bg-black text-white"
-  >
-    <HeaderBarPlatformWidget class="q-ml-xs" />
-    <HeaderBarActivityWidget class="q-ma-xs q-mr-sm" />
-    <q-toolbar-title
-      class="text-center q-pa-none bg-red"
-      style="font-size: 16px"
+  <q-card>
+    <q-card-section
+      horizontal
+      class="bg-brand-discord"
     >
-      {{ model$gui.services.xbox.data?.presence?.details || "« no presence »" }}
-    </q-toolbar-title>
-    <HeaderBarVisibilityWidget class="q-ma-xs q-ml-sm" />
-  </q-toolbar>
+      <q-card-section class="column flex-center q-pa-sm text-white">
+        <div style="font-size: 18px; font-variant: small-caps">visibility</div>
+      </q-card-section>
+      <q-separator
+        dark
+        inset
+        vertical
+        class="q-px-none"
+      />
+      <q-card-section class="q-pa-sm text-black">
+        <q-btn-toggle
+          v-model="hideShowAll.model.value"
+          :options="hideShowAll.options"
+          :toggle-color="hideShowAll.toggleColor.value"
+          dense
+          push
+          size="md"
+          class="q-mr-sm bg-white text-black"
+        >
+          <template #show>
+            <q-icon :name="matVisibility" />
+            <q-tooltip style="white-space: nowrap"> enable presence </q-tooltip>
+          </template>
+          <template #hide>
+            <q-icon :name="matVisibilityOff" />
+            <q-tooltip style="white-space: nowrap"> disable presence </q-tooltip>
+          </template>
+        </q-btn-toggle>
+        <q-btn-toggle
+          v-model="hideShowGame.model.value"
+          :options="hideShowGame.options"
+          :toggle-color="hideShowGame.toggleColor.value"
+          dense
+          push
+          disable
+          size="md"
+          class="bg-white text-black"
+        >
+          <q-tooltip>not yet implemented</q-tooltip>
+          <template #hide>
+            <q-icon :name="matHideImage" />
+            <q-tooltip style="white-space: nowrap"> hide this game as presence </q-tooltip>
+          </template>
+          <template #show>
+            <q-icon :name="matImage" />
+            <q-tooltip style="white-space: nowrap"> show this game as presence </q-tooltip>
+          </template>
+        </q-btn-toggle>
+      </q-card-section>
+    </q-card-section>
+  </q-card>
 </template>
 
 <script lang="ts">
 import * as vue from "vue";
 import type * as quasar from "quasar";
 import { matHideImage, matImage, matVisibility, matVisibilityOff } from "@quasar/extras/material-icons";
-import HeaderBarActivityWidget from "./HeaderBarActivityWidget.vue";
-import HeaderBarPlatformWidget from "./HeaderBarPlatformWidget.vue";
-import HeaderBarVisibilityWidget from "./HeaderBarVisibilityWidget.vue";
 
 import * as stores from "../stores";
 
 export default vue.defineComponent({
-  name: "HeaderBar",
-  components: {
-    HeaderBarActivityWidget,
-    HeaderBarPlatformWidget,
-    HeaderBarVisibilityWidget,
-  },
+  name: "HeaderBarVisibilityWidget",
   setup() {
     const model$gui = stores.gui.useStore();
 
@@ -100,7 +134,6 @@ export default vue.defineComponent({
       matImage,
       matVisibility,
       matVisibilityOff,
-      model$gui,
     };
   },
 });
