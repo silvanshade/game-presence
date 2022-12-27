@@ -1,31 +1,22 @@
 <template>
   <q-card class="bg-warning text-white">
     <q-card-section horizontal>
-      <q-card-section class="column flex-center q-pa-sm">
-        <div style="font-size: 18px; font-variant: small-caps">activity</div>
-      </q-card-section>
-      <q-separator
-        dark
-        inset
-        vertical
-        class="q-px-none"
-      />
       <q-card-section class="q-pa-sm">
         <q-btn-toggle
-          v-model="pausePlayActivity.model.value"
-          :options="pausePlayActivity.options"
-          :toggle-color="pausePlayActivity.toggleColor.value"
+          v-model="widget$pausePlayActivity.model.value"
+          :options="widget$pausePlayActivity.options"
+          :toggle-color="widget$pausePlayActivity.toggleColor.value"
           dense
           push
           size="md"
           class="bg-white text-black"
         >
           <template #pause>
-            <q-icon :name="symOutlinedAutoReadPause" />
+            <q-icon :name="icon$symOutlinedAutoReadPause" />
             <q-tooltip style="white-space: nowrap"> pause activity polling </q-tooltip>
           </template>
           <template #play>
-            <q-icon :name="symOutlinedAutoReadPlay" />
+            <q-icon :name="icon$symOutlinedAutoReadPlay" />
             <q-tooltip style="white-space: nowrap"> continue activity polling </q-tooltip>
           </template>
         </q-btn-toggle>
@@ -46,7 +37,7 @@ export default vue.defineComponent({
   setup() {
     const model$gui = stores.gui.useStore();
 
-    const pausePlayActivity = new (class {
+    const widget$pausePlayActivity = new (class {
       readonly model = vue.computed({
         get: () => {
           switch (model$gui.activity.pollingActive) {
@@ -86,9 +77,9 @@ export default vue.defineComponent({
     })();
 
     return {
-      pausePlayActivity,
-      symOutlinedAutoReadPause,
-      symOutlinedAutoReadPlay,
+      icon$symOutlinedAutoReadPause: symOutlinedAutoReadPause,
+      icon$symOutlinedAutoReadPlay: symOutlinedAutoReadPlay,
+      widget$pausePlayActivity,
     };
   },
 });

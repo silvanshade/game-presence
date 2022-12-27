@@ -1,8 +1,8 @@
 <template>
   <q-btn-toggle
-    v-model="pausePlayActivity.model.value"
-    :options="pausePlayActivity.options"
-    :toggle-color="pausePlayActivity.toggleColor.value"
+    v-model="widget$pausePlayActivity.model.value"
+    :options="widget$pausePlayActivity.options"
+    :toggle-color="widget$pausePlayActivity.toggleColor.value"
     dense
     push
     size="lg"
@@ -19,7 +19,7 @@ import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } fro
 export default vue.defineComponent({
   name: "HeaderBarPlatformWidget",
   setup() {
-    const pausePlayActivity = new (class {
+    const widget$pausePlayActivity = new (class {
       readonly model = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("nintendo");
       readonly options: quasar.QBtnToggleProps["options"] = [
         { value: "nintendo", icon: mdiNintendoSwitch },
@@ -44,7 +44,7 @@ export default vue.defineComponent({
     })();
 
     return {
-      pausePlayActivity,
+      widget$pausePlayActivity,
     };
   },
 });

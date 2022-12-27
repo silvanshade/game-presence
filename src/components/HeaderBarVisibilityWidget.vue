@@ -1,38 +1,29 @@
 <template>
   <q-card class="bg-brand-discord">
     <q-card-section horizontal>
-      <q-card-section class="column flex-center q-pa-sm text-white">
-        <div style="font-size: 18px; font-variant: small-caps">visibility</div>
-      </q-card-section>
-      <q-separator
-        dark
-        inset
-        vertical
-        class="q-px-none"
-      />
       <q-card-section class="q-pa-sm text-black">
         <q-btn-toggle
-          v-model="hideShowAll.model.value"
-          :options="hideShowAll.options"
-          :toggle-color="hideShowAll.toggleColor.value"
+          v-model="widget$hideShowAll.model.value"
+          :options="widget$hideShowAll.options"
+          :toggle-color="widget$hideShowAll.toggleColor.value"
           dense
           push
           size="md"
           class="q-mr-sm bg-white text-black"
         >
           <template #show>
-            <q-icon :name="matVisibility" />
+            <q-icon :name="icon$matVisibility" />
             <q-tooltip style="white-space: nowrap"> enable presence </q-tooltip>
           </template>
           <template #hide>
-            <q-icon :name="matVisibilityOff" />
+            <q-icon :name="icon$matVisibilityOff" />
             <q-tooltip style="white-space: nowrap"> disable presence </q-tooltip>
           </template>
         </q-btn-toggle>
         <q-btn-toggle
-          v-model="hideShowGame.model.value"
-          :options="hideShowGame.options"
-          :toggle-color="hideShowGame.toggleColor.value"
+          v-model="widget$hideShowGame.model.value"
+          :options="widget$hideShowGame.options"
+          :toggle-color="widget$hideShowGame.toggleColor.value"
           dense
           push
           disable
@@ -41,11 +32,11 @@
         >
           <q-tooltip>not yet implemented</q-tooltip>
           <template #hide>
-            <q-icon :name="matHideImage" />
+            <q-icon :name="icon$matHideImage" />
             <q-tooltip style="white-space: nowrap"> hide this game as presence </q-tooltip>
           </template>
           <template #show>
-            <q-icon :name="matImage" />
+            <q-icon :name="icon$matImage" />
             <q-tooltip style="white-space: nowrap"> show this game as presence </q-tooltip>
           </template>
         </q-btn-toggle>
@@ -66,7 +57,7 @@ export default vue.defineComponent({
   setup() {
     const model$gui = stores.gui.useStore();
 
-    const hideShowGame = new (class {
+    const widget$hideShowGame = new (class {
       readonly model = vue.ref<"hide" | "show">("hide");
       readonly options: quasar.QBtnToggleProps["options"] = [
         { value: "hide", slot: "hide" },
@@ -84,7 +75,7 @@ export default vue.defineComponent({
       });
     })();
 
-    const hideShowAll = new (class {
+    const widget$hideShowAll = new (class {
       readonly model = vue.computed({
         get: () => {
           switch (model$gui.activity.discordDisplayPresence) {
@@ -125,12 +116,12 @@ export default vue.defineComponent({
     })();
 
     return {
-      hideShowAll,
-      hideShowGame,
-      matHideImage,
-      matImage,
-      matVisibility,
-      matVisibilityOff,
+      icon$matHideImage: matHideImage,
+      icon$matImage: matImage,
+      icon$matVisibility: matVisibility,
+      icon$matVisibilityOff: matVisibilityOff,
+      widget$hideShowAll,
+      widget$hideShowGame,
     };
   },
 });

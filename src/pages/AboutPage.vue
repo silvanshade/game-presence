@@ -16,17 +16,17 @@
         <div>homepage 🏠</div>
       </div>
       <div>
-        <div>{{ about.build }}</div>
-        <div>{{ about.platform }}</div>
-        <div>{{ about.timestamp }}</div>
-        <div>{{ about.license }}</div>
+        <div>{{ model$about.build }}</div>
+        <div>{{ model$about.platform }}</div>
+        <div>{{ model$about.timestamp }}</div>
+        <div>{{ model$about.license }}</div>
         <div>
           <a
             href="#"
             target="_blank"
             rel="noopener noreferrer"
-            @click="openHomePage"
-            >{{ about.homepage }}</a
+            @click="handler$openHomePage"
+            >{{ model$about.homepage }}</a
           >
         </div>
       </div>
@@ -74,19 +74,13 @@ export default vue.defineComponent({
       `,
     });
 
-    const openHomePage: () => Promise<void> = async () => {
+    const handler$openHomePage: () => Promise<void> = async () => {
       if (result.data.value != null) {
         await api.shell.open(result.data.value.buildInfo.pkgHomepage);
       }
     };
 
-    const openIssueTracker: () => Promise<void> = async () => {
-      if (result.data.value != null) {
-        await api.shell.open(result.data.value.buildInfo.pkgHomepage);
-      }
-    };
-
-    const about = (() => {
+    const model$about = (() => {
       if (result.data.value) {
         const {
           buildInfo: {
@@ -120,9 +114,8 @@ export default vue.defineComponent({
     })();
 
     return {
-      about,
-      openHomePage,
-      openIssueTracker,
+      handler$openHomePage,
+      model$about,
     };
   },
 });
