@@ -11,25 +11,25 @@
     <template #nintendo>
       <q-icon
         :name="icon$mdiNintendoSwitch"
-        :class="{ 'text-brand-nintendo': model$platform !== 'nintendo' }"
+        :class="{ 'text-brand-nintendo': widget$platformSelect.model.value !== 'nintendo' }"
       />
     </template>
     <template #playstation>
       <q-icon
         :name="icon$mdiSonyPlaystation"
-        :class="{ 'text-brand-playstation': model$platform !== 'playstation' }"
+        :class="{ 'text-brand-playstation': widget$platformSelect.model.value !== 'playstation' }"
       />
     </template>
     <template #steam>
       <q-icon
         :name="icon$mdiSteam"
-        :class="{ 'text-brand-steam': model$platform !== 'steam' }"
+        :class="{ 'text-brand-steam': widget$platformSelect.model.value !== 'steam' }"
       />
     </template>
     <template #xbox>
       <q-icon
         :name="icon$mdiMicrosoftXbox"
-        :class="{ 'text-brand-xbox': model$platform !== 'xbox' }"
+        :class="{ 'text-brand-xbox': widget$platformSelect.model.value !== 'xbox' }"
       />
     </template>
   </q-btn-toggle>
@@ -39,35 +39,20 @@
 import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } from "@quasar/extras/mdi-v7";
 import type * as quasar from "quasar";
 import * as vue from "vue";
-
 import * as stores from "../stores";
 
 export default vue.defineComponent({
   name: "HeaderBarPlatformWidget",
-  props: {
-    modelValue: {
-      type: [String, null] as vue.PropType<("nintendo" | "playstation" | "steam" | "xbox") | null>,
-      required: true,
-    },
-  },
-  emits: {
-    "update:modelValue": (value: "nintendo" | "playstation" | "steam" | "xbox" | null) => {
-      void value;
-      return true;
-    },
-  },
-  setup(props, ctx) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
-    const model$platform = vue.toRef(props, "modelValue");
-
     const widget$platformSelect = new (class {
-      readonly model = vue.computed<"nintendo" | "playstation" | "steam" | "xbox" | null>({
+      readonly model = vue.computed({
         get: () => {
-          return props.modelValue || null;
+          return model$gui.interaction.focusedPlatform;
         },
         set: (value) => {
-          ctx.emit("update:modelValue", value);
+          model$gui.interaction.focusedPlatform = value;
         },
       });
 
@@ -101,7 +86,6 @@ export default vue.defineComponent({
       icon$mdiNintendoSwitch: mdiNintendoSwitch,
       icon$mdiSonyPlaystation: mdiSonyPlaystation,
       icon$mdiSteam: mdiSteam,
-      model$platform,
       widget$platformSelect,
     };
   },

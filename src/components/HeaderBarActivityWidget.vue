@@ -32,21 +32,16 @@
 import { symOutlinedAutoReadPause, symOutlinedAutoReadPlay } from "@quasar/extras/material-symbols-outlined";
 import type * as quasar from "quasar";
 import * as vue from "vue";
-
 import * as stores from "../stores";
 
 export default vue.defineComponent({
   name: "HeaderBarActivityWidget",
-  props: {
-    platform: {
-      type: [String, null] as vue.PropType<("nintendo" | "playstation" | "steam" | "xbox") | null>,
-      required: true,
-    },
-  },
-  setup(props) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
-    const model$platform = vue.toRef(props, "platform");
+    const model$platform = vue.computed(() => {
+      return model$gui.interaction.focusedPlatform;
+    });
 
     const widget$pausePlayActivity = new (class {
       readonly model = vue.computed({

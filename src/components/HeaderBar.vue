@@ -3,19 +3,15 @@
     dense
     class="q-pa-sm bg-black text-white"
   >
-    <HeaderBarPlatformWidget v-model="model$platform" />
-    <HeaderBarActivityWidget
-      :platform="model$platform"
-      class="q-ml-sm"
-    />
+    <HeaderBarPlatformWidget />
+    <HeaderBarActivityWidget class="q-ml-sm" />
     <q-toolbar-title
-      v-if="model$platform"
       class="q-mx-sm text-center"
       style="font-size: 16px"
     >
-      {{ model$gui.services.xbox.data?.presence?.details || `« no ${model$platform} presence »` }}
+      {{ model$titleBarMessage }}
     </q-toolbar-title>
-    <HeaderBarVisibilityWidget :platform="model$platform" />
+    <HeaderBarVisibilityWidget />
   </q-toolbar>
 </template>
 
@@ -24,7 +20,6 @@ import * as vue from "vue";
 import HeaderBarActivityWidget from "./HeaderBarActivityWidget.vue";
 import HeaderBarPlatformWidget from "./HeaderBarPlatformWidget.vue";
 import HeaderBarVisibilityWidget from "./HeaderBarVisibilityWidget.vue";
-
 import * as stores from "../stores";
 
 export default vue.defineComponent({
@@ -35,19 +30,28 @@ export default vue.defineComponent({
     HeaderBarVisibilityWidget,
   },
   setup() {
-    const model$platform: vue.Ref<"nintendo" | "playstation" | "steam" | "xbox" | null> = vue.ref(null);
     const model$gui = stores.gui.useStore();
-    model$gui.$subscribe((mutation, state) => {
-      void mutation;
-      if (model$platform.value != null) return;
-      if (state.services.nintendo.enabled) model$platform.value = "nintendo";
-      if (state.services.playstation.enabled) model$platform.value = "playstation";
-      if (state.services.steam.enabled) model$platform.value = "steam";
-      if (state.services.xbox.enabled) model$platform.value = "xbox";
+    const model$titleBarMessage = vue.computed(() => {
+      if (model$gui.interaction.focusedPlatform == null) {
+        return "« no platform selected (see leftmost controls) »";
+      }
+      let presence: string | undefined;
+      if (model$gui.interaction.focusedPlatform === "nintendo") {
+        presence = model$gui.services.nintendo.data?.presence?.details;
+      }
+      if (model$gui.interaction.focusedPlatform === "playstation") {
+        presence = model$gui.services.playstation.data?.presence?.details;
+      }
+      if (model$gui.interaction.focusedPlatform === "steam") {
+        presence = model$gui.services.steam.data?.presence?.details;
+      }
+      if (model$gui.interaction.focusedPlatform === "xbox") {
+        presence = model$gui.services.xbox.data?.presence?.details;
+      }
+      return presence || `« no active ${model$gui.interaction.focusedPlatform} presence »`;
     });
     return {
-      model$gui,
-      model$platform,
+      model$titleBarMessage,
     };
   },
 });
