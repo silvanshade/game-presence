@@ -6,6 +6,12 @@
       inline-label
       dense
     >
+      <div
+        class="q-tab__label"
+        style="text-transform: uppercase"
+      >
+        platforms
+      </div>
       <q-tab
         name="nintendo"
         label="nintendo"
@@ -28,21 +34,26 @@
         style="justify-content: initial"
       />
       <q-tab
-        name="twitch"
-        label="twitch"
-        :icon="icon$mdiTwitch"
-        class="text-brand-twitch"
-        style="justify-content: initial"
-      />
-      <q-tab
         name="xbox"
         label="xbox"
         :icon="icon$mdiMicrosoftXbox"
         class="text-brand-xbox"
         style="justify-content: initial"
       />
+      <div
+        class="q-tab__label q-mt-sm"
+        style="text-transform: uppercase"
+      >
+        assets
+      </div>
+      <q-tab
+        name="twitch"
+        label="twitch"
+        :icon="icon$mdiTwitch"
+        class="text-brand-twitch"
+        style="justify-content: initial"
+      />
     </q-tabs>
-    <q-separator vertical />
     <q-tab-panels
       v-model="widget$servicesTabs.model.value"
       animated

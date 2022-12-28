@@ -60,7 +60,7 @@ export default vue.defineComponent({
   components: { SettingsPageActivity, SettingsPageServices },
   setup() {
     const widget$settingsTabs = new (class {
-      readonly model = vue.ref<"services" | "activity" | "games">("activity");
+      readonly model = vue.ref<"activity" | "services" | "games">("activity");
     })();
 
     return {
