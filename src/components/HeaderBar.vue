@@ -3,15 +3,18 @@
     dense
     class="q-pa-sm bg-black text-white"
   >
-    <HeaderBarPlatformWidget />
-    <HeaderBarActivityWidget class="q-ml-sm" />
+    <HeaderBarPlatformWidget v-model="platform" />
+    <HeaderBarActivityWidget
+      :platform="platform"
+      class="q-ml-sm"
+    />
     <q-toolbar-title
       class="q-mx-sm text-center"
       style="font-size: 16px"
     >
-      {{ model$gui.services.xbox.data?.presence?.details || "« no presence »" }}
+      {{ model$gui.services.xbox.data?.presence?.details || `« no ${platform} presence »` }}
     </q-toolbar-title>
-    <HeaderBarVisibilityWidget />
+    <HeaderBarVisibilityWidget :platform="platform" />
   </q-toolbar>
 </template>
 
@@ -35,6 +38,7 @@ export default vue.defineComponent({
     const platform = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("nintendo");
     return {
       model$gui,
+      platform,
     };
   },
 });

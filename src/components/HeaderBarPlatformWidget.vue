@@ -1,13 +1,37 @@
 <template>
   <q-btn-toggle
     v-model="widget$pausePlayActivity.model.value"
-    :options="widget$pausePlayActivity.options"
+    :options="widget$pausePlayActivity.options.value"
     :toggle-color="widget$pausePlayActivity.toggleColor.value"
     dense
     push
     size="lg"
     class="bg-white text-black"
   >
+    <template #nintendo>
+      <q-icon
+        :name="icon$mdiNintendoSwitch"
+        :class="{ 'text-brand-nintendo': model$platform !== 'nintendo' }"
+      />
+    </template>
+    <template #playstation>
+      <q-icon
+        :name="icon$mdiSonyPlaystation"
+        :class="{ 'text-brand-playstation': model$platform !== 'playstation' }"
+      />
+    </template>
+    <template #steam>
+      <q-icon
+        :name="icon$mdiSteam"
+        :class="{ 'text-brand-steam': model$platform !== 'steam' }"
+      />
+    </template>
+    <template #xbox>
+      <q-icon
+        :name="icon$mdiMicrosoftXbox"
+        :class="{ 'text-brand-xbox': model$platform !== 'xbox' }"
+      />
+    </template>
   </q-btn-toggle>
 </template>
 
@@ -16,17 +40,46 @@ import * as vue from "vue";
 import type * as quasar from "quasar";
 import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } from "@quasar/extras/mdi-v7";
 
+import * as stores from "../stores";
+
 export default vue.defineComponent({
   name: "HeaderBarPlatformWidget",
-  setup() {
+  props: {
+    modelValue: {
+      type: String as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox">,
+      required: true,
+    },
+  },
+  emits: {
+    "update:modelValue": (value: "nintendo" | "playstation" | "steam" | "xbox") => {
+      void value;
+      return true;
+    },
+  },
+  setup(props, ctx) {
+    const model$gui = stores.gui.useStore();
+
+    const model$platform = vue.toRef(props, "modelValue");
+
     const widget$pausePlayActivity = new (class {
-      readonly model = vue.ref<"nintendo" | "playstation" | "steam" | "xbox">("nintendo");
-      readonly options: quasar.QBtnToggleProps["options"] = [
-        { value: "nintendo", icon: mdiNintendoSwitch },
-        { value: "playstation", icon: mdiSonyPlaystation },
-        { value: "steam", icon: mdiSteam },
-        { value: "xbox", icon: mdiMicrosoftXbox },
-      ];
+      readonly model = vue.computed<"nintendo" | "playstation" | "steam" | "xbox">({
+        get: () => {
+          return props.modelValue;
+        },
+        set: (value) => {
+          ctx.emit("update:modelValue", value);
+        },
+      });
+
+      readonly options: vue.ComputedRef<quasar.QBtnToggleProps["options"]> = vue.computed(() => {
+        return [
+          { value: "nintendo", slot: "nintendo", disabled: !model$gui.services.nintendo.enabled },
+          { value: "playstation", slot: "playstation", disabled: !model$gui.services.playstation.enabled },
+          { value: "steam", slot: "steam", disabled: !model$gui.services.steam.enabled },
+          { value: "xbox", slot: "xbox", disabled: !model$gui.services.xbox.enabled },
+        ];
+      });
+
       readonly toggleColor = vue.computed<"brand-nintendo" | "brand-playstation" | "brand-steam" | "brand-xbox">(() => {
         switch (this.model.value) {
           case "nintendo":
@@ -44,6 +97,11 @@ export default vue.defineComponent({
     })();
 
     return {
+      icon$mdiMicrosoftXbox: mdiMicrosoftXbox,
+      icon$mdiNintendoSwitch: mdiNintendoSwitch,
+      icon$mdiSonyPlaystation: mdiSonyPlaystation,
+      icon$mdiSteam: mdiSteam,
+      model$platform,
       widget$pausePlayActivity,
     };
   },

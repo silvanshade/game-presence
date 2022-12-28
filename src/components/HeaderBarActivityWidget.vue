@@ -34,6 +34,12 @@ import * as stores from "../stores";
 
 export default vue.defineComponent({
   name: "HeaderBarActivityWidget",
+  props: {
+    platform: {
+      type: String as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox">,
+      required: true,
+    },
+  },
   setup() {
     const model$gui = stores.gui.useStore();
 
