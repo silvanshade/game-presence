@@ -7,11 +7,12 @@
       dense
     >
       <q-btn
-        :icon="icon$mdiController"
+        :icon-right="icon$mdiController"
         label="platforms"
-        dense
         unelevated
-        class="q-ma-none q-pa-none"
+        square
+        color="black"
+        class="q-ma-none q-pa-none full-width"
       />
       <q-tab
         name="nintendo"
@@ -42,11 +43,12 @@
         style="justify-content: initial"
       />
       <q-btn
-        :icon="icon$symOutlinedGalleryThumbnail"
+        :icon-right="icon$symOutlinedGalleryThumbnail"
         label="assets"
-        dense
         unelevated
-        class="q-ma-none q-mt-sm q-pa-none"
+        square
+        color="black"
+        class="q-ma-none q-mt-sm q-pa-none full-width"
       />
       <q-tab
         name="twitch"
