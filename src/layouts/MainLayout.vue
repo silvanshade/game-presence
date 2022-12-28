@@ -9,8 +9,8 @@
       bordered
       :breakpoint="0"
       side="left"
-      :width="100"
-      class="column flex-center"
+      :width="115"
+      class="q-pt-md row justify-end"
     >
       <SideBar />
     </q-drawer>

@@ -1,21 +1,28 @@
 <template>
-  <div class="full-width">
-    <q-tabs vertical>
+  <div>
+    <q-tabs
+      vertical
+      inline-label
+      dense
+    >
       <q-route-tab
         :icon="matMms"
         label="status"
         to="/status"
-      ></q-route-tab>
+        style="justify-content: initial"
+      />
       <q-route-tab
         :icon="matDisplaySettings"
         label="settings"
         to="/settings"
-      ></q-route-tab>
+        style="justify-content: initial"
+      />
       <q-route-tab
         :icon="matContactSupport"
         label="about"
         to="/about"
-      ></q-route-tab>
+        style="justify-content: initial"
+      />
     </q-tabs>
   </div>
 </template>

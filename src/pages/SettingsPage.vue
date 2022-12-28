@@ -32,12 +32,15 @@
       class="row"
       style="flex-grow: 1"
     >
-      <q-tab-panel name="activity">
+      <q-tab-panel
+        name="activity"
+        class="q-pa-none q-pt-md"
+      >
         <SettingsPageActivity />
       </q-tab-panel>
       <q-tab-panel
         name="services"
-        class="flex-center column"
+        class="flex-center column q-pa-none q-pt-md"
       >
         <SettingsPageServices />
       </q-tab-panel>

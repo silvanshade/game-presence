@@ -1,5 +1,8 @@
 <template>
-  <div class="row fit">
+  <div
+    class="row fit"
+    style="position: relative; top: -1px"
+  >
     <q-tabs
       v-model="widget$servicesTabs.model.value"
       vertical
