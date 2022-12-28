@@ -1,33 +1,32 @@
 <template>
-  <!--
-    <div
+  <div
     v-if="model$presence"
     class="fit row flex-center no-wrap"
     style="gap: 0rem 1rem; overflow: hidden"
-    >
+  >
     <div
-    class="full-height"
-    :style="{
-    backgroundImage: `url(${model$presence.assetsLargeImage})`,
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: 'contain',
-    width: '50%',
-    }"
+      class="full-height"
+      :style="{
+        backgroundImage: `url(${model$presence.assetsLargeImage})`,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'contain',
+        width: '50%',
+      }"
     ></div>
     <div class="text-no-wrap">
-    <div style="font-weight: bold">games</div>
-    <div>{{ model$presence?.details }}</div>
-    <div>
-    <span>{{ model$presence?.state }}</span>
+      <div style="font-weight: bold">games</div>
+      <div>{{ model$presence?.details }}</div>
+      <div>
+        <span>{{ model$presence?.state }}</span>
+      </div>
+      <div>
+        <span>{{ model$elapsed }}</span>
+      </div>
     </div>
-    <div>
-    <span>{{ model$elapsed }}</span>
-    </div>
-    </div>
-    </div>
-  -->
+  </div>
   <div
+    v-else
     class="fit row flex-center no-wrap"
     style="gap: 0rem 1rem; overflow: hidden"
   >
@@ -53,6 +52,10 @@
 </template>
 
 <script lang="ts">
+import icon$nintendo from "@mdi/svg/svg/nintendo-switch.svg";
+import icon$playstation from "@mdi/svg/svg/sony-playstation.svg";
+import icon$steam from "@mdi/svg/svg/steam.svg";
+import icon$xbox from "@mdi/svg/svg/microsoft-xbox.svg";
 import * as vue from "vue";
 import type * as models from "../models";
 
@@ -72,13 +75,13 @@ export default vue.defineComponent({
     const model$presenceDefaultImageUrl = (() => {
       switch (props.platform) {
         case "nintendo":
-          return "node_modules/@mdi/svg/svg/nintendo-switch.svg";
+          return icon$nintendo;
         case "playstation":
-          return "node_modules/@mdi/svg/svg/sony-playstation.svg";
+          return icon$playstation;
         case "steam":
-          return "node_modules/@mdi/svg/svg/steam.svg";
+          return icon$steam;
         case "xbox":
-          return "node_modules/@mdi/svg/svg/microsoft-xbox.svg";
+          return icon$xbox;
         default:
           return undefined as never;
       }
