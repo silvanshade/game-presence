@@ -35,7 +35,6 @@
         style="justify-content: initial"
       />
     </q-tabs>
-    <q-separator vertical />
     <q-tab-panels
       v-model="widget$servicesTabs.model.value"
       animated
@@ -45,25 +44,37 @@
         name="nintendo"
         class="no-padding"
       >
-        <PresenceView :presence="model$gui.services.nintendo.data?.presence || null" />
+        <PresenceView
+          platform="nintendo"
+          :presence="model$gui.services.nintendo.data?.presence || null"
+        />
       </q-tab-panel>
       <q-tab-panel
         name="playstation"
         class="no-padding"
       >
-        <PresenceView :presence="model$gui.services.playstation.data?.presence || null" />
+        <PresenceView
+          platform="playstation"
+          :presence="model$gui.services.playstation.data?.presence || null"
+        />
       </q-tab-panel>
       <q-tab-panel
         name="steam"
         class="no-padding"
       >
-        <PresenceView :presence="model$gui.services.steam.data?.presence || null" />
+        <PresenceView
+          platform="steam"
+          :presence="model$gui.services.steam.data?.presence || null"
+        />
       </q-tab-panel>
       <q-tab-panel
         name="xbox"
         class="no-padding"
       >
-        <PresenceView :presence="model$gui.services.xbox.data?.presence || null" />
+        <PresenceView
+          platform="xbox"
+          :presence="model$gui.services.xbox.data?.presence || null"
+        />
       </q-tab-panel>
     </q-tab-panels>
   </div>
