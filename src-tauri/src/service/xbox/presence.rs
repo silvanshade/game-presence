@@ -44,16 +44,16 @@ impl PresenceRecord {
             }
             let autosuggest = super::autosuggest(name).await;
             if let Some(suggest) = autosuggest? {
-                let details = name.into();
-                let state = String::from("playing on pc/xbox");
+                let details = name.conv::<String>();
+                let state = "playing on pc/xbox".conv::<String>();
                 let assets_large_image = suggest.image_url()?.into();
-                let assets_large_text = name.into();
+                let assets_large_text = details.clone();
                 let assets_small_image = "small-icon".into();
-                let assets_small_text = "playing on xbox".into();
+                let assets_small_text = state.clone();
                 let time_start = time::OffsetDateTime::now_utc();
-                let button_store = Some((String::from("xbox.com"), suggest.store_url()?));
+                let button_store = Some(("xbox.com".conv::<String>(), suggest.store_url()?));
                 let button_twitch = Some((
-                    String::from("twitch"),
+                    "twitch".conv::<String>(),
                     crate::app::model::Presence::twitch_url(name).context(ModelPresenceTwitchUrlSnafu)?,
                 ));
                 return Ok(Some(crate::app::model::Presence {
