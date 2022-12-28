@@ -1,14 +1,20 @@
 <template>
   <div
     v-if="model$presence"
-    class="fit flex-center row"
-    style="overflow: hidden; gap: 0rem 1rem"
+    class="fit row flex-center no-wrap"
+    style="gap: 0rem 1rem; overflow: hidden"
   >
-    <img
-      :src="model$presence.assetsLargeImage"
-      style="max-height: 75vh"
-    />
-    <div>
+    <div
+      class="full-height"
+      :style="{
+        backgroundImage: `url(${model$presence.assetsLargeImage})`,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'contain',
+        width: '50%',
+      }"
+    ></div>
+    <div class="text-no-wrap">
       <div style="font-weight: bold">games</div>
       <div>{{ model$presence?.details }}</div>
       <div>
