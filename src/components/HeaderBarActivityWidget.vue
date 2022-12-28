@@ -1,7 +1,7 @@
 <template>
   <q-card
-    v-if="model$platform"
     class="bg-warning text-white"
+    :class="{ invisible: !model$platform }"
   >
     <q-card-section horizontal>
       <q-card-section class="q-pa-sm">

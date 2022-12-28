@@ -84,19 +84,11 @@ pub(crate) fn init(model: crate::app::Model, tx: tokio::sync::oneshot::Sender<ta
     let builder = builder.setup(|app| {
         tauri::WindowBuilder::new(app, "main", tauri::WindowUrl::App("index.html".into()))
             .title("game-presence")
-            .inner_size(760f64, 384f64)
+            .inner_size(760f64, 386f64)
             .fullscreen(false)
             .resizable(false)
             .disable_file_drop_handler() // NOTE: needed on windows for vuedraggable to work
             .build()?;
-
-        // tauri::WindowBuilder::new(app, "xbox-auth",
-        // tauri::WindowUrl::App("/html/empty/index.html".into()))     .title("xbox-authorization")
-        //     .fullscreen(false)
-        //     .resizable(false)
-        //     .visible(false)
-        //     .build()?;
-
         Ok(())
     });
 
