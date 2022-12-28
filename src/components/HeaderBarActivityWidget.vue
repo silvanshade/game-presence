@@ -29,9 +29,9 @@
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
-import type * as quasar from "quasar";
 import { symOutlinedAutoReadPause, symOutlinedAutoReadPlay } from "@quasar/extras/material-symbols-outlined";
+import type * as quasar from "quasar";
+import * as vue from "vue";
 
 import * as stores from "../stores";
 
@@ -39,7 +39,7 @@ export default vue.defineComponent({
   name: "HeaderBarActivityWidget",
   props: {
     platform: {
-      type: String as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox" | null>,
+      type: [String, null] as vue.PropType<("nintendo" | "playstation" | "steam" | "xbox") | null>,
       required: true,
     },
   },

@@ -3,8 +3,10 @@ import { invokeExchange, forwardSubscription } from "@silvanshade/tauri-plugin-g
 import * as urql from "@urql/vue";
 
 export default boot(({ app }) => {
-  app.use(urql, {
-    url: "graphql",
-    exchanges: [invokeExchange, urql.subscriptionExchange({ forwardSubscription })],
-  });
+  if (window.hasOwnProperty("__TAURI_IPC__")) {
+    app.use(urql, {
+      url: "graphql",
+      exchanges: [invokeExchange, urql.subscriptionExchange({ forwardSubscription })],
+    });
+  }
 });

@@ -49,9 +49,9 @@
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
-import type * as quasar from "quasar";
 import { matHideImage, matImage, matVisibility, matVisibilityOff } from "@quasar/extras/material-icons";
+import type * as quasar from "quasar";
+import * as vue from "vue";
 
 import * as stores from "../stores";
 
@@ -59,7 +59,7 @@ export default vue.defineComponent({
   name: "HeaderBarVisibilityWidget",
   props: {
     platform: {
-      type: String as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox" | null>,
+      type: [String, null] as vue.PropType<("nintendo" | "playstation" | "steam" | "xbox") | null>,
       required: true,
     },
   },

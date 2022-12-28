@@ -163,8 +163,11 @@ export default vue.defineComponent({
         void event;
         console.debug("widget$servicesXboxEnabled.toggle.@update(" + value.toString() + ")");
         if (value) {
-          console.log("auth flow!");
-          api.invoke("service_xbox_authorization_flow", { reauthorize: false }).catch(console.error);
+          if (window.hasOwnProperty("__TAURI_IPC__")) {
+            api.invoke("service_xbox_authorization_flow", { reauthorize: false }).catch(console.error);
+          } else {
+            console.debug(`api.invoke("service_xbox_authorization_flow")`);
+          }
         }
       };
       readonly model = vue.computed({

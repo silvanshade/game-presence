@@ -285,7 +285,12 @@ export default vue.defineComponent({
         icon: {
           eventClick: async () => {
             console.debug("widget$servicesSteamDataKey.#append.icon.click");
-            await api.shell.open("https://steamcommunity.com/dev/apikey");
+            const url = "https://steamcommunity.com/dev/apikey";
+            if (window.hasOwnProperty("__TAURI_IPC__")) {
+              await api.shell.open(url);
+            } else {
+              console.debug(`api.shell.open(${url})`);
+            }
           },
         },
       };

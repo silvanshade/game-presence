@@ -62,7 +62,6 @@ export default vue.defineComponent({
     const widget$settingsTabs = new (class {
       readonly model = vue.ref<"activity" | "services" | "games">("activity");
     })();
-
     return {
       icon$matPermMedia: matPermMedia,
       icon$mdiController: mdiController,

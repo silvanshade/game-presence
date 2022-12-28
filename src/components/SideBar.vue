@@ -21,8 +21,8 @@
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
 import { matContactSupport, matDisplaySettings, matMms } from "@quasar/extras/material-icons";
+import * as vue from "vue";
 
 export default vue.defineComponent({
   name: "SideBar",

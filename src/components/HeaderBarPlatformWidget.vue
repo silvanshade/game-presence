@@ -36,9 +36,9 @@
 </template>
 
 <script lang="ts">
-import * as vue from "vue";
-import type * as quasar from "quasar";
 import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam } from "@quasar/extras/mdi-v7";
+import type * as quasar from "quasar";
+import * as vue from "vue";
 
 import * as stores from "../stores";
 
@@ -46,7 +46,7 @@ export default vue.defineComponent({
   name: "HeaderBarPlatformWidget",
   props: {
     modelValue: {
-      type: String as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox" | null>,
+      type: [String, null] as vue.PropType<("nintendo" | "playstation" | "steam" | "xbox") | null>,
       required: true,
     },
   },
@@ -64,7 +64,7 @@ export default vue.defineComponent({
     const widget$platformSelect = new (class {
       readonly model = vue.computed<"nintendo" | "playstation" | "steam" | "xbox" | null>({
         get: () => {
-          return props.modelValue;
+          return props.modelValue || null;
         },
         set: (value) => {
           ctx.emit("update:modelValue", value);

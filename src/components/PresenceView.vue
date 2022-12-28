@@ -20,8 +20,8 @@
 </template>
 
 <script lang="ts">
-import type * as models from "../models";
 import * as vue from "vue";
+import type * as models from "../models";
 
 export default vue.defineComponent({
   name: "StatusPage",
