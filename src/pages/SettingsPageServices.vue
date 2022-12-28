@@ -6,12 +6,13 @@
       inline-label
       dense
     >
-      <div
-        class="q-tab__label"
-        style="text-transform: uppercase"
-      >
-        platforms
-      </div>
+      <q-btn
+        :icon="icon$mdiController"
+        label="platforms"
+        dense
+        unelevated
+        class="q-ma-none q-pa-none"
+      />
       <q-tab
         name="nintendo"
         label="nintendo"
@@ -40,12 +41,13 @@
         class="text-brand-xbox"
         style="justify-content: initial"
       />
-      <div
-        class="q-tab__label q-mt-sm"
-        style="text-transform: uppercase"
-      >
-        assets
-      </div>
+      <q-btn
+        :icon="icon$symOutlinedGalleryThumbnail"
+        label="assets"
+        dense
+        unelevated
+        class="q-ma-none q-mt-sm q-pa-none"
+      />
       <q-tab
         name="twitch"
         label="twitch"
@@ -94,7 +96,15 @@
 </template>
 
 <script lang="ts">
-import { mdiMicrosoftXbox, mdiNintendoSwitch, mdiSonyPlaystation, mdiSteam, mdiTwitch } from "@quasar/extras/mdi-v7";
+import { symOutlinedGalleryThumbnail } from "@quasar/extras/material-symbols-outlined";
+import {
+  mdiController,
+  mdiMicrosoftXbox,
+  mdiNintendoSwitch,
+  mdiSonyPlaystation,
+  mdiSteam,
+  mdiTwitch,
+} from "@quasar/extras/mdi-v7";
 import * as vue from "vue";
 import SettingsPageServicesNintendo from "./SettingsPageServicesNintendo.vue";
 import SettingsPageServicesPlaystation from "./SettingsPageServicesPlaystation.vue";
@@ -117,11 +127,13 @@ export default vue.defineComponent({
     })();
 
     return {
+      icon$mdiController: mdiController,
       icon$mdiMicrosoftXbox: mdiMicrosoftXbox,
       icon$mdiNintendoSwitch: mdiNintendoSwitch,
       icon$mdiSonyPlaystation: mdiSonyPlaystation,
       icon$mdiSteam: mdiSteam,
       icon$mdiTwitch: mdiTwitch,
+      icon$symOutlinedGalleryThumbnail: symOutlinedGalleryThumbnail,
       widget$servicesTabs,
     };
   },

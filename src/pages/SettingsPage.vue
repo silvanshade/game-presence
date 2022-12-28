@@ -12,7 +12,7 @@
         label="activity"
       />
       <q-tab
-        :icon="icon$mdiController"
+        :icon="icon$symOutlinedExtension"
         name="services"
         label="services"
       />
@@ -48,7 +48,7 @@
 
 <script lang="ts">
 import { matPermMedia } from "@quasar/extras/material-icons";
-import { symOutlinedDetectionAndZone } from "@quasar/extras/material-symbols-outlined";
+import { symOutlinedDetectionAndZone, symOutlinedExtension } from "@quasar/extras/material-symbols-outlined";
 import { mdiController } from "@quasar/extras/mdi-v7";
 import * as vue from "vue";
 
@@ -67,6 +67,7 @@ export default vue.defineComponent({
       icon$matPermMedia: matPermMedia,
       icon$mdiController: mdiController,
       icon$symOutlinedDetectionAndZone: symOutlinedDetectionAndZone,
+      icon$symOutlinedExtension: symOutlinedExtension,
       widget$settingsTabs,
     };
   },
