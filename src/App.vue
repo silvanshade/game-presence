@@ -13,7 +13,7 @@ import * as stores from "./stores";
 export default vue.defineComponent({
   name: "App",
   components: { MainLayout },
-  setup(_props, ctx) {
+  setup() {
     const model$gui = stores.gui.useStore();
 
     urql.useSubscription<{ gui: models.Gui }, { gui: models.Gui }>(
@@ -41,8 +41,6 @@ export default vue.defineComponent({
       console.debug("mutation", { mutation, state });
       guiMutation.executeMutation({ data: state }).catch(console.error);
     });
-
-    ctx.expose([]);
 
     return {};
   },

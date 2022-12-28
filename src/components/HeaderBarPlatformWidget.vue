@@ -1,8 +1,8 @@
 <template>
   <q-btn-toggle
-    v-model="widget$pausePlayActivity.model.value"
-    :options="widget$pausePlayActivity.options.value"
-    :toggle-color="widget$pausePlayActivity.toggleColor.value"
+    v-model="widget$platformSelect.model.value"
+    :options="widget$platformSelect.options.value"
+    :toggle-color="widget$platformSelect.toggleColor.value"
     dense
     push
     size="lg"
@@ -46,12 +46,12 @@ export default vue.defineComponent({
   name: "HeaderBarPlatformWidget",
   props: {
     modelValue: {
-      type: String as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox">,
+      type: String as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox" | null>,
       required: true,
     },
   },
   emits: {
-    "update:modelValue": (value: "nintendo" | "playstation" | "steam" | "xbox") => {
+    "update:modelValue": (value: "nintendo" | "playstation" | "steam" | "xbox" | null) => {
       void value;
       return true;
     },
@@ -61,8 +61,8 @@ export default vue.defineComponent({
 
     const model$platform = vue.toRef(props, "modelValue");
 
-    const widget$pausePlayActivity = new (class {
-      readonly model = vue.computed<"nintendo" | "playstation" | "steam" | "xbox">({
+    const widget$platformSelect = new (class {
+      readonly model = vue.computed<"nintendo" | "playstation" | "steam" | "xbox" | null>({
         get: () => {
           return props.modelValue;
         },
@@ -102,7 +102,7 @@ export default vue.defineComponent({
       icon$mdiSonyPlaystation: mdiSonyPlaystation,
       icon$mdiSteam: mdiSteam,
       model$platform,
-      widget$pausePlayActivity,
+      widget$platformSelect,
     };
   },
 });

@@ -1,5 +1,8 @@
 <template>
-  <q-card class="bg-brand-discord">
+  <q-card
+    v-if="model$platform"
+    class="bg-brand-discord"
+  >
     <q-card-section horizontal>
       <q-card-section class="q-pa-sm text-black">
         <q-btn-toggle
@@ -56,12 +59,14 @@ export default vue.defineComponent({
   name: "HeaderBarVisibilityWidget",
   props: {
     platform: {
-      type: String as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox">,
+      type: String as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox" | null>,
       required: true,
     },
   },
-  setup() {
+  setup(props) {
     const model$gui = stores.gui.useStore();
+
+    const model$platform = vue.toRef(props, "platform");
 
     const widget$hideShowGame = new (class {
       readonly model = vue.ref<"hide" | "show">("hide");
@@ -126,6 +131,7 @@ export default vue.defineComponent({
       icon$matImage: matImage,
       icon$matVisibility: matVisibility,
       icon$matVisibilityOff: matVisibilityOff,
+      model$platform,
       widget$hideShowAll,
       widget$hideShowGame,
     };

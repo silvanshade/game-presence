@@ -3,4 +3,4 @@
 - set min-height for services pages
 - module visibility
 - tap debug, tap tracing
-- miniserde
+- add notification badge to platform icons in headerbar
