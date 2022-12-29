@@ -176,8 +176,8 @@ export default vue.defineComponent({
         },
         set: (value) => {
           model$gui.services.xbox.enabled = value;
-          if (!value && model$gui.interaction.focusedPlatform === "xbox") {
-            model$gui.interaction.focusedPlatform = null;
+          if (!value && model$gui.focusedPlatform === "xbox") {
+            model$gui.focusPlatform("xbox");
           }
         },
       });

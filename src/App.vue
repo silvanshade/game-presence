@@ -3,7 +3,6 @@
 </template>
 
 <script lang="ts">
-import type * as pinia from "pinia";
 import * as urql from "@urql/vue";
 import { gql } from "@urql/vue";
 import MainLayout from "layouts/MainLayout.vue";
@@ -11,33 +10,7 @@ import * as vue from "vue";
 import * as models from "./models";
 import * as stores from "./stores";
 
-const focusFirstEnabledPlatform = (
-  model$gui: pinia.Store<"gui", models.gui.Gui, Record<string, never>, Record<string, never>>,
-) => {
-  if (model$gui.interaction.focusedPlatform != null) {
-    return;
-  }
-  if (model$gui.services.nintendo.enabled) {
-    model$gui.interaction.focusedPlatform = "nintendo";
-    return;
-  }
-  if (model$gui.services.playstation.enabled) {
-    model$gui.interaction.focusedPlatform = "playstation";
-    return;
-  }
-  if (model$gui.services.steam.enabled) {
-    model$gui.interaction.focusedPlatform = "steam";
-    return;
-  }
-  if (model$gui.services.xbox.enabled) {
-    model$gui.interaction.focusedPlatform = "xbox";
-    return;
-  }
-};
-
-const configureGraphQL = (
-  model$gui: pinia.Store<"gui", models.gui.Gui, Record<string, never>, Record<string, never>>,
-) => {
+const configureGraphQL = (model$gui: stores.gui.Store) => {
   urql.useSubscription<{ gui: models.Gui }, { gui: models.Gui }>(
     {
       query: gql`
@@ -73,9 +46,6 @@ export default vue.defineComponent({
     if (window.hasOwnProperty("__TAURI_IPC__")) {
       configureGraphQL(model$gui);
     }
-    model$gui.$subscribe(() => {
-      focusFirstEnabledPlatform(model$gui);
-    });
     return {};
   },
 });

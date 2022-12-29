@@ -160,8 +160,8 @@ export default vue.defineComponent({
         },
         set: (value) => {
           model$gui.services.playstation.enabled = value;
-          if (!value && model$gui.interaction.focusedPlatform === "playstation") {
-            model$gui.interaction.focusedPlatform = null;
+          if (!value && model$gui.focusedPlatform === "playstation") {
+            model$gui.unfocusPlatform("playstation");
           }
         },
       });

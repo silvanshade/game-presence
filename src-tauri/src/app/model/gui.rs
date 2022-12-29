@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Gui {
-    pub interaction: Interaction,
     pub activity: Activity,
     pub services: Services,
     pub games: Games,
@@ -15,21 +14,6 @@ impl Gui {
         self.activity.synchronize_with_config(config);
         self.games.synchronize_with_config(config);
     }
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-
-pub struct Interaction {
-    pub focused_platform: Option<Platform>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum Platform {
-    Nintendo,
-    Playstation,
-    Steam,
-    Xbox,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

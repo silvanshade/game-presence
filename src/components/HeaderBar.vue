@@ -33,23 +33,23 @@ export default vue.defineComponent({
     const model$gui = stores.gui.useStore();
 
     const model$titleBarMessage = vue.computed(() => {
-      if (model$gui.interaction.focusedPlatform == null) {
+      if (model$gui.focusedPlatform == null) {
         return "« no platform enabled »";
       }
       let presence: string | undefined;
-      if (model$gui.interaction.focusedPlatform === "nintendo") {
+      if (model$gui.focusedPlatform === "nintendo") {
         presence = model$gui.services.nintendo.data?.presence?.details;
       }
-      if (model$gui.interaction.focusedPlatform === "playstation") {
+      if (model$gui.focusedPlatform === "playstation") {
         presence = model$gui.services.playstation.data?.presence?.details;
       }
-      if (model$gui.interaction.focusedPlatform === "steam") {
+      if (model$gui.focusedPlatform === "steam") {
         presence = model$gui.services.steam.data?.presence?.details;
       }
-      if (model$gui.interaction.focusedPlatform === "xbox") {
+      if (model$gui.focusedPlatform === "xbox") {
         presence = model$gui.services.xbox.data?.presence?.details;
       }
-      return presence || `« no active ${model$gui.interaction.focusedPlatform} presence »`;
+      return presence || `« no active ${model$gui.focusedPlatform} presence »`;
     });
 
     return {

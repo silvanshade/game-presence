@@ -197,8 +197,8 @@ export default vue.defineComponent({
         },
         set: (value) => {
           model$gui.services.nintendo.enabled = value;
-          if (!value && model$gui.interaction.focusedPlatform === "nintendo") {
-            model$gui.interaction.focusedPlatform = null;
+          if (!value && model$gui.focusedPlatform === "nintendo") {
+            model$gui.unfocusPlatform("nintendo");
           }
         },
       });

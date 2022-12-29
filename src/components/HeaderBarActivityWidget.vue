@@ -1,7 +1,7 @@
 <template>
   <q-card
     class="bg-warning text-white"
-    :class="{ invisible: !model$platform }"
+    :class="{ invisible: !model$gui.focusedPlatform }"
   >
     <q-card-section horizontal>
       <q-card-section class="q-pa-sm">
@@ -16,11 +16,11 @@
         >
           <template #pause>
             <q-icon :name="icon$symOutlinedAutoReadPause" />
-            <q-tooltip style="white-space: nowrap"> pause {{ model$platform }} activity polling </q-tooltip>
+            <q-tooltip style="white-space: nowrap"> pause {{ model$gui.focusedPlatform }} activity polling </q-tooltip>
           </template>
           <template #play>
             <q-icon :name="icon$symOutlinedAutoReadPlay" />
-            <q-tooltip style="white-space: nowrap"> resume {{ model$platform }} activity polling </q-tooltip>
+            <q-tooltip style="white-space: nowrap"> resume {{ model$gui.focusedPlatform }} activity polling </q-tooltip>
           </template>
         </q-btn-toggle>
       </q-card-section>
@@ -38,10 +38,6 @@ export default vue.defineComponent({
   name: "HeaderBarActivityWidget",
   setup() {
     const model$gui = stores.gui.useStore();
-
-    const model$platform = vue.computed(() => {
-      return model$gui.interaction.focusedPlatform;
-    });
 
     const widget$pausePlayActivity = new (class {
       readonly model = vue.computed({
@@ -85,7 +81,7 @@ export default vue.defineComponent({
     return {
       icon$symOutlinedAutoReadPause: symOutlinedAutoReadPause,
       icon$symOutlinedAutoReadPlay: symOutlinedAutoReadPlay,
-      model$platform,
+      model$gui,
       widget$pausePlayActivity,
     };
   },

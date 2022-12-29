@@ -209,8 +209,8 @@ export default vue.defineComponent({
         },
         set: (value) => {
           model$gui.services.steam.enabled = value;
-          if (!value && model$gui.interaction.focusedPlatform === "steam") {
-            model$gui.interaction.focusedPlatform = null;
+          if (!value && model$gui.focusedPlatform === "steam") {
+            model$gui.unfocusPlatform("steam");
           }
         },
       });

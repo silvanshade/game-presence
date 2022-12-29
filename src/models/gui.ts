@@ -2,7 +2,6 @@ import { mdiTwitch } from "@quasar/extras/mdi-v7";
 import type { Presence } from "./presence";
 
 export interface Gui {
-  interaction: Interaction;
   activity: Activity;
   services: Services;
   games: Games;
@@ -11,27 +10,12 @@ export interface Gui {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Gui {
   export const make: () => Gui = () => {
-    const interaction = Interaction.make();
     const activity = Activity.make();
     const services = Services.make();
     const games = Games.make();
-    return { interaction, services, activity, games };
+    return { services, activity, games };
   };
 }
-
-export interface Interaction {
-  focusedPlatform: Platform | null;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace Interaction {
-  export const make: () => Interaction = () => {
-    const focusedPlatform = null;
-    return { focusedPlatform };
-  };
-}
-
-export type Platform = "nintendo" | "playstation" | "steam" | "xbox";
 
 export interface Activity {
   pollingActive: boolean;

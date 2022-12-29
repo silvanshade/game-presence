@@ -71,55 +71,58 @@ export default vue.defineComponent({
   setup() {
     const model$gui = stores.gui.useStore();
 
-    let model$nintendoPresenceHash: string | null = model$gui.services.nintendo.data?.presence?.hash || null;
-    let model$playstationPresenceHash: string | null = model$gui.services.playstation.data?.presence?.hash || null;
-    let model$steamPresenceHash: string | null = model$gui.services.steam.data?.presence?.hash || null;
-    let model$xboxPresenceHash: string | null = model$gui.services.xbox.data?.presence?.hash || null;
+    let local$nintendoPresenceHash: string | null = model$gui.services.nintendo.data?.presence?.hash || null;
+    let local$playstationPresenceHash: string | null = model$gui.services.playstation.data?.presence?.hash || null;
+    let local$steamPresenceHash: string | null = model$gui.services.steam.data?.presence?.hash || null;
+    let local$xboxPresenceHash: string | null = model$gui.services.xbox.data?.presence?.hash || null;
 
-    const model$nintendoNotify = vue.ref<boolean>(false);
-    const model$playstationNotify = vue.ref<boolean>(false);
-    const model$steamNotify = vue.ref<boolean>(false);
-    const model$xboxNotify = vue.ref<boolean>(false);
+    const model$nintendoNotify = vue.computed<boolean>(() => {
+      const model$nintendoPresenceHash = model$gui.services.nintendo.data?.presence?.hash || null;
+      if (local$nintendoPresenceHash !== model$nintendoPresenceHash) {
+        local$nintendoPresenceHash = model$nintendoPresenceHash;
+        return model$gui.focusedPlatform !== "nintendo";
+      } else {
+        return false;
+      }
+    });
 
-    model$gui.$subscribe((mutation, state) => {
-      void mutation;
-      const state$nintendoPresenceHash = state.services.nintendo.data?.presence?.hash || null;
-      if (model$nintendoPresenceHash !== state$nintendoPresenceHash) {
-        model$nintendoPresenceHash = state$nintendoPresenceHash;
-        if (model$gui.interaction.focusedPlatform !== "nintendo") {
-          model$nintendoNotify.value = true;
-        }
+    const model$playstationNotify = vue.computed<boolean>(() => {
+      const model$playstationPresenceHash = model$gui.services.playstation.data?.presence?.hash || null;
+      if (local$playstationPresenceHash !== model$playstationPresenceHash) {
+        local$playstationPresenceHash = model$playstationPresenceHash;
+        return model$gui.focusedPlatform !== "playstation";
+      } else {
+        return false;
       }
-      const state$playstationPresenceHash = state.services.nintendo.data?.presence?.hash || null;
-      if (model$playstationPresenceHash !== state$playstationPresenceHash) {
-        model$playstationPresenceHash = state$playstationPresenceHash;
-        if (model$gui.interaction.focusedPlatform !== "playstation") {
-          model$playstationNotify.value = true;
-        }
+    });
+
+    const model$steamNotify = vue.computed<boolean>(() => {
+      const model$steamPresenceHash = model$gui.services.steam.data?.presence?.hash || null;
+      if (local$steamPresenceHash !== model$steamPresenceHash) {
+        local$steamPresenceHash = model$steamPresenceHash;
+        return model$gui.focusedPlatform !== "steam";
+      } else {
+        return false;
       }
-      const state$steamPresenceHash = state.services.nintendo.data?.presence?.hash || null;
-      if (model$steamPresenceHash !== state$steamPresenceHash) {
-        model$steamPresenceHash = state$steamPresenceHash;
-        if (model$gui.interaction.focusedPlatform !== "steam") {
-          model$steamNotify.value = true;
-        }
-      }
-      const state$xboxPresenceHash = state.services.nintendo.data?.presence?.hash || null;
-      if (model$xboxPresenceHash !== state$xboxPresenceHash) {
-        model$xboxPresenceHash = state$xboxPresenceHash;
-        if (model$gui.interaction.focusedPlatform !== "xbox") {
-          model$xboxNotify.value = true;
-        }
+    });
+
+    const model$xboxNotify = vue.computed<boolean>(() => {
+      const model$xboxPresenceHash = model$gui.services.xbox.data?.presence?.hash || null;
+      if (local$xboxPresenceHash !== model$xboxPresenceHash) {
+        local$xboxPresenceHash = model$xboxPresenceHash;
+        return model$gui.focusedPlatform !== "xbox";
+      } else {
+        return false;
       }
     });
 
     const widget$platformSelect = new (class {
       readonly model = vue.computed({
         get: () => {
-          return model$gui.interaction.focusedPlatform;
+          return model$gui.focusedPlatform;
         },
         set: (value) => {
-          model$gui.interaction.focusedPlatform = value;
+          model$gui.focusPlatform(value);
         },
       });
 
