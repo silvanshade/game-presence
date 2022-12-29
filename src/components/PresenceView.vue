@@ -105,9 +105,7 @@ export default vue.defineComponent({
 
     const model$elapsed = vue.ref<string>("00:00:00");
 
-    const model$presence = (() => {
-      return vue.toRef(props, "presence");
-    })();
+    const model$presence = vue.toRef(props, "presence");
 
     const tick = () => {
       if (model$presence.value != null) {
