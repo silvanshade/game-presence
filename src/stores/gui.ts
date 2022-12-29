@@ -1,4 +1,9 @@
+import icon$xbox from "@mdi/svg/svg/microsoft-xbox.svg";
+import icon$nintendo from "@mdi/svg/svg/nintendo-switch.svg";
+import icon$playstation from "@mdi/svg/svg/sony-playstation.svg";
+import icon$steam from "@mdi/svg/svg/steam.svg";
 import * as pinia from "pinia";
+import type * as vue from "vue";
 import * as models from "../models";
 
 type Platform = "nintendo" | "playstation" | "steam" | "xbox";
@@ -6,13 +11,30 @@ type Id = "gui";
 type State = models.gui.Gui & { readonly focusedPlatform: Platform | null };
 type Getters = Record<string, never>;
 type Actions = {
-  platformPresence(platform: Platform | null): models.Presence | null;
+  platformPresence(platform: Platform): models.Presence | null;
+  platformPresenceImageUrl(platform: Platform): string;
+  platformPresenceStyle(platform: Platform): vue.StyleValue;
   platformFocus(platform: Platform | null): void;
   platformUnfocus(platform: Platform): void;
 };
 
 export type Store = pinia.Store<Id, State, Getters, Actions>;
 export type StoreDefinition = pinia.StoreDefinition<Id, State, Getters, Actions>;
+
+const platformBrandColor = (platform: Platform): string => {
+  switch (platform) {
+    case "nintendo":
+      return "#ff0026";
+    case "playstation":
+      return "#0070d1";
+    case "steam":
+      return "#000000";
+    case "xbox":
+      return "#107b11";
+    default:
+      return undefined as never;
+  }
+};
 
 export const useStore = pinia.defineStore<Id, State, Getters, Actions>("gui", {
   state: () => {
@@ -22,7 +44,7 @@ export const useStore = pinia.defineStore<Id, State, Getters, Actions>("gui", {
     };
   },
   actions: {
-    platformPresence(platform: Platform | null) {
+    platformPresence(platform) {
       switch (platform) {
         case "nintendo":
           return this.services.nintendo.data?.presence || null;
@@ -33,8 +55,46 @@ export const useStore = pinia.defineStore<Id, State, Getters, Actions>("gui", {
         case "xbox":
           return this.services.xbox.data?.presence || null;
         default:
-          return null;
+          return undefined as never;
       }
+    },
+    platformPresenceImageUrl(platform) {
+      const presence = this.platformPresence(platform);
+      if (presence) {
+        return presence.assetsLargeImage;
+      } else {
+        switch (platform) {
+          case "nintendo":
+            return icon$nintendo;
+          case "playstation":
+            return icon$playstation;
+          case "steam":
+            return icon$steam;
+          case "xbox":
+            return icon$xbox;
+          default:
+            return undefined as never;
+        }
+      }
+    },
+    platformPresenceStyle(platform) {
+      const style: vue.CSSProperties = {
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "contain",
+        maskPosition: "center",
+        maskRepeat: "no-repeat",
+        width: "100%",
+      };
+      const presence = this.platformPresence(platform);
+      const presenceImageUrl = this.platformPresenceImageUrl(platform);
+      if (presence) {
+        style.backgroundImage = `url(${presenceImageUrl})`;
+      } else {
+        style.backgroundColor = platformBrandColor(platform);
+        style.maskImage = `url(${presenceImageUrl})`;
+      }
+      return style;
     },
     platformFocus(this: Store & { focusedPlatform: Platform | null }, platform) {
       this.focusedPlatform = platform;

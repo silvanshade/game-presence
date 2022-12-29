@@ -9,7 +9,7 @@
       <img
       v-if="model$presence"
       :src="model$presence.assetsLargeImage"
-      /> 
+      />
     -->
     <q-toolbar-title
       class="q-mx-none q-px-none"
@@ -38,7 +38,11 @@ export default vue.defineComponent({
   setup() {
     const model$gui = stores.gui.useStore();
 
-    const model$presence = vue.computed(() => model$gui.platformPresence(model$gui.focusedPlatform));
+    const model$presence = vue.computed(() => {
+      const platform = model$gui.focusedPlatform;
+      if (platform) return model$gui.platformPresence(platform);
+      return null;
+    });
 
     const model$titleBarMessage = vue.computed(() => {
       if (model$gui.focusedPlatform == null) return "« no platform enabled »";
