@@ -82,6 +82,7 @@ export const useStore = pinia.defineStore<Id, State, Getters, Actions>("gui", {
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         backgroundSize: "contain",
+        height: "100%",
         maskPosition: "center",
         maskRepeat: "no-repeat",
         width: "100%",

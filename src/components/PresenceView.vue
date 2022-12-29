@@ -3,10 +3,7 @@
     class="fit row flex-center no-wrap"
     style="gap: 0rem 0.5rem; overflow: hidden"
   >
-    <div
-      class="full-height"
-      :style="model$presenceStyle"
-    ></div>
+    <div :style="model$presenceStyle"></div>
     <div class="q-mr-md text-no-wrap">
       <div style="font-weight: bold">games</div>
       <div :class="{ 'text-center': !model$presence }">

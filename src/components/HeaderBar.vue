@@ -5,18 +5,25 @@
   >
     <HeaderBarPlatformWidget />
     <HeaderBarActivityWidget class="q-ml-sm" />
-    <!--
-      <img
-      v-if="model$presence"
-      :src="model$presence.assetsLargeImage"
-      />
-    -->
+
+    <div
+      class="q-ml-auto"
+      style="height: 48px; width: 100%; max-width: 48px"
+    >
+      <div
+        v-if="model$presenceStyle"
+        :style="model$presenceStyle"
+      ></div>
+    </div>
+
     <q-toolbar-title
-      class="q-mx-none q-px-none"
+      shrink
+      class="q-ml-sm q-mr-auto q-px-none"
       style="font-size: 16px"
     >
       {{ model$titleBarMessage }}
     </q-toolbar-title>
+
     <HeaderBarVisibilityWidget />
   </q-toolbar>
 </template>
@@ -44,6 +51,15 @@ export default vue.defineComponent({
       return null;
     });
 
+    const model$presenceStyle = vue.computed<vue.StyleValue | null>(() => {
+      const platform = model$gui.focusedPlatform;
+      if (platform) {
+        return model$gui.platformPresenceStyle(platform);
+      } else {
+        return null;
+      }
+    });
+
     const model$titleBarMessage = vue.computed(() => {
       if (model$gui.focusedPlatform == null) return "« no platform enabled »";
       if (model$presence.value != null) return model$presence.value.details;
@@ -52,6 +68,7 @@ export default vue.defineComponent({
 
     return {
       model$presence,
+      model$presenceStyle,
       model$titleBarMessage,
     };
   },
