@@ -5,8 +5,14 @@
   >
     <HeaderBarPlatformWidget />
     <HeaderBarActivityWidget class="q-ml-sm" />
+    <!--
+      <img
+      v-if="model$presence"
+      :src="model$presence.assetsLargeImage"
+      /> 
+    -->
     <q-toolbar-title
-      class="q-mx-sm text-center"
+      class="q-mx-none q-px-none"
       style="font-size: 16px"
     >
       {{ model$titleBarMessage }}
@@ -32,27 +38,16 @@ export default vue.defineComponent({
   setup() {
     const model$gui = stores.gui.useStore();
 
+    const model$presence = vue.computed(() => model$gui.platformPresence(model$gui.focusedPlatform));
+
     const model$titleBarMessage = vue.computed(() => {
-      if (model$gui.focusedPlatform == null) {
-        return "« no platform enabled »";
-      }
-      let presence: string | undefined;
-      if (model$gui.focusedPlatform === "nintendo") {
-        presence = model$gui.services.nintendo.data?.presence?.details;
-      }
-      if (model$gui.focusedPlatform === "playstation") {
-        presence = model$gui.services.playstation.data?.presence?.details;
-      }
-      if (model$gui.focusedPlatform === "steam") {
-        presence = model$gui.services.steam.data?.presence?.details;
-      }
-      if (model$gui.focusedPlatform === "xbox") {
-        presence = model$gui.services.xbox.data?.presence?.details;
-      }
-      return presence || `« no active ${model$gui.focusedPlatform} presence »`;
+      if (model$gui.focusedPlatform == null) return "« no platform enabled »";
+      if (model$presence.value != null) return model$presence.value.details;
+      return `« no active ${model$gui.focusedPlatform} presence »`;
     });
 
     return {
+      model$presence,
       model$titleBarMessage,
     };
   },

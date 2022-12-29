@@ -1,52 +1,23 @@
 <template>
   <div
-    v-if="model$presence"
     class="fit row flex-center no-wrap"
-    style="gap: 0rem 1rem; overflow: hidden"
+    style="gap: 0rem 0.5rem; overflow: hidden"
   >
     <div
       class="full-height"
-      :style="{
-        backgroundImage: `url(${model$presence.assetsLargeImage})`,
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'contain',
-        width: '50%',
-      }"
+      :style="model$presenceStyle"
     ></div>
-    <div class="text-no-wrap">
+    <div class="q-mr-md text-no-wrap">
       <div style="font-weight: bold">games</div>
-      <div>{{ model$presence?.details }}</div>
-      <div>
-        <span>{{ model$presence?.state }}</span>
+      <div :class="{ 'text-center': !model$presence }">
+        {{ model$presence?.details || "…" }}
       </div>
-      <div>
-        <span>{{ model$elapsed }}</span>
+      <div :class="{ 'text-center': !model$presence }">
+        {{ model$presence?.state || "…" }}
       </div>
-    </div>
-  </div>
-  <div
-    v-else
-    class="fit row flex-center no-wrap"
-    style="gap: 0rem 1rem; overflow: hidden"
-  >
-    <div
-      class="full-height"
-      :style="{
-        backgroundColor: model$presenceDefaultImageColor,
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'contain',
-        maskImage: `url(${model$presenceDefaultImageUrl})`,
-        maskPosition: 'center',
-        maskRepeat: 'no-repeat',
-        width: '50%',
-      }"
-    ></div>
-    <div class="text-no-wrap">
-      <div style="font-weight: bold">games</div>
-
-      <div>« no active presence »</div>
+      <div :class="{ 'text-center': !model$presence }">
+        {{ model$presence ? model$elapsed : "…" }}
+      </div>
     </div>
   </div>
 </template>
@@ -101,22 +72,27 @@ export default vue.defineComponent({
       }
     })();
 
-    const model$elapsed = vue.ref<string>("00:00:00");
+    const model$presence = vue.computed(() => model$gui.platformPresence(props.platform));
 
-    const model$presence = vue.computed(() => {
-      switch (props.platform) {
-        case "nintendo":
-          return model$gui.services.nintendo.data?.presence;
-        case "playstation":
-          return model$gui.services.playstation.data?.presence;
-        case "steam":
-          return model$gui.services.steam.data?.presence;
-        case "xbox":
-          return model$gui.services.xbox.data?.presence;
-        default:
-          return undefined as never;
+    const model$presenceStyle = vue.computed<vue.StyleValue>(() => {
+      let style: vue.CSSProperties = {
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "contain",
+        maskPosition: "center",
+        maskRepeat: "no-repeat",
+        width: "100%",
+      };
+      if (model$presence.value) {
+        style.backgroundImage = `url(${model$presence.value.assetsLargeImage})`;
+      } else {
+        style.backgroundColor = model$presenceDefaultImageColor;
+        style.maskImage = `url(${model$presenceDefaultImageUrl})`;
       }
+      return style;
     });
+
+    const model$elapsed = vue.ref<string>("00:00:00");
 
     const tick = () => {
       if (model$presence.value != null) {
@@ -131,8 +107,7 @@ export default vue.defineComponent({
     return {
       model$elapsed,
       model$presence,
-      model$presenceDefaultImageUrl,
-      model$presenceDefaultImageColor,
+      model$presenceStyle,
     };
   },
 });

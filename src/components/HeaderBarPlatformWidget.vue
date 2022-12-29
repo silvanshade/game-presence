@@ -122,7 +122,7 @@ export default vue.defineComponent({
           return model$gui.focusedPlatform;
         },
         set: (value) => {
-          model$gui.focusPlatform(value);
+          model$gui.platformFocus(value);
         },
       });
 
