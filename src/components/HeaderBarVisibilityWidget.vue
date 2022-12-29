@@ -1,7 +1,7 @@
 <template>
   <q-card
     class="bg-brand-discord"
-    :class="{ invisible: !model$platform }"
+    :class="{ invisible: !model$gui.focusedPlatform }"
   >
     <q-card-section horizontal>
       <q-card-section class="q-pa-sm text-black">
@@ -58,10 +58,6 @@ export default vue.defineComponent({
   name: "HeaderBarVisibilityWidget",
   setup() {
     const model$gui = stores.gui.useStore();
-
-    const model$platform = vue.computed(() => {
-      return model$gui.interaction.focusedPlatform;
-    });
 
     const widget$hideShowGame = new (class {
       readonly model = vue.ref<"hide" | "show">("hide");
@@ -126,7 +122,7 @@ export default vue.defineComponent({
       icon$matImage: matImage,
       icon$matVisibility: matVisibility,
       icon$matVisibilityOff: matVisibilityOff,
-      model$platform,
+      model$gui,
       widget$hideShowAll,
       widget$hideShowGame,
     };
