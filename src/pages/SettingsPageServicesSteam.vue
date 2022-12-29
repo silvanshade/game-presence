@@ -209,7 +209,7 @@ export default vue.defineComponent({
         },
         set: (value) => {
           model$gui.services.steam.enabled = value;
-          if (!value) model$gui.unfocusPlatform("steam");
+          if (!value) model$gui.platformUnfocus("steam");
         },
       });
     })();

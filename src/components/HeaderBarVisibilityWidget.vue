@@ -1,6 +1,6 @@
 <template>
   <q-card
-    class="bg-brand-discord"
+    class="bg-brand-discord text-no-wrap"
     :class="{ invisible: !model$gui.focusedPlatform }"
   >
     <q-card-section horizontal>

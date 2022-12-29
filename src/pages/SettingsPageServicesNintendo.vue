@@ -197,7 +197,7 @@ export default vue.defineComponent({
         },
         set: (value) => {
           model$gui.services.nintendo.enabled = value;
-          if (!value) model$gui.unfocusPlatform("nintendo");
+          if (!value) model$gui.platformUnfocus("nintendo");
         },
       });
     })();

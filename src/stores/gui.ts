@@ -13,7 +13,7 @@ type Getters = Record<string, never>;
 type Actions = {
   platformPresence(platform: Platform): models.Presence | null;
   platformPresenceImageUrl(platform: Platform): string;
-  platformPresenceStyle(platform: Platform): vue.StyleValue;
+  platformPresenceStyle(platform: Platform, dark?: boolean): vue.StyleValue;
   platformFocus(platform: Platform | null): void;
   platformUnfocus(platform: Platform): void;
 };
@@ -21,14 +21,14 @@ type Actions = {
 export type Store = pinia.Store<Id, State, Getters, Actions>;
 export type StoreDefinition = pinia.StoreDefinition<Id, State, Getters, Actions>;
 
-const platformBrandColor = (platform: Platform): string => {
+const platformBrandColor = (platform: Platform, dark?: boolean): string => {
   switch (platform) {
     case "nintendo":
       return "#ff0026";
     case "playstation":
       return "#0070d1";
     case "steam":
-      return "#000000";
+      return dark ? "#ffffff" : "#000000";
     case "xbox":
       return "#107b11";
     default:
@@ -77,7 +77,7 @@ export const useStore = pinia.defineStore<Id, State, Getters, Actions>("gui", {
         }
       }
     },
-    platformPresenceStyle(platform) {
+    platformPresenceStyle(platform, dark) {
       const style: vue.CSSProperties = {
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -92,7 +92,7 @@ export const useStore = pinia.defineStore<Id, State, Getters, Actions>("gui", {
       if (presence) {
         style.backgroundImage = `url(${presenceImageUrl})`;
       } else {
-        style.backgroundColor = platformBrandColor(platform);
+        style.backgroundColor = platformBrandColor(platform, dark);
         style.maskImage = `url(${presenceImageUrl})`;
       }
       return style;

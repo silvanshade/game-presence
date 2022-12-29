@@ -4,11 +4,11 @@
     class="q-pa-sm bg-black text-white"
   >
     <HeaderBarPlatformWidget />
-    <HeaderBarActivityWidget class="q-ml-sm" />
+    <HeaderBarActivityWidget class="q-mx-sm" />
 
     <div
       class="q-ml-auto"
-      style="height: 48px; width: 100%; max-width: 48px"
+      style="height: 48px; width: 100%; max-width: 48px; flex-shrink: 0"
     >
       <div
         v-if="model$presenceStyle"
@@ -19,7 +19,7 @@
     <q-toolbar-title
       shrink
       class="q-ml-sm q-mr-auto q-px-none"
-      style="font-size: 16px"
+      style="font-size: 16px; overflow: hidden"
     >
       {{ model$titleBarMessage }}
     </q-toolbar-title>
@@ -54,7 +54,8 @@ export default vue.defineComponent({
     const model$presenceStyle = vue.computed<vue.StyleValue | null>(() => {
       const platform = model$gui.focusedPlatform;
       if (platform) {
-        return model$gui.platformPresenceStyle(platform);
+        const dark = true;
+        return model$gui.platformPresenceStyle(platform, dark);
       } else {
         return null;
       }
@@ -63,7 +64,7 @@ export default vue.defineComponent({
     const model$titleBarMessage = vue.computed(() => {
       if (model$gui.focusedPlatform == null) return "« no platform enabled »";
       if (model$presence.value != null) return model$presence.value.details;
-      return `« no active ${model$gui.focusedPlatform} presence »`;
+      return `« no active presence »`;
     });
 
     return {

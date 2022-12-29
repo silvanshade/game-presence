@@ -176,7 +176,7 @@ export default vue.defineComponent({
         },
         set: (value) => {
           model$gui.services.xbox.enabled = value;
-          if (!value) model$gui.unfocusPlatform("xbox");
+          if (!value) model$gui.platformUnfocus("xbox");
         },
       });
     })();
