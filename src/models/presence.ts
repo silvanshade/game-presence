@@ -8,4 +8,5 @@ export interface Presence {
   timeStart: string;
   buttonStore: [string, string] | null;
   buttonTwitch: [string, string] | null;
+  hash: string;
 }

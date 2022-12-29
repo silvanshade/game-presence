@@ -4,3 +4,4 @@
 - module visibility
 - tap debug, tap tracing
 - add notification badge to platform icons in headerbar
+- use more getters and actions with pinia store

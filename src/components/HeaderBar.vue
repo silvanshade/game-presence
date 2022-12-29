@@ -31,9 +31,10 @@ export default vue.defineComponent({
   },
   setup() {
     const model$gui = stores.gui.useStore();
+
     const model$titleBarMessage = vue.computed(() => {
       if (model$gui.interaction.focusedPlatform == null) {
-        return "« no platform enabled (see settings then services) »";
+        return "« no platform enabled »";
       }
       let presence: string | undefined;
       if (model$gui.interaction.focusedPlatform === "nintendo") {
@@ -50,6 +51,7 @@ export default vue.defineComponent({
       }
       return presence || `« no active ${model$gui.interaction.focusedPlatform} presence »`;
     });
+
     return {
       model$titleBarMessage,
     };

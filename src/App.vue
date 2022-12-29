@@ -73,11 +73,8 @@ export default vue.defineComponent({
     if (window.hasOwnProperty("__TAURI_IPC__")) {
       configureGraphQL(model$gui);
     }
-    model$gui.$subscribe((mutation, state) => {
-      console.debug("mutation", { mutation, state });
-      console.debug(`focusedPlatform: ${model$gui.interaction.focusedPlatform || ""}`);
+    model$gui.$subscribe(() => {
       focusFirstEnabledPlatform(model$gui);
-      console.debug(`focusedPlatform: ${model$gui.interaction.focusedPlatform || ""}`);
     });
     return {};
   },
