@@ -52,12 +52,12 @@
 </template>
 
 <script lang="ts">
+import icon$xbox from "@mdi/svg/svg/microsoft-xbox.svg";
 import icon$nintendo from "@mdi/svg/svg/nintendo-switch.svg";
 import icon$playstation from "@mdi/svg/svg/sony-playstation.svg";
 import icon$steam from "@mdi/svg/svg/steam.svg";
-import icon$xbox from "@mdi/svg/svg/microsoft-xbox.svg";
 import * as vue from "vue";
-import type * as models from "../models";
+import * as stores from "../stores";
 
 export default vue.defineComponent({
   name: "StatusPage",
@@ -66,12 +66,10 @@ export default vue.defineComponent({
       type: [String] as vue.PropType<"nintendo" | "playstation" | "steam" | "xbox">,
       required: true,
     },
-    presence: {
-      type: [Object, null] as vue.PropType<models.Presence | null>,
-      required: true,
-    },
   },
   setup(props) {
+    const model$gui = stores.gui.useStore();
+
     const model$presenceDefaultImageUrl = (() => {
       switch (props.platform) {
         case "nintendo":
@@ -105,7 +103,20 @@ export default vue.defineComponent({
 
     const model$elapsed = vue.ref<string>("00:00:00");
 
-    const model$presence = vue.toRef(props, "presence");
+    const model$presence = vue.computed(() => {
+      switch (props.platform) {
+        case "nintendo":
+          return model$gui.services.nintendo.data?.presence;
+        case "playstation":
+          return model$gui.services.playstation.data?.presence;
+        case "steam":
+          return model$gui.services.steam.data?.presence;
+        case "xbox":
+          return model$gui.services.xbox.data?.presence;
+        default:
+          return undefined as never;
+      }
+    });
 
     const tick = () => {
       if (model$presence.value != null) {

@@ -10,7 +10,7 @@ import * as vue from "vue";
 import * as models from "./models";
 import * as stores from "./stores";
 
-const configureMockPresence = (model$gui: stores.gui.Store) => {
+const configureMockState = (model$gui: stores.gui.Store) => {
   const gamertag = "silvanshade";
   const presence: models.Presence = {
     assetsLargeImage:
@@ -25,6 +25,7 @@ const configureMockPresence = (model$gui: stores.gui.Store) => {
     timeStart: new Date(Date.now()).toISOString(),
     hash: "",
   };
+  model$gui.services.xbox.enabled = true;
   model$gui.services.xbox.data = {
     gamertag,
     presence,
@@ -67,7 +68,7 @@ export default vue.defineComponent({
     if (window.hasOwnProperty("__TAURI_IPC__")) {
       configureGraphQL(model$gui);
     } else {
-      configureMockPresence(model$gui);
+      configureMockState(model$gui);
     }
     return {};
   },

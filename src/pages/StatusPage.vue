@@ -44,37 +44,25 @@
         name="nintendo"
         class="no-padding"
       >
-        <PresenceView
-          platform="nintendo"
-          :presence="model$gui.services.nintendo.data?.presence || null"
-        />
+        <PresenceView platform="nintendo" />
       </q-tab-panel>
       <q-tab-panel
         name="playstation"
         class="no-padding"
       >
-        <PresenceView
-          platform="playstation"
-          :presence="model$gui.services.playstation.data?.presence || null"
-        />
+        <PresenceView platform="playstation" />
       </q-tab-panel>
       <q-tab-panel
         name="steam"
         class="no-padding"
       >
-        <PresenceView
-          platform="steam"
-          :presence="model$gui.services.steam.data?.presence || null"
-        />
+        <PresenceView platform="steam" />
       </q-tab-panel>
       <q-tab-panel
         name="xbox"
         class="no-padding"
       >
-        <PresenceView
-          platform="xbox"
-          :presence="model$gui.services.xbox.data?.presence || null"
-        />
+        <PresenceView platform="xbox" />
       </q-tab-panel>
     </q-tab-panels>
   </div>
