@@ -10,6 +10,27 @@ import * as vue from "vue";
 import * as models from "./models";
 import * as stores from "./stores";
 
+const configureMockPresence = (model$gui: stores.gui.Store) => {
+  const gamertag = "silvanshade";
+  const presence: models.Presence = {
+    assetsLargeImage:
+      "https://store-images.s-microsoft.com/image/apps.39575.65858607118306853.39ed2a08-df0d-4ae1-aee0-c66ffb783a34.4b0c1586-4376-4ebb-a653-53a3fccec06c",
+    assetsLargeText: "The Witcher 3: Wild Hunt",
+    assetsSmallImage: "small-icon",
+    assetsSmallText: "playing on pc/xbox",
+    buttonStore: null,
+    buttonTwitch: null,
+    details: "The Witcher 3: Wild Hunt",
+    state: "playing on pc/xbox",
+    timeStart: new Date(Date.now()).toISOString(),
+    hash: "",
+  };
+  model$gui.services.xbox.data = {
+    gamertag,
+    presence,
+  };
+};
+
 const configureGraphQL = (model$gui: stores.gui.Store) => {
   urql.useSubscription<{ gui: models.Gui }, { gui: models.Gui }>(
     {
@@ -45,6 +66,8 @@ export default vue.defineComponent({
     const model$gui = stores.gui.useStore();
     if (window.hasOwnProperty("__TAURI_IPC__")) {
       configureGraphQL(model$gui);
+    } else {
+      configureMockPresence(model$gui);
     }
     return {};
   },
