@@ -1,6 +1,5 @@
 import * as pinia from "pinia";
 import * as models from "../models";
-import * as vue from "vue";
 
 type Platform = "nintendo" | "playstation" | "steam" | "xbox";
 type Id = "gui";
@@ -14,16 +13,18 @@ type Actions = {
 export type Store = pinia.Store<Id, State, Getters, Actions>;
 export type StoreDefinition = pinia.StoreDefinition<Id, State, Getters, Actions>;
 
-export const useStore: StoreDefinition = pinia.defineStore("gui", () => {
-  const writableState = vue.reactive(models.Gui.make());
-  const readOnlyState = vue.reactive({
-    focusedPlatform: null as Platform | null,
-  });
-  const actions: Actions = {
-    focusPlatform(this: typeof writableState & typeof readOnlyState, platform) {
+export const useStore = pinia.defineStore<Id, State, Getters, Actions>("gui", {
+  state: () => {
+    return {
+      ...models.Gui.make(),
+      focusedPlatform: null as Platform | null,
+    };
+  },
+  actions: {
+    focusPlatform(this: State & { focusedPlatform: Platform | null }, platform) {
       this.focusedPlatform = platform;
     },
-    unfocusPlatform(this: typeof writableState & typeof readOnlyState, platform) {
+    unfocusPlatform(this: State & { focusedPlatform: Platform | null }, platform) {
       if (platform !== "nintendo" && this.services.nintendo.enabled) {
         this.focusedPlatform = "nintendo";
         return;
@@ -42,10 +43,5 @@ export const useStore: StoreDefinition = pinia.defineStore("gui", () => {
       }
       this.focusedPlatform = null;
     },
-  };
-  return {
-    ...vue.toRefs(writableState),
-    ...vue.toRefs(readOnlyState),
-    ...actions,
-  };
+  },
 });
