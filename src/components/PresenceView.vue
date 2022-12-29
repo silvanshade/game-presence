@@ -59,6 +59,20 @@ import icon$xbox from "@mdi/svg/svg/microsoft-xbox.svg";
 import * as vue from "vue";
 import type * as models from "../models";
 
+const mockPresence: models.Presence = {
+  assetsLargeImage:
+    "https://store-images.s-microsoft.com/image/apps.39575.65858607118306853.39ed2a08-df0d-4ae1-aee0-c66ffb783a34.4b0c1586-4376-4ebb-a653-53a3fccec06c",
+  assetsLargeText: "The Witcher 3: Wild Hunt",
+  assetsSmallImage: "small-icon",
+  assetsSmallText: "playing on pc/xbox",
+  buttonStore: null,
+  buttonTwitch: null,
+  details: "The Witcher 3: Wild Hunt",
+  state: "playing on pc/xbox",
+  timeStart: new Date(Date.now()).toISOString(),
+  hash: "",
+};
+
 export default vue.defineComponent({
   name: "StatusPage",
   props: {
@@ -110,18 +124,7 @@ export default vue.defineComponent({
         return vue.toRef(props, "presence");
       } else {
         void props;
-        return vue.ref({
-          assetsLargeImage:
-            "https://store-images.s-microsoft.com/image/apps.39575.65858607118306853.39ed2a08-df0d-4ae1-aee0-c66ffb783a34.4b0c1586-4376-4ebb-a653-53a3fccec06c",
-          assetsLargeText: "The Witcher 3: Wild Hunt",
-          assetsSmallImage: "small-icon",
-          assetsSmallText: "playing on pc/xbox",
-          buttonStore: null,
-          buttonTwitch: null,
-          details: "The Witcher 3: Wild Hunt",
-          state: "playing on pc/xbox",
-          timeStart: new Date(Date.now()).toISOString(),
-        });
+        return vue.ref(mockPresence);
       }
     })();
 
