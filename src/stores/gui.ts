@@ -45,7 +45,7 @@ export const useStore: StoreDefinition = pinia.defineStore("gui", () => {
   };
   return {
     ...vue.toRefs(writableState),
-    ...vue.toRefs(vue.readonly(readOnlyState)),
+    ...vue.toRefs(readOnlyState),
     ...actions,
   };
 });
