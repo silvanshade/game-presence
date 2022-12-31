@@ -32,12 +32,14 @@ pub struct StoreSuggestResult {
 }
 
 impl StoreSuggestResult {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn image_url(&self) -> Result<url::Url, Error> {
         let protocol = "https";
         let url = self.image_url.split('?').next().context(UrlDropResizeParamsSnafu)?;
         url::Url::parse(&format!("{}:{}", protocol, url)).context(UrlParseSnafu)
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn store_url(&self) -> Result<url::Url, Error> {
         let protocol = "https";
         let url = &self.url;
@@ -47,6 +49,7 @@ impl StoreSuggestResult {
 
 const ENDPOINT_AUTOSUGGEST: &str = "https://www.microsoft.com/msstoreapiprod/api/autosuggest";
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 fn endpoint(query: &str) -> Result<url::Url, Error> {
     use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
     let encoded_query = utf8_percent_encode(query, NON_ALPHANUMERIC).to_string();
@@ -58,6 +61,7 @@ fn endpoint(query: &str) -> Result<url::Url, Error> {
     url::Url::parse_with_params(ENDPOINT_AUTOSUGGEST, params).context(UrlParseSnafu)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn request(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
     // FIXME: don't recompile this every time
     // FIXME: try to do filtering for game of the year or special editions (unless there is only one

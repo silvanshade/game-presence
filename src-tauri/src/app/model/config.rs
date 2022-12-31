@@ -26,6 +26,7 @@ pub struct Config {
 impl Config {
     const FILE_NAME: &str = "config.json";
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn file_base() -> Result<std::path::PathBuf, Error> {
         let base = directories::BaseDirs::new().context(DirectoriesBaseDirsNewSnafu)?;
         let mut path = base.config_dir().to_path_buf();
@@ -33,18 +34,21 @@ impl Config {
         Ok(path)
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn file_base_create() -> Result<(), Error> {
         let base = Self::file_base()?;
         std::fs::create_dir_all(base).context(StdFsCreateDirAllSnafu)?;
         Ok(())
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn file_path() -> Result<std::path::PathBuf, Error> {
         let mut path = Self::file_base()?;
         path.push(Self::FILE_NAME);
         Ok(path)
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub async fn load() -> Result<Self, Error> {
         use tokio::io::AsyncReadExt;
         Self::file_base_create()?;
@@ -71,6 +75,7 @@ impl Config {
         Ok(config)
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub async fn save(&self) -> Result<(), Error> {
         use tokio::io::AsyncWriteExt;
         Self::file_base_create()?;
@@ -91,6 +96,7 @@ impl Config {
 }
 
 impl Config {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
         self.services.synchronize_with_gui(gui);
         self.activity.synchronize_with_gui(gui);
@@ -98,6 +104,7 @@ impl Config {
     }
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
@@ -108,6 +115,7 @@ pub struct Activity {
 }
 
 impl Activity {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
         let activity = &gui.activity;
         self.polling_active = activity.polling_active;
@@ -128,6 +136,7 @@ pub struct Services {
 }
 
 impl Services {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
         self.nintendo.synchronize_with_gui(gui);
         self.playstation.synchronize_with_gui(gui);
@@ -140,6 +149,7 @@ impl Services {
 pub mod service {
     use serde::{Deserialize, Serialize};
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     #[derive(Clone, Debug, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
@@ -151,6 +161,7 @@ pub mod service {
     }
 
     impl Nintendo {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
             let nintendo = &gui.services.nintendo;
             self.disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
@@ -160,6 +171,7 @@ pub mod service {
     }
 
     impl Default for self::Nintendo {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         fn default() -> Self {
             let disclaimer_acknowledged = bool::default();
             let enabled = bool::default();
@@ -192,6 +204,7 @@ pub mod service {
     }
 
     impl Playstation {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
             let playstation = &gui.services.playstation;
             self.enabled = playstation.enabled;
@@ -200,6 +213,7 @@ pub mod service {
     }
 
     impl Default for self::Playstation {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         fn default() -> Self {
             let enabled = bool::default();
             let assets_priorities = vec![super::AssetSourceEntry::default()];
@@ -230,6 +244,7 @@ pub mod service {
     }
 
     impl Steam {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
             let steam = &gui.services.steam;
             self.enabled = steam.enabled;
@@ -238,6 +253,7 @@ pub mod service {
     }
 
     impl Default for self::Steam {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         fn default() -> Self {
             let enabled = bool::default();
             let assets_priorities = vec![super::AssetSourceEntry::default()];
@@ -269,6 +285,7 @@ pub mod service {
     }
 
     impl Twitch {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
             let twitch = &gui.services.twitch;
             self.enabled = twitch.enabled;
@@ -293,6 +310,7 @@ pub mod service {
     }
 
     impl Xbox {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_gui(&mut self, gui: &crate::app::model::Gui) {
             let xbox = &gui.services.xbox;
             self.enabled = xbox.enabled;
@@ -301,6 +319,7 @@ pub mod service {
     }
 
     impl Default for self::Xbox {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         fn default() -> Self {
             let enabled = bool::default();
             let assets_priorities = vec![super::AssetSourceEntry::default()];
@@ -344,6 +363,7 @@ pub enum ServicePrioritiesEntry {
 pub struct Games {}
 
 impl Games {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn synchronize_with_gui(&mut self, _gui: &crate::app::model::Gui) {
     }
 }

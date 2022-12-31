@@ -86,6 +86,7 @@ impl Core {
     // const XBOX_DISCORD_APPLICATION_ID: &str = "1053777655020912710";
     // const XBOX_TICK_RATE: u64 = 10;
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn init(
         rx: tokio::sync::oneshot::Receiver<tauri::AppHandle>,
     ) -> tauri::async_runtime::JoinHandle<Result<Self, Error>> {
@@ -111,14 +112,17 @@ impl Core {
         })
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn exit(model: &crate::app::Model) -> tokio::sync::futures::Notified {
         model.notifiers.exit.notified()
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn tick(secs: u64) {
         tokio::time::sleep(tokio::time::Duration::from_secs(secs)).await
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn nintendo(_app: tauri::AppHandle, model: crate::app::Model) -> Result<(), Error> {
         let tick = || async {
             if !model.config.read().await.services.nintendo.enabled {
@@ -138,6 +142,7 @@ impl Core {
         Ok(())
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn playstation(_app: tauri::AppHandle, model: crate::app::Model) -> Result<(), Error> {
         let tick = || async {
             if !model.config.read().await.services.playstation.enabled {
@@ -157,6 +162,7 @@ impl Core {
         Ok(())
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn steam(_app: tauri::AppHandle, model: crate::app::Model) -> Result<(), Error> {
         let tick = || async {
             if !model.config.read().await.services.steam.enabled {
@@ -176,6 +182,7 @@ impl Core {
         Ok(())
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub async fn terminate(self) -> Result<(), Error> {
         self.nintendo.await.context(TauriSpawnFutureSnafu)??;
         self.playstation.await.context(TauriSpawnFutureSnafu)??;

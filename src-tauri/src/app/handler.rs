@@ -9,6 +9,7 @@ use crate::app::{
 use snafu::prelude::*;
 use tauri::Manager;
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(), Error> {
     let label = "main";
     let window = app.get_window(label).context(TauriGetWindowSnafu { label })?;
@@ -31,6 +32,7 @@ fn toggle_visibility<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<(),
     Ok(())
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub fn invoke() -> impl Fn(tauri::Invoke<tauri::Wry>) {
     tauri::generate_handler![
         crate::app::command::service_playstation_authorization_flow,
@@ -43,6 +45,7 @@ pub fn invoke() -> impl Fn(tauri::Invoke<tauri::Wry>) {
     ]
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub fn run() -> impl FnMut(&tauri::AppHandle, tauri::RunEvent) {
     use tauri::{RunEvent, WindowEvent};
     |app, run_event| match run_event {
@@ -66,6 +69,7 @@ pub fn run() -> impl FnMut(&tauri::AppHandle, tauri::RunEvent) {
     }
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub fn system_tray<R: tauri::Runtime>() -> impl Fn(&tauri::AppHandle<R>, tauri::SystemTrayEvent) {
     use tauri::SystemTrayEvent;
     |app, event| match event {

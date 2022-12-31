@@ -41,6 +41,7 @@ const ENDPOINT_AUTHORIZE: &str = "https://ca.account.sony.com/api/authz/v3/oauth
 const ENDPOINT_TOKEN: &str = "https://ca.account.sony.com/api/authz/v3/oauth/token";
 
 mod params {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn common<'a, 'b>() -> impl Iterator<Item = (&'a str, &'b str)> {
         [
             ("access_type", "offline"),
@@ -57,6 +58,7 @@ mod params {
     }
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub fn endpoint_authorize_url() -> Result<url::Url, Error> {
     url::Url::parse_with_params(
         ENDPOINT_AUTHORIZE,
@@ -73,6 +75,7 @@ pub fn endpoint_authorize_url() -> Result<url::Url, Error> {
     .context(UrlParseSnafu)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 async fn request_authorize(app: &tauri::AppHandle, reauthorize: bool) -> Result<ResponseAuthorize, Error> {
     let (tx_response, mut rx_response) = tokio::sync::mpsc::channel::<String>(2);
 
@@ -109,6 +112,7 @@ async fn request_authorize(app: &tauri::AppHandle, reauthorize: bool) -> Result<
     Ok(response_authorize)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 async fn request_token(response_authorize: ResponseAuthorize) -> Result<ResponseToken, Error> {
     let client = reqwest::Client::new();
     let request = client
@@ -134,6 +138,7 @@ async fn request_token(response_authorize: ResponseAuthorize) -> Result<Response
     Ok(response_token)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn authorization_flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error> {
     let response_authorize = request_authorize(app, reauthorize).await?;
     let response_token = request_token(response_authorize).await?;

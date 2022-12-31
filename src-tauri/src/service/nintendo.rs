@@ -20,6 +20,7 @@ struct AuthorizeChallenge {
 }
 
 impl AuthorizeChallenge {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn new() -> Result<Self, Error> {
         use rand::RngCore;
         use ring::digest::{Context, SHA256};
@@ -87,6 +88,7 @@ const ENDPOINT_AUTHORIZE: &str = "https://accounts.nintendo.com/connect/1.0.0/au
 //     }
 // }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn authorization_flow(app: &tauri::AppHandle) -> Result<(), Error> {
     const REDIRECT_URI_PREFIX: &str = "npf71b963c1b7b6d119://auth";
 

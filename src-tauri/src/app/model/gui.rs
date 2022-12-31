@@ -9,6 +9,7 @@ pub struct Gui {
 }
 
 impl Gui {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
         self.services.synchronize_with_config(config);
         self.activity.synchronize_with_config(config);
@@ -26,6 +27,7 @@ pub struct Activity {
 }
 
 impl Activity {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
         let activity = &config.activity;
         self.polling_active = activity.polling_active;
@@ -46,6 +48,7 @@ pub struct Services {
 }
 
 impl Services {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
         self.nintendo.synchronize_with_config(config);
         self.playstation.synchronize_with_config(config);
@@ -69,6 +72,7 @@ pub mod service {
     }
 
     impl Nintendo {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let nintendo = &config.services.nintendo;
             self.disclaimer_acknowledged = nintendo.disclaimer_acknowledged;
@@ -78,6 +82,7 @@ pub mod service {
     }
 
     impl Default for self::Nintendo {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         fn default() -> Self {
             let disclaimer_acknowledged = bool::default();
             let enabled = bool::default();
@@ -112,6 +117,7 @@ pub mod service {
     }
 
     impl Playstation {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let playstation = &config.services.playstation;
             self.enabled = playstation.enabled;
@@ -120,6 +126,7 @@ pub mod service {
     }
 
     impl Default for self::Playstation {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         fn default() -> Self {
             let enabled = bool::default();
             let assets_priorities = vec![crate::app::model::config::AssetSourceEntry::default()];
@@ -152,6 +159,7 @@ pub mod service {
     }
 
     impl Steam {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let steam = &config.services.steam;
             self.enabled = steam.enabled;
@@ -167,6 +175,7 @@ pub mod service {
     }
 
     impl Default for self::Steam {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         fn default() -> Self {
             let enabled = bool::default();
             let assets_priorities = vec![crate::app::model::config::AssetSourceEntry::default()];
@@ -207,6 +216,7 @@ pub mod service {
     }
 
     impl Twitch {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let twitch = &config.services.twitch;
             self.enabled = twitch.enabled;
@@ -231,6 +241,7 @@ pub mod service {
     }
 
     impl Xbox {
+        #[cfg_attr(feature = "tracing", tracing::instrument)]
         pub fn synchronize_with_config(&mut self, config: &crate::app::model::Config) {
             let xbox = &config.services.xbox;
             self.enabled = xbox.enabled;
@@ -268,6 +279,7 @@ pub mod service {
 pub struct Games {}
 
 impl Games {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn synchronize_with_config(&mut self, _config: &crate::app::model::Config) {
     }
 }

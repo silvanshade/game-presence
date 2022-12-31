@@ -40,6 +40,7 @@ pub enum Error {
 }
 
 impl Model {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub async fn init() -> Result<Self, Error> {
         let config = crate::app::model::Config::load().await.context(ConfigLoadSnafu)?;
 
@@ -56,10 +57,12 @@ impl Model {
         Ok(model)
     }
 
+    // #[cfg_attr(feature = "tracing", tracing::instrument)]
     // pub async fn read_config(&self) -> tokio::sync::RwLockReadGuard<crate::app::model::Config> {
     //     self.config.read().await
     // }
 
+    // #[cfg_attr(feature = "tracing", tracing::instrument)]
     // pub async fn write_config(&self, config: crate::app::model::Config) -> Result<(), Error> {
     //     let mut gui = self.gui.write().await;
     //     gui.synchronize_with_config(&config)
@@ -70,6 +73,7 @@ impl Model {
     //     Ok(())
     // }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub async fn update_gui(&self, update: impl FnOnce(&mut crate::app::model::Gui)) -> Result<(), Error> {
         let mut gui = self.gui.write().await;
         update(&mut gui);

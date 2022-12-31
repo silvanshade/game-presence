@@ -52,6 +52,7 @@ impl XboxCore {
     const DISCORD_APPLICATION_ID: &str = "1056148753528131654";
     const TICK_RATE: u64 = 15;
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn new(app: tauri::AppHandle) -> Result<Self, Error> {
         let mut discord_client =
             discord_ipc::DiscordIpcClient::new(Self::DISCORD_APPLICATION_ID).context(DiscordIpcNewSnafu)?;
@@ -64,11 +65,13 @@ impl XboxCore {
         })
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn start(app: &tauri::AppHandle) -> tauri::async_runtime::JoinHandle<Result<(), Error>> {
         let this = Self::new(app.clone());
         tauri::async_runtime::spawn(async move { this?.run().await })
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn run(&mut self) -> BoxFuture<Result<(), Error>> {
         Box::pin(async {
             loop {
@@ -81,6 +84,7 @@ impl XboxCore {
         })
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn exit(&self) -> Result<&tokio::sync::Notify, Error> {
         let result = &*self
             .app
@@ -92,11 +96,13 @@ impl XboxCore {
         Ok(result)
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn wait(&self) {
         use tokio::time;
         time::sleep(time::Duration::from_secs(Self::TICK_RATE)).await
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn tick(&mut self) -> Result<(), Error> {
         let app = self.app.clone();
         let model = app.try_state::<crate::app::Model>().context(TauriTryStateSnafu)?;
@@ -119,6 +125,7 @@ impl XboxCore {
         Ok(())
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn process_xbox_presence(&mut self) -> Result<(), Error> {
         if let Some(xbox_presence) = &self.xbox_presence {
             let presence = xbox_presence
@@ -141,6 +148,7 @@ impl XboxCore {
         Ok(())
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     async fn refresh_discord_activity(&mut self) -> Result<(), Error> {
         if let Some(discord_presence) = self
             .app

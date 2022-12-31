@@ -36,6 +36,7 @@ const CLIENT_ID: &str = "0vvuyyk8c79jvwqwc9b4hmbqb3sjdr";
 
 const REDIRECT_URL: &str = "http://localhost:3000/api/twitch/authorize/redirect";
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 fn endpoint_authorize_url(force_reauthorize: bool) -> Result<(url::Url, twitch_oauth2::types::CsrfToken), Error> {
     use twitch_oauth2::{tokens::ImplicitUserTokenBuilder, ClientId};
     let client_id = ClientId::from_static(CLIENT_ID);
@@ -46,6 +47,7 @@ fn endpoint_authorize_url(force_reauthorize: bool) -> Result<(url::Url, twitch_o
     Ok(result)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn authorization_flow<R: tauri::Runtime>(app: &tauri::AppHandle<R>, reauthorize: bool) -> Result<(), Error> {
     let (url, csrf_token) = endpoint_authorize_url(reauthorize)?;
     let (tx_token, mut rx_token) = tokio::sync::mpsc::channel::<Result<twitch_oauth2::AccessToken, Error>>(2);

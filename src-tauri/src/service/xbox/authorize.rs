@@ -38,6 +38,7 @@ const XBOX_USER_AUTH_URL: &str = "https://user.auth.xboxlive.com/user/authentica
 
 const XBOX_XSTS_AUTH_URL: &str = "https://xsts.auth.xboxlive.com/xsts/authorize";
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 fn from_xbox_xui_datas<'de, D, T>(deserializer: D) -> Result<T, D::Error>
 where
     D: serde::de::Deserializer<'de>,
@@ -113,6 +114,7 @@ pub struct XstsTokenXuiData {
     pub xid: String,
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 fn client() -> Result<oauth2::basic::BasicClient, Error> {
     let client_id = CLIENT_ID.conv::<String>().pipe(oauth2::ClientId::new);
     let client_secret = None;
@@ -134,6 +136,7 @@ fn client() -> Result<oauth2::basic::BasicClient, Error> {
     Ok(client)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error> {
     use oauth2::TokenResponse;
     use tauri::Manager;
@@ -162,6 +165,7 @@ pub async fn flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error
     Ok(())
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 async fn flow_get_oauth2_auth_code(
     app: &tauri::AppHandle,
     reauthorize: bool,
@@ -229,6 +233,7 @@ async fn flow_get_oauth2_auth_code(
     Ok(oauth2::AuthorizationCode::new(code))
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 async fn flow_get_oauth2_bearer_token(
     client: &oauth2::basic::BasicClient,
     code: oauth2::AuthorizationCode,
@@ -243,6 +248,7 @@ async fn flow_get_oauth2_bearer_token(
     Ok(token)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 async fn flow_get_xbox_user_token(access_token: &oauth2::AccessToken) -> Result<UserToken, Error> {
     reqwest::Client::new()
         .post(XBOX_USER_AUTH_URL)
@@ -268,6 +274,7 @@ async fn flow_get_xbox_user_token(access_token: &oauth2::AccessToken) -> Result<
         .context(SerdeJsonFromValueSnafu)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 async fn flow_get_xbox_xsts_token(xbox_user_token: &UserToken) -> Result<XstsToken, Error> {
     reqwest::Client::new()
         .post(XBOX_XSTS_AUTH_URL)

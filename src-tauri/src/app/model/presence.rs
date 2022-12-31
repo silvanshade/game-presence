@@ -61,6 +61,7 @@ impl Presence {
         }
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn twitch_url(title: &str) -> Result<url::Url, Error> {
         use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
         let encoded_title = utf8_percent_encode(title, NON_ALPHANUMERIC).to_string();

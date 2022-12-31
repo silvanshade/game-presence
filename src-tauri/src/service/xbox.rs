@@ -69,14 +69,17 @@ pub enum Error {
     XboxTokenXui,
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn authorize(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error> {
     self::authorize::flow(app, reauthorize).await
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn autosuggest(query: &str) -> Result<Option<StoreSuggestResult>, Error> {
     self::autosuggest::request(query).await
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn presence(xsts: &XstsToken) -> Result<PresenceRecord, Error> {
     self::presence::request(xsts).await
 }

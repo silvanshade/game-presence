@@ -41,6 +41,7 @@ pub enum Error {
     },
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 fn make_system_tray() -> tauri::SystemTray {
     let system_tray_menu = tauri::SystemTrayMenu::new()
         .add_item(tauri::CustomMenuItem::new(
@@ -55,6 +56,7 @@ fn make_system_tray() -> tauri::SystemTray {
     tauri::SystemTray::new().with_menu(system_tray_menu)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub(crate) fn init(model: crate::app::Model, tx: tokio::sync::oneshot::Sender<tauri::AppHandle>) -> Result<(), Error> {
     let context = tauri::generate_context!();
 

@@ -84,11 +84,12 @@ pub enum Error {
     },
 }
 
-trait TauriWindowExt {
+trait TauriWindowExt: private::Sealed {
     fn navigate(&self, url: url::Url, clear_data_first: bool) -> Result<(), Error>;
 }
 
 impl TauriWindowExt for tauri::Window {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     fn navigate(&self, url: url::Url, clear_data_first: bool) -> Result<(), Error> {
         let (tx, rx) = std::sync::mpsc::channel();
         self.with_webview(move |webview| tx.send(navigate(webview, url, clear_data_first)).unwrap())
@@ -97,6 +98,7 @@ impl TauriWindowExt for tauri::Window {
     }
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 #[cfg(target_os = "macos")]
 fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> Result<(), Error> {
     use block::ConcreteBlock;
@@ -130,6 +132,7 @@ fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> 
     Ok(())
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 #[cfg(target_os = "linux")]
 fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> Result<(), Error> {
     use webkit2gtk::{CookieManagerExt, WebContextExt, WebViewExt};
@@ -150,6 +153,7 @@ fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> 
     Ok(())
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 #[cfg(target_os = "windows")]
 fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> Result<(), Error> {
     use std::{rc::Rc, sync::mpsc};
@@ -211,4 +215,13 @@ fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> 
     }
 
     Ok(())
+}
+
+mod private {
+    pub trait Sealed {}
+    impl Sealed for tauri::Window {
+    }
+    impl<'a, T> Sealed for &'a T where T: ?Sized + Sealed
+    {
+    }
 }

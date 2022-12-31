@@ -19,6 +19,7 @@ pub struct PresenceRecord {
 }
 
 impl PresenceRecord {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn relevant_name(&self) -> Option<&str> {
         self.devices
             .iter()
@@ -35,6 +36,7 @@ impl PresenceRecord {
             .flatten()
     }
 
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub async fn into_discord_presence(&self) -> Result<Option<crate::app::model::Presence>, Error> {
         let name = self.relevant_name();
         if let Some(name) = name {
@@ -110,10 +112,12 @@ pub struct TitleRecord {
     pub state: String,
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 fn endpoint() -> Result<url::Url, Error> {
     url::Url::parse("https://userpresence.xboxlive.com/users/me").context(UrlParseSnafu)
 }
 
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn request(xsts: &super::XstsToken) -> Result<PresenceRecord, Error> {
     let url = endpoint()?;
     let user_hash = &xsts.display_claims.xui.uhs;

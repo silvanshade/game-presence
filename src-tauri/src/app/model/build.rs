@@ -27,6 +27,7 @@ pub struct BuildInfo {
 }
 
 impl BuildInfo {
+    #[cfg_attr(feature = "tracing", tracing::instrument)]
     pub fn collect() -> Result<Self, Error> {
         let built_time_utc = self::metadata::BUILT_TIME_UTC;
         let cfg_os = self::metadata::CFG_OS;
