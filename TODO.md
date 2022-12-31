@@ -1,7 +1,4 @@
-- prune errors
-- fix blurry icon on windows
-- set min-height for services pages
-- module visibility
-- tap debug, tap tracing
+- tracing
 - add notification badge to platform icons in headerbar
-- use more getters and actions with pinia store
+- handle other status codes (200)
+- fix blurry icon on windows
