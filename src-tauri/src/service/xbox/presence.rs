@@ -10,7 +10,8 @@ use serde::Deserialize;
 use snafu::prelude::*;
 use tap::prelude::*;
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PresenceRecord {
     pub state: String,
@@ -75,14 +76,16 @@ impl PresenceRecord {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityRecord {
     pub rich_presence: String,
     pub media: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DeviceRecord {
     #[serde(rename = "type")]
@@ -90,7 +93,8 @@ pub struct DeviceRecord {
     pub titles: Vec<TitleRecord>,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LastSeenRecord {
     pub device_type: String,
@@ -100,7 +104,8 @@ pub struct LastSeenRecord {
     pub timestamp: time::OffsetDateTime,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TitleRecord {
     pub id: String,

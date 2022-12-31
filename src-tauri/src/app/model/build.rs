@@ -12,7 +12,8 @@ pub mod metadata {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }
 
-#[derive(Debug, Deserialize, Serialize, SimpleObject)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize, Serialize, SimpleObject)]
 #[serde(rename_all = "camelCase")]
 pub struct BuildInfo {
     pub built_time_utc: &'static str,

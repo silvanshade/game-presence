@@ -10,19 +10,22 @@ use serde::Deserialize;
 use snafu::prelude::*;
 use tap::prelude::*;
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct StoreAutoSuggest {
     pub result_sets: Vec<StoreAutoSuggestResultSet>,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct StoreAutoSuggestResultSet {
     pub suggests: Vec<StoreSuggestResult>,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct StoreSuggestResult {
     pub source: String,

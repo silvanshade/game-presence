@@ -60,7 +60,8 @@ struct AuthCodeQuery {
     state: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 struct UserToken {
     // display_claims: XboxUserTokenDisplayClaims,
@@ -71,20 +72,23 @@ struct UserToken {
     token: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct UserTokenDisplayClaims {
     // #[serde(deserialize_with = "from_xbox_xui_datas")]
     // xui: XboxUserTokenXuiData,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct UserTokenXuiData {
     // uhs: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct XstsToken {
     pub display_claims: XstsTokenDisplayClaims,
@@ -95,14 +99,16 @@ pub struct XstsToken {
     pub token: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct XstsTokenDisplayClaims {
     #[serde(deserialize_with = "from_xbox_xui_datas")]
     pub xui: XstsTokenXuiData,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct XstsTokenXuiData {
     // agg: String,

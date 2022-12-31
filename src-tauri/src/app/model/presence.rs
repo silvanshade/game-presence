@@ -2,7 +2,8 @@ use super::{Error, UrlParseSnafu};
 use serde::{Deserialize, Serialize};
 use snafu::prelude::*;
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Presence {
     pub details: String,

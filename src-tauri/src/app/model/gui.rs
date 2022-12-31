@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Gui {
     pub activity: Activity,
@@ -17,7 +18,8 @@ impl Gui {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
     pub polling_active: bool,
@@ -37,7 +39,8 @@ impl Activity {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Services {
     pub nintendo: self::service::Nintendo,
@@ -61,7 +64,8 @@ impl Services {
 pub mod service {
     use serde::{Deserialize, Serialize};
 
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[cfg_attr(feature = "debug", derive(Debug))]
+    #[derive(Clone, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
         pub disclaimer_acknowledged: bool,
@@ -100,14 +104,16 @@ pub mod service {
     pub mod nintendo {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {
             pub presence: Option<crate::app::model::Presence>,
         }
     }
 
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[cfg_attr(feature = "debug", derive(Debug))]
+    #[derive(Clone, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
@@ -142,14 +148,16 @@ pub mod service {
     pub mod playstation {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {
             presence: Option<crate::app::model::Presence>,
         }
     }
 
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[cfg_attr(feature = "debug", derive(Debug))]
+    #[derive(Clone, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
@@ -191,7 +199,8 @@ pub mod service {
     pub mod steam {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {
             pub api_key: String,
@@ -207,7 +216,8 @@ pub mod service {
         }
     }
 
-    #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+    #[cfg_attr(feature = "debug", derive(Debug))]
+    #[derive(Clone, Default, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Twitch {
         pub enabled: bool,
@@ -226,12 +236,14 @@ pub mod service {
     pub mod twitch {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
     }
 
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[cfg_attr(feature = "debug", derive(Debug))]
+    #[derive(Clone, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
@@ -265,7 +277,8 @@ pub mod service {
     pub mod xbox {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {
             pub gamertag: String,
@@ -274,7 +287,8 @@ pub mod service {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {}
 

@@ -18,12 +18,14 @@ pub enum Error {
     UrlQuery,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 struct ResponseAuthorize {
     code: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Deserialize)]
 struct ResponseToken {
     // access_token: String,
     // token_type: String,
@@ -141,7 +143,6 @@ async fn request_token(response_authorize: ResponseAuthorize) -> Result<Response
 #[cfg_attr(feature = "tracing", tracing::instrument)]
 pub async fn authorization_flow(app: &tauri::AppHandle, reauthorize: bool) -> Result<(), Error> {
     let response_authorize = request_authorize(app, reauthorize).await?;
-    let response_token = request_token(response_authorize).await?;
-    println!("{:#?}", response_token);
+    let _response_token = request_token(response_authorize).await?;
     Ok(())
 }

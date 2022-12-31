@@ -15,7 +15,8 @@ pub enum Error {
     TokioIoWriteAll { source: std::io::Error },
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub activity: Activity,
@@ -104,8 +105,9 @@ impl Config {
     }
 }
 
+#[cfg_attr(feature = "debug", derive(Debug))]
 #[cfg_attr(feature = "tracing", tracing::instrument)]
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
     pub polling_active: bool,
@@ -125,7 +127,8 @@ impl Activity {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Services {
     pub nintendo: self::service::Nintendo,
@@ -149,8 +152,9 @@ impl Services {
 pub mod service {
     use serde::{Deserialize, Serialize};
 
+    #[cfg_attr(feature = "debug", derive(Debug))]
     #[cfg_attr(feature = "tracing", tracing::instrument)]
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[derive(Clone, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Nintendo {
         pub disclaimer_acknowledged: bool,
@@ -189,12 +193,14 @@ pub mod service {
     pub mod nintendo {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
     }
 
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[cfg_attr(feature = "debug", derive(Debug))]
+    #[derive(Clone, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Playstation {
         pub enabled: bool,
@@ -229,12 +235,14 @@ pub mod service {
     pub mod playstation {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
     }
 
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[cfg_attr(feature = "debug", derive(Debug))]
+    #[derive(Clone, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Steam {
         pub enabled: bool,
@@ -269,14 +277,16 @@ pub mod service {
     pub mod steam {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {
             pub api_key: String,
         }
     }
 
-    #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+    #[cfg_attr(feature = "debug", derive(Debug))]
+    #[derive(Clone, Default, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Twitch {
         pub enabled: bool,
@@ -295,12 +305,14 @@ pub mod service {
     pub mod twitch {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
     }
 
-    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[cfg_attr(feature = "debug", derive(Debug))]
+    #[derive(Clone, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Xbox {
         pub enabled: bool,
@@ -335,13 +347,15 @@ pub mod service {
     pub mod xbox {
         use serde::{Deserialize, Serialize};
 
-        #[derive(Clone, Debug, Deserialize, Serialize)]
+        #[cfg_attr(feature = "debug", derive(Debug))]
+        #[derive(Clone, Deserialize, Serialize)]
         #[serde(rename_all = "camelCase")]
         pub struct Data {}
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Copy, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum AssetSourceEntry {
     #[default]
@@ -349,7 +363,8 @@ pub enum AssetSourceEntry {
     Twitch,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Copy, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ServicePrioritiesEntry {
     Nintendo,
@@ -358,7 +373,8 @@ pub enum ServicePrioritiesEntry {
     Xbox,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[cfg_attr(feature = "debug", derive(Debug))]
+#[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {}
 
