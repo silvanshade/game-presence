@@ -78,6 +78,14 @@ pub(crate) fn init(model: crate::app::Model, tx: tokio::sync::oneshot::Sender<ta
     // configure tauri plugins
     let builder = {
         let schema = crate::app::ipc::schema(model);
+        #[cfg(feature = "debug")]
+        let plugin = {
+            let addr = ([127, 0, 0, 1], 8000);
+            let open = true;
+            let cfg = tauri_plugin_graphql_ipc::GraphQlIdeConfig::new(addr, open);
+            tauri_plugin_graphql_ipc::init_with_graphql_ide(schema, cfg)
+        };
+        #[cfg(not(feature = "debug"))]
         let plugin = tauri_plugin_graphql_ipc::init(schema);
         builder.plugin(plugin)
     };
