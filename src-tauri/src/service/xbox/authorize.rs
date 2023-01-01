@@ -15,7 +15,6 @@ use super::{
     TauriWindowBuilderNewSnafu,
     TauriWindowCloseSnafu,
     TauriWindowNavigateSnafu,
-    UrlParseSnafu,
     UrlQuerySnafu,
     XboxTokenXuiSnafu,
 };
@@ -190,12 +189,13 @@ async fn flow_get_oauth2_auth_code(
             .url()
     };
 
-    let (tx, rx) = std::sync::mpsc::channel::<String>();
+    let (tx, rx) = std::sync::mpsc::channel::<url::Url>();
 
     let window = {
         tauri::WindowBuilder::new(app, "auth-xbox", tauri::WindowUrl::App("/html/auth-init.html".into()))
-            .on_navigation(move |url: String| {
-                if url.starts_with(REDIRECT_URL) {
+            .on_navigation(move |url: url::Url| {
+                let str = url.as_str();
+                if str.starts_with(REDIRECT_URL) {
                     tx.send(url).expect("failed to send redirect URL back from window");
                     return false;
                 }
@@ -214,12 +214,7 @@ async fn flow_get_oauth2_auth_code(
         .navigate(auth_url, reauthorize)
         .context(TauriWindowNavigateSnafu)?;
 
-    let auth_redirect = rx
-        .recv()
-        .context(StdSyncMpscReceiveSnafu)?
-        .as_str()
-        .pipe(url::Url::parse)
-        .context(UrlParseSnafu)?;
+    let auth_redirect = rx.recv().context(StdSyncMpscReceiveSnafu)?;
 
     tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
         .await

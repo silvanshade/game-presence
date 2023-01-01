@@ -25,7 +25,7 @@ pub enum Error {
         state: String,
     },
     TwitchAuthorizationFailedWithMissingQuery {
-        url: String,
+        url: url::Url,
     },
     UrlParse {
         source: url::ParseError,
@@ -55,10 +55,11 @@ pub async fn authorization_flow<R: tauri::Runtime>(app: &tauri::AppHandle<R>, re
     let window = {
         let label = "twitch-integration-authorization";
         let url = tauri::WindowUrl::External(url);
-        let navigation_handler = move |url: String| {
-            if url.starts_with(REDIRECT_URL) {
+        let navigation_handler = move |url: url::Url| {
+            let str = url.as_str();
+            if str.starts_with(REDIRECT_URL) {
                 let result;
-                let suffix = &url[REDIRECT_URL.len() + 1 ..];
+                let suffix = &str[REDIRECT_URL.len() + 1 ..];
                 if let Ok(query) = serde_urlencoded::from_str::<std::collections::HashMap<String, String>>(suffix) {
                     if let (Some(access_token), Some(state)) = (query.get("access_token"), query.get("state")) {
                         if csrf_token.secret() == state {

@@ -79,11 +79,12 @@ pub fn endpoint_authorize_url() -> Result<url::Url, Error> {
 
 #[cfg_attr(feature = "tracing", tracing::instrument)]
 async fn request_authorize(app: &tauri::AppHandle, reauthorize: bool) -> Result<ResponseAuthorize, Error> {
-    let (tx_response, mut rx_response) = tokio::sync::mpsc::channel::<String>(2);
+    let (tx_response, mut rx_response) = tokio::sync::mpsc::channel::<url::Url>(2);
 
     let window = {
-        let navigation_handler = move |url: String| {
-            if url.starts_with(&APP_REDIRECT_URI.to_ascii_lowercase()) {
+        let navigation_handler = move |url: url::Url| {
+            let str = url.as_str();
+            if str.starts_with(&APP_REDIRECT_URI.to_ascii_lowercase()) {
                 tx_response.blocking_send(url).unwrap();
                 return false;
             }
@@ -102,13 +103,12 @@ async fn request_authorize(app: &tauri::AppHandle, reauthorize: bool) -> Result<
         .navigate(endpoint_authorize_url()?, reauthorize)
         .context(TauriWindowNavigateSnafu)?;
 
-    let response = rx_response.recv().await.context(TokioMpscReceiveSnafu)?;
-    println!("response: {}", response);
+    let redirect = rx_response.recv().await.context(TokioMpscReceiveSnafu)?;
+    println!("redirect: {}", redirect);
     tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
         .await
         .context(TauriSpawnSnafu)??;
 
-    let redirect = url::Url::parse(&response).context(UrlParseSnafu)?;
     let query = redirect.query().context(UrlQuerySnafu)?;
     let response_authorize = serde_urlencoded::from_str::<ResponseAuthorize>(query).context(SerdeUrlEncodedSnafu)?;
     Ok(response_authorize)

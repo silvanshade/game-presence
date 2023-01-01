@@ -68,7 +68,7 @@ windows = { version = "=0.39", features = [] }
 webview2-com = { version = "=0.19.1", features = [] }
 
 [patch.crates-io]
-tauri = { git = "https://github.com/silvanshade/tauri", branch = "feature/navigation_handler" }
+tauri = { git = "https://github.com/tauri-apps/tauri", rev = "3f35b45" }
 
 [profile.release]
 codegen-units = 1
