@@ -49,7 +49,7 @@ const configureGraphQL = (model$gui: stores.gui.Store) => {
   );
 
   const guiMutation = urql.useMutation(gql`
-    mutation ($data: JSON) {
+    mutation ($data: JSON!) {
       gui(data: $data)
     }
   `);
