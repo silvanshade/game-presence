@@ -106,7 +106,6 @@ impl Config {
 }
 
 #[cfg_attr(feature = "debug", derive(Debug))]
-#[cfg_attr(feature = "tracing", tracing::instrument)]
 #[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Activity {
@@ -153,7 +152,6 @@ pub mod service {
     use serde::{Deserialize, Serialize};
 
     #[cfg_attr(feature = "debug", derive(Debug))]
-    #[cfg_attr(feature = "tracing", tracing::instrument)]
     #[derive(Clone, Deserialize, Serialize)]
     #[serde(rename_all = "camelCase")]
     pub struct Nintendo {

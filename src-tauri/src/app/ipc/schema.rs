@@ -6,6 +6,7 @@ pub enum Error {
     SerdeJsonSerialize { source: serde_json::Error },
 }
 
+#[cfg_attr(feature = "debug", derive(Debug))]
 #[derive(Default)]
 pub struct Query;
 
@@ -17,12 +18,13 @@ impl Query {
     }
 }
 
+#[cfg_attr(feature = "debug", derive(Debug))]
 #[derive(Default)]
 pub struct Mutation;
 
 #[Object]
 impl Mutation {
-    #[cfg_attr(feature = "tracing", tracing::instrument)]
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(ctx)))]
     async fn gui<'ctx>(&self, ctx: &Context<'ctx>, data: serde_json::Value) -> async_graphql::Result<bool> {
         let this = serde_json::from_value(data)?;
         let model = ctx.data::<crate::app::Model>()?;
@@ -31,12 +33,13 @@ impl Mutation {
     }
 }
 
+#[cfg_attr(feature = "debug", derive(Debug))]
 #[derive(Default)]
 pub struct Subscription;
 
 #[Subscription]
 impl Subscription {
-    #[cfg_attr(feature = "tracing", tracing::instrument)]
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(ctx)))]
     async fn gui<'ctx>(
         &self,
         ctx: &Context<'ctx>,

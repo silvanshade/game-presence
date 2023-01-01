@@ -68,6 +68,7 @@ pub enum Error {
     XboxCoreStart { source: crate::core::xbox::Error },
 }
 
+#[cfg_attr(feature = "debug", derive(Debug))]
 pub struct Core {
     nintendo: JoinHandle<Result<(), Error>>,
     playstation: JoinHandle<Result<(), Error>>,

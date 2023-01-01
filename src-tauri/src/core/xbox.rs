@@ -48,6 +48,16 @@ pub struct XboxCore {
     xbox_presence: Option<xbox::PresenceRecord>,
 }
 
+#[cfg(feature = "debug")]
+impl std::fmt::Debug for XboxCore {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("XboxCore")
+            .field("app", &self.app)
+            .field("xbox_presence", &self.xbox_presence)
+            .finish_non_exhaustive()
+    }
+}
+
 impl XboxCore {
     const DISCORD_APPLICATION_ID: &str = "1056148753528131654";
     const TICK_RATE: u64 = 15;

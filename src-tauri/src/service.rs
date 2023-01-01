@@ -98,8 +98,8 @@ impl TauriWindowExt for tauri::Window {
     }
 }
 
-#[cfg_attr(feature = "tracing", tracing::instrument)]
 #[cfg(target_os = "macos")]
+#[cfg_attr(feature = "tracing", tracing::instrument(skip(webview)))]
 fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> Result<(), Error> {
     use block::ConcreteBlock;
     use objc::{runtime::Object, *};
@@ -132,8 +132,8 @@ fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> 
     Ok(())
 }
 
-#[cfg_attr(feature = "tracing", tracing::instrument)]
 #[cfg(target_os = "linux")]
+#[cfg_attr(feature = "tracing", tracing::instrument(skip(webview)))]
 fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> Result<(), Error> {
     use webkit2gtk::{CookieManagerExt, WebContextExt, WebViewExt};
 
@@ -153,8 +153,8 @@ fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> 
     Ok(())
 }
 
-#[cfg_attr(feature = "tracing", tracing::instrument)]
 #[cfg(target_os = "windows")]
+#[cfg_attr(feature = "tracing", tracing::instrument(skip(webview)))]
 fn navigate(webview: PlatformWebview, url: url::Url, clear_data_first: bool) -> Result<(), Error> {
     use std::{rc::Rc, sync::mpsc};
     use webview2_com::CallDevToolsProtocolMethodCompletedHandler;

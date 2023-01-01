@@ -14,6 +14,7 @@ pub use gui::Gui;
 pub use presence::Presence;
 pub use session::Session;
 
+#[cfg_attr(feature = "debug", derive(Debug))]
 #[derive(Clone)]
 pub struct Model {
     pub config: Arc<RwLock<Config>>,
@@ -22,6 +23,7 @@ pub struct Model {
     pub notifiers: Notifiers,
 }
 
+#[cfg_attr(feature = "debug", derive(Debug))]
 #[derive(Clone, Default)]
 pub struct Notifiers {
     pub gui: Arc<tokio::sync::Notify>,
@@ -73,7 +75,7 @@ impl Model {
     //     Ok(())
     // }
 
-    #[cfg_attr(feature = "tracing", tracing::instrument)]
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(update)))]
     pub async fn update_gui(&self, update: impl FnOnce(&mut crate::app::model::Gui)) -> Result<(), Error> {
         let mut gui = self.gui.write().await;
         update(&mut gui);

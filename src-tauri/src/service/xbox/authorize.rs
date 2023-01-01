@@ -38,7 +38,6 @@ const XBOX_USER_AUTH_URL: &str = "https://user.auth.xboxlive.com/user/authentica
 
 const XBOX_XSTS_AUTH_URL: &str = "https://xsts.auth.xboxlive.com/xsts/authorize";
 
-#[cfg_attr(feature = "tracing", tracing::instrument)]
 fn from_xbox_xui_datas<'de, D, T>(deserializer: D) -> Result<T, D::Error>
 where
     D: serde::de::Deserializer<'de>,

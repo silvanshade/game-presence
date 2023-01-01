@@ -1,4 +1,6 @@
 use snafu::prelude::*;
+#[cfg(feature = "tracing")]
+use tracing_subscriber::prelude::*;
 
 mod app;
 mod core;
@@ -33,11 +35,11 @@ enum Error {
     },
 }
 
-#[cfg_attr(feature = "tracing", tracing::instrument)]
 #[snafu::report]
 #[tokio::main]
+#[cfg_attr(feature = "tracing", tracing::instrument)]
 async fn main() -> Result<(), Error> {
-    #[cfg(feature = "debug")]
+    #[cfg(feature = "tracing")]
     tracing_subscriber::registry()
         // .with(console_subscriber::spawn())
         // .with(tracing_subscriber::fmt::layer())
