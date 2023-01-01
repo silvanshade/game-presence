@@ -6,7 +6,7 @@
   "author": "silvanshade <silvanshade@users.noreply.github.com>",
   "scripts": {
     "app:build": "quasar build && tauri build",
-    "app:debug": "quasar build && tauri dev --features debug,tracing",
+    "app:debug": "quasar build && cross-env RUST_LOG=\"none,game_presence=trace\" tauri dev --features debug,tracing",
     "app:dev": "quasar build && tauri dev",
     "format": "prettier --write \"**/*.{js,jsx,html,json,md,scss,ts,tsx,vue,yml,yaml}\" --ignore-path .gitignore",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue ./",
@@ -32,6 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
     "autoprefixer": "^10.4.2",
+    "cross-env": "^7.0.3",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^4.2.1",
