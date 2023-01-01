@@ -3,6 +3,7 @@
 </template>
 
 <script lang="ts">
+import * as quasar from "quasar";
 import * as urql from "@urql/vue";
 import { gql } from "@urql/vue";
 import MainLayout from "layouts/MainLayout.vue";
@@ -64,6 +65,13 @@ export default vue.defineComponent({
   name: "App",
   components: { MainLayout },
   setup() {
+    quasar.useMeta({
+      script: {
+        vueDevTools: {
+          src: "http://localhost:8098",
+        },
+      },
+    });
     const model$gui = stores.gui.useStore();
     if (window.hasOwnProperty("__TAURI_IPC__")) {
       configureGraphQL(model$gui);

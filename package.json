@@ -6,11 +6,12 @@
   "author": "silvanshade <silvanshade@users.noreply.github.com>",
   "scripts": {
     "app:build": "quasar build && tauri build",
-    "app:debug": "quasar build && cross-env RUST_LOG=\"none,game_presence=trace\" tauri dev --features debug,tracing",
-    "app:dev": "quasar build && tauri dev",
+    "app:dev": "run-p dev:vue dev:quasar dev:tauri",
+    "dev:quasar": "quasar dev",
+    "dev:tauri": "cross-env RUST_LOG=\"none,game_presence=trace\" tauri dev --features debug,tracing",
+    "dev:vue": "vue-devtools",
     "format": "prettier --write \"**/*.{js,jsx,html,json,md,scss,ts,tsx,vue,yml,yaml}\" --ignore-path .gitignore",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue ./",
-    "tauri": "tauri"
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue ./"
   },
   "dependencies": {
     "@silvanshade/tauri-plugin-graphql-urql": "https://gitpkg.now.sh/silvanshade/tauri-plugin-graphql-ipc/packages/urql?main",
@@ -31,12 +32,14 @@
     "@types/sharp": "^0.31.0",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
+    "@vue/devtools": "^6.4.5",
     "autoprefixer": "^10.4.2",
     "cross-env": "^7.0.3",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^9.0.0",
+    "npm-run-all": "^4.1.5",
     "postcss-load-config": "^4.0.1",
     "prettier": "^2.5.1",
     "sharp": "^0.31.2",

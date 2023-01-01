@@ -2,7 +2,7 @@
   "build": {
     "beforeDevCommand": "",
     "beforeBuildCommand": "",
-    "devPath": "../dist/spa",
+    "devPath": "http://localhost:9000",
     "distDir": "../dist/spa",
     "withGlobalTauri": false
   },
