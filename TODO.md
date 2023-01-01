@@ -1,4 +1,3 @@
-- tracing
-- add notification badge to platform icons in headerbar
 - handle other status codes (200)
 - fix blurry icon on windows
+- investigate stronghold and keyring crates
