@@ -1,4 +1,7 @@
-use crate::{core::DiscordIpcErrorChain, service::xbox};
+use crate::{
+    core::DiscordIpcErrorChain,
+    service::{xbox, xbox::PresenceRecord},
+};
 use discord_ipc::DiscordIpc;
 use discord_rich_presence as discord_ipc;
 use futures::future::BoxFuture;
@@ -126,7 +129,8 @@ impl XboxCore {
         }
         if let Some(xsts) = &*model.session.xbox.read().await {
             let xbox_presence = xbox::presence(xsts).await.context(XboxPresenceSnafu)?;
-            if self.xbox_presence.as_ref().map(|xp| xp.relevant_name()).flatten() == xbox_presence.relevant_name() {
+            if self.xbox_presence.as_ref().map(PresenceRecord::relevant_name).flatten() == xbox_presence.relevant_name()
+            {
                 return Ok(());
             }
             self.xbox_presence = Some(xbox_presence);
@@ -180,8 +184,6 @@ impl XboxCore {
             let assets = Assets::new()
                 .large_image(&discord_presence.assets_large_image)
                 .large_text(&discord_presence.assets_large_text);
-            // .small_image(&discord_presence.assets_small_image)
-            // .small_text(&discord_presence.assets_small_text);
             let timestamps = Timestamps::new().start(discord_presence.time_start.unix_timestamp());
             let buttons = std::iter::empty()
                 .chain(&discord_presence.button_store)
