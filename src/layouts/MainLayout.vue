@@ -16,9 +16,7 @@
     </q-drawer>
 
     <q-page-container class="window-height">
-      <Suspense>
-        <router-view />
-      </Suspense>
+      <router-view />
     </q-page-container>
   </q-layout>
 </template>

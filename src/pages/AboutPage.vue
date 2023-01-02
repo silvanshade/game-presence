@@ -55,14 +55,14 @@ interface BuildInfo {
 
 export default vue.defineComponent({
   name: "AboutPage",
-  async setup() {
-    const model$about = {
+  setup() {
+    const model$about = vue.reactive({
       build: "unknown",
       platform: "unknown",
       timestamp: "unknown",
       license: "unknown",
       homepage: "unknown",
-    };
+    });
 
     const handler$openHomePage: () => Promise<void> = async () => {
       if (model$about.homepage !== "unknown") {
@@ -73,45 +73,47 @@ export default vue.defineComponent({
       }
     };
 
-    if (window.hasOwnProperty("__TAURI_IPC__")) {
-      const result = await urql.useQuery<{ buildInfo: BuildInfo }>({
-        query: gql`
-          query {
-            buildInfo {
-              builtTimeUtc
-              cfgOs
-              gitCommitHash
-              gitDirty
-              pkgHomepage
-              pkgLicense
-              pkgVersion
-              profile
-              target
+    vue.onBeforeMount(async () => {
+      if (window.hasOwnProperty("__TAURI_IPC__")) {
+        const result = await urql.useQuery<{ buildInfo: BuildInfo }>({
+          query: gql`
+            query {
+              buildInfo {
+                builtTimeUtc
+                cfgOs
+                gitCommitHash
+                gitDirty
+                pkgHomepage
+                pkgLicense
+                pkgVersion
+                profile
+                target
+              }
             }
-          }
-        `,
-      });
-      if (result.data.value) {
-        const {
-          buildInfo: {
-            builtTimeUtc,
-            cfgOs,
-            gitCommitHash,
-            gitDirty,
-            pkgHomepage,
-            pkgLicense,
-            pkgVersion,
-            profile,
-            target,
-          },
-        } = result.data.value;
-        model$about.build = `${pkgVersion}::${profile}::${gitCommitHash}::${gitDirty}`;
-        model$about.platform = `${target}::${cfgOs}`;
-        model$about.timestamp = `${builtTimeUtc}`;
-        model$about.license = `${pkgLicense}`;
-        model$about.homepage = `${pkgHomepage}`;
+          `,
+        });
+        if (result.data.value) {
+          const {
+            buildInfo: {
+              builtTimeUtc,
+              cfgOs,
+              gitCommitHash,
+              gitDirty,
+              pkgHomepage,
+              pkgLicense,
+              pkgVersion,
+              profile,
+              target,
+            },
+          } = result.data.value;
+          model$about.build = `${pkgVersion}::${profile}::${gitCommitHash}::${gitDirty}`;
+          model$about.platform = `${target}::${cfgOs}`;
+          model$about.timestamp = `${builtTimeUtc}`;
+          model$about.license = `${pkgLicense}`;
+          model$about.homepage = `${pkgHomepage}`;
+        }
       }
-    }
+    });
 
     return {
       handler$openHomePage,
