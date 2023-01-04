@@ -1,6 +1,4 @@
 // NOTE: for PSN API details see https://github.com/Tustin/PlayStationDiscord
-
-use crate::service::TauriWindowExt;
 use serde::Deserialize;
 use snafu::prelude::*;
 

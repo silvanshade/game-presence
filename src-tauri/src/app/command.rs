@@ -7,10 +7,10 @@ enum Error {
 
 #[cfg_attr(feature = "tracing", tracing::instrument)]
 #[tauri::command]
-pub async fn service_playstation_authorization_flow(app: tauri::AppHandle, reauthorize: bool) -> Result<(), String> {
-    crate::service::playstation::authorization_flow(&app, reauthorize)
-        .await
-        .map_err(|err| err.to_string())?;
+pub async fn service_playstation_authorization_flow(_app: tauri::AppHandle, _reauthorize: bool) -> Result<(), String> {
+    // crate::service::playstation::authorization_flow(&app, reauthorize)
+    //     .await
+    //     .map_err(|err| err.to_string())?;
     Ok(())
 }
 
