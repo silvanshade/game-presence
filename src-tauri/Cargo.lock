@@ -3959,6 +3959,8 @@ name = "tauri-webview-util"
 version = "0.0.0"
 dependencies = [
  "block",
+ "cocoa",
+ "dispatch",
  "futures",
  "objc",
  "tauri",

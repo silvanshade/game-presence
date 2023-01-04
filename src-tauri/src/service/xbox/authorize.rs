@@ -211,7 +211,7 @@ async fn flow_get_oauth2_auth_code(
         .xbox_auth_ready
         .notified()
         .await;
-    if true {
+    if reauthorize {
         window
             .webview_clear_cookies()
             .await
