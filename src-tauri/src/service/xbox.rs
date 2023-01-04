@@ -52,14 +52,20 @@ pub enum Error {
         source: tauri::Error,
     },
     TauriTryState,
+    TauriWebviewClearCache {
+        source: Box<dyn std::error::Error + Send + Sync + 'static>,
+    },
+    TauriWebviewClearCookies {
+        source: Box<dyn std::error::Error + Send + Sync + 'static>,
+    },
+    TauriWebviewNavigate {
+        source: Box<dyn std::error::Error + Send + Sync + 'static>,
+    },
     TauriWindowBuilderNew {
         source: tauri::Error,
     },
     TauriWindowClose {
         source: tauri::Error,
-    },
-    TauriWindowNavigate {
-        source: crate::service::Error,
     },
     UrlDropResizeParams,
     UrlParse {

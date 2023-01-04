@@ -12,16 +12,18 @@ use super::{
     StdSyncMpscReceiveSnafu,
     TauriSpawnSnafu,
     TauriTryStateSnafu,
+    TauriWebviewClearCacheSnafu,
+    TauriWebviewClearCookiesSnafu,
+    TauriWebviewNavigateSnafu,
     TauriWindowBuilderNewSnafu,
     TauriWindowCloseSnafu,
-    TauriWindowNavigateSnafu,
     UrlQuerySnafu,
     XboxTokenXuiSnafu,
 };
-use crate::service::TauriWindowExt;
 use serde::Deserialize;
 use snafu::prelude::*;
 use tap::prelude::*;
+use tauri_webview_util::WebviewExt;
 
 const CLIENT_ID: &str = "6d97ccd0-5a71-48c5-9bc3-a203a183da22";
 
@@ -210,9 +212,13 @@ async fn flow_get_oauth2_auth_code(
         .xbox_auth_ready
         .notified()
         .await;
-    window
-        .navigate(auth_url, reauthorize)
-        .context(TauriWindowNavigateSnafu)?;
+    if true {
+        window
+            .webview_clear_cookies()
+            .await
+            .context(TauriWebviewClearCookiesSnafu)?;
+    }
+    window.webview_navigate(auth_url).context(TauriWebviewNavigateSnafu)?;
 
     let auth_redirect = rx.recv().context(StdSyncMpscReceiveSnafu)?;
 

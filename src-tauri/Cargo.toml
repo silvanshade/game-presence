@@ -45,6 +45,7 @@ snafu = { version = "0.7", features = ["backtrace", "backtraces-impl-backtrace-c
 tap = "1.0.1"
 tauri = { version = "1.2", features = ["compression", "objc-exception", "reqwest", "shell-open", "system-tray", "wry"] }
 tauri-plugin-graphql-ipc = { version = "0.0", features = ["graphql-ide"], git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc" }
+tauri-webview-util = { version = "0.0", path = "../../tauri-webview-util" }
 time = { version = "0.3.17", features = ["serde", "serde-well-known"] }
 tokio = { version = "1.21", features = ["fs", "macros"] }
 tracing = { version = "0.1", features = ["attributes", "std"], optional = true }

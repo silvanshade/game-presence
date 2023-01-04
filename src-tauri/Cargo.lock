@@ -1246,6 +1246,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-graphql-ipc",
+ "tauri-webview-util",
  "time 0.3.17",
  "tokio",
  "tracing",
@@ -2583,6 +2584,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "paste"
+version = "1.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d01a5bd0424d00070b0098dd17ebca6f961a959dead1dbcbbbc1d1cd8d3deeba"
+
+[[package]]
 name = "pathdiff"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3620,6 +3627,52 @@ dependencies = [
 [[package]]
 name = "tao"
 version = "0.15.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac8e6399427c8494f9849b58694754d7cc741293348a6836b6c8d2c5aa82d8e6"
+dependencies = [
+ "bitflags",
+ "cairo-rs",
+ "cc",
+ "cocoa",
+ "core-foundation",
+ "core-graphics",
+ "crossbeam-channel",
+ "dispatch",
+ "gdk",
+ "gdk-pixbuf",
+ "gdk-sys",
+ "gdkx11-sys",
+ "gio",
+ "glib",
+ "glib-sys",
+ "gtk",
+ "image",
+ "instant",
+ "jni",
+ "lazy_static",
+ "libc",
+ "log",
+ "ndk",
+ "ndk-context",
+ "ndk-sys",
+ "objc",
+ "once_cell",
+ "parking_lot",
+ "paste",
+ "png",
+ "raw-window-handle",
+ "scopeguard",
+ "serde",
+ "unicode-segmentation",
+ "uuid 1.2.2",
+ "windows",
+ "windows-implement",
+ "x11-dl",
+]
+
+[[package]]
+name = "tao"
+version = "0.15.8"
 source = "git+https://github.com/tauri-apps/tao?branch=dev#b3aa3982d18a1ca2c8f08a135d7256b1aca46369"
 dependencies = [
  "bitflags",
@@ -3844,7 +3897,7 @@ dependencies = [
  "webkit2gtk",
  "webview2-com",
  "windows",
- "wry",
+ "wry 0.23.4 (git+https://github.com/tauri-apps/wry?branch=dev)",
 ]
 
 [[package]]
@@ -3899,6 +3952,22 @@ dependencies = [
  "url",
  "walkdir",
  "windows",
+]
+
+[[package]]
+name = "tauri-webview-util"
+version = "0.0.0"
+dependencies = [
+ "block",
+ "futures",
+ "objc",
+ "tauri",
+ "tokio",
+ "url",
+ "webkit2gtk",
+ "webview2-com",
+ "windows",
+ "wry 0.23.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -5007,6 +5076,44 @@ dependencies = [
 [[package]]
 name = "wry"
 version = "0.23.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c1ad8e2424f554cc5bdebe8aa374ef5b433feff817aebabca0389961fc7ef98"
+dependencies = [
+ "base64 0.13.1",
+ "block",
+ "cocoa",
+ "core-graphics",
+ "crossbeam-channel",
+ "dunce",
+ "gdk",
+ "gio",
+ "glib",
+ "gtk",
+ "html5ever",
+ "http",
+ "kuchiki",
+ "libc",
+ "log",
+ "objc",
+ "objc_id",
+ "once_cell",
+ "serde",
+ "serde_json",
+ "sha2",
+ "soup2",
+ "tao 0.15.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "thiserror",
+ "url",
+ "webkit2gtk",
+ "webkit2gtk-sys",
+ "webview2-com",
+ "windows",
+ "windows-implement",
+]
+
+[[package]]
+name = "wry"
+version = "0.23.4"
 source = "git+https://github.com/tauri-apps/wry?branch=dev#e246bd164eb9df1b0e48123a542bbd240958c9db"
 dependencies = [
  "base64 0.13.1",
@@ -5031,7 +5138,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "soup2",
- "tao",
+ "tao 0.15.8 (git+https://github.com/tauri-apps/tao?branch=dev)",
  "thiserror",
  "url",
  "webkit2gtk",
