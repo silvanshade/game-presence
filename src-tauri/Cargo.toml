@@ -23,53 +23,38 @@ tauri-build = { version = "1.1", features = [] }
 [dependencies]
 async-graphql = { version = "5.0", features = [] }
 async-stream = { version = "0.3" }
-backtrace = "0.3.67"
-base64 = { version = "0.20" }
+backtrace = "0.3"
+base64 = { version = "0.21" }
 built = { version = "0.5" }
-console-subscriber = "0.1.8"
+console-subscriber = "0.1"
 directories = { version = "4.0" }
 discord-rich-presence = { version = "0.2" }
-futures = "0.3.25"
+futures = "0.3"
 indoc = { version = "1.0" }
-oauth2 = "4.3.0"
+oauth2 = "4.3"
 percent-encoding = { version = "2.2" }
 proc-exit = { version = "2.0", features = [] }
 rand = { version = "0.8" }
-regex = "1.7.0"
+regex = "1.7"
 reqwest = { version = "0.11", features = [] }
 ring = { version = "0.16" }
 serde = { version = "1.0", features = ["derive", "serde_derive", "std"] }
 serde_json = { version = "1.0", features = ["std"] }
 serde_urlencoded = { version = "0.7", features = [] }
 snafu = { version = "0.7", features = ["backtrace", "backtraces-impl-backtrace-crate", "std"] }
-tap = "1.0.1"
+tap = "1.0"
 tauri = { version = "1.2", features = ["compression", "objc-exception", "reqwest", "shell-open", "system-tray", "wry"] }
 tauri-plugin-graphql-ipc = { version = "0.0", features = ["graphql-ide"], git = "https://github.com/silvanshade/tauri-plugin-graphql-ipc" }
 tauri-webview-util = { version = "0.0", path = "../../tauri-webview-util" }
-time = { version = "0.3.17", features = ["serde", "serde-well-known"] }
-tokio = { version = "1.21", features = ["fs", "macros"] }
+time = { version = "0.3", features = ["serde", "serde-well-known"] }
+tokio = { version = "1.24", features = ["fs", "macros"] }
 tracing = { version = "0.1", features = ["attributes", "std"], optional = true }
-tracing-forest = { version = "0.1.5", features = ["full"], optional = true }
-tracing-subscriber = { version = "0.3.16", optional = true }
+tracing-forest = { version = "0.1", features = ["full"], optional = true }
+tracing-subscriber = { version = "0.3", optional = true }
 triple_accel = { version = "0.4", features = [] }
 twitch_api2 = { version = "0.6", features = [] }
 twitch_oauth2 = { version = "0.10", features = [] }
 url = { version = "2.3", features = [] }
-
-[target.'cfg(target_os = "linux")'.dependencies]
-webkit2gtk = { version = "0.18", features = ["v2_16"] }
-
-[target.'cfg(target_os = "macos")'.dependencies]
-block = { version = "0.1", features = [] }
-objc = { version = "0.2", features = [] }
-objc-foundation = { version = "0.1", features = [] }
-
-[target.'cfg(target_os = "windows")'.dependencies]
-windows = { version = "=0.39", features = [] }
-webview2-com = { version = "=0.19.1", features = [] }
-
-[patch.crates-io]
-tauri = { git = "https://github.com/tauri-apps/tauri", rev = "3f35b45" }
 
 [profile.release]
 codegen-units = 1
@@ -77,3 +62,8 @@ lto = "fat"
 opt-level = "z"
 panic = "abort"
 strip = true
+
+[patch.crates-io]
+block2 = { git = "https://github.com/silvanshade/objc2", branch = "webkit-skips" }
+icrate = { git = "https://github.com/silvanshade/objc2", branch = "webkit-skips" }
+tauri = { git = "https://github.com/tauri-apps/tauri", rev = "3f35b45" }

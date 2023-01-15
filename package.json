@@ -6,7 +6,7 @@
   "author": "silvanshade <silvanshade@users.noreply.github.com>",
   "scripts": {
     "app:build": "quasar build && tauri build",
-    "app:dev": "run-p dev:vue dev:quasar dev:tauri",
+    "app:dev": "run-p dev:quasar dev:tauri",
     "dev:quasar": "quasar dev",
     "dev:tauri": "cross-env RUST_LOG=\"none,game_presence=trace\" tauri dev --features debug,tracing",
     "dev:vue": "vue-devtools",

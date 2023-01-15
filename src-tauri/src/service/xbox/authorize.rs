@@ -16,13 +16,15 @@ use super::{
     TauriWebviewNavigateSnafu,
     TauriWindowBuilderNewSnafu,
     TauriWindowCloseSnafu,
+    UrlParseSnafu,
     UrlQuerySnafu,
     XboxTokenXuiSnafu,
 };
 use serde::Deserialize;
 use snafu::prelude::*;
 use tap::prelude::*;
-use tauri_webview_util::WebviewExt;
+use tauri_webview_util::{CookiePatternBuilder, CookieUrl, WebviewExt};
+use url::Url;
 
 const CLIENT_ID: &str = "6d97ccd0-5a71-48c5-9bc3-a203a183da22";
 
@@ -37,6 +39,8 @@ const OAUTH2_TOKEN_URL: &str = "https://login.microsoftonline.com/consumers/oaut
 const XBOX_USER_AUTH_URL: &str = "https://user.auth.xboxlive.com/user/authenticate";
 
 const XBOX_XSTS_AUTH_URL: &str = "https://xsts.auth.xboxlive.com/xsts/authorize";
+
+const COOKIE_URLS: &[&str] = &[];
 
 fn from_xbox_xui_datas<'de, D, T>(deserializer: D) -> Result<T, D::Error>
 where
@@ -211,9 +215,35 @@ async fn flow_get_oauth2_auth_code(
         .xbox_auth_ready
         .notified()
         .await;
-    if reauthorize {
+    let cookies = {
+        let pattern = CookiePatternBuilder::default()
+            .match_urls(&[Url::parse("https://login.live.com").context(UrlParseSnafu)?.into()])
+            .build()
+            .unwrap()
+            .into();
         window
-            .webview_clear_cookies()
+            .webview_get_cookies(pattern)
+            .await
+            .context(TauriWebviewClearCookiesSnafu)?
+    };
+    for cookie in cookies {
+        println!("{}", cookie);
+    }
+    if reauthorize {
+        let urls = COOKIE_URLS
+            .into_iter()
+            .map(|str| {
+                let url = Url::parse(str).context(UrlParseSnafu)?;
+                Ok(url.into())
+            })
+            .collect::<Result<Vec<CookieUrl>, Error>>()?;
+        let pattern = CookiePatternBuilder::default()
+            .match_urls(&urls)
+            .build()
+            .unwrap()
+            .into();
+        window
+            .webview_delete_cookies(pattern)
             .await
             .context(TauriWebviewClearCookiesSnafu)?;
     }
