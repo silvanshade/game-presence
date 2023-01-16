@@ -216,8 +216,9 @@ async fn flow_get_oauth2_auth_code(
         .notified()
         .await;
     let cookies = {
+        let url = Url::parse("https://live.com").context(UrlParseSnafu)?.into();
         let pattern = CookiePatternBuilder::default()
-            .match_urls(&[Url::parse("https://login.live.com").context(UrlParseSnafu)?.into()])
+            .match_urls(&[url])
             .build()
             .unwrap()
             .into();
@@ -247,7 +248,7 @@ async fn flow_get_oauth2_auth_code(
             .await
             .context(TauriWebviewClearCookiesSnafu)?;
     }
-    window.webview_navigate(auth_url).context(TauriWebviewNavigateSnafu)?;
+    // window.webview_navigate(auth_url).context(TauriWebviewNavigateSnafu)?;
 
     let auth_redirect = rx.recv().context(StdSyncMpscReceiveSnafu)?;
 
