@@ -3236,7 +3236,7 @@ dependencies = [
 [[package]]
 name = "ring"
 version = "0.16.20"
-source = "git+https://github.com/svenpaulsen/ring?branch=v0.16.20-patched#097af7a20ce832e9c0120e8a821fd27a53e07299"
+source = "git+https://github.com/silvanshade/ring?branch=v0.16.20-patched#097af7a20ce832e9c0120e8a821fd27a53e07299"
 dependencies = [
  "cc",
  "libc",
