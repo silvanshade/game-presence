@@ -4067,6 +4067,7 @@ dependencies = [
 name = "tauri-webview-util"
 version = "0.0.0"
 dependencies = [
+ "async-stream",
  "block2",
  "dispatch",
  "futures",
@@ -4076,6 +4077,7 @@ dependencies = [
  "oneshot",
  "regex",
  "soup2",
+ "tap",
  "tauri",
  "time 0.3.17",
  "tokio",
