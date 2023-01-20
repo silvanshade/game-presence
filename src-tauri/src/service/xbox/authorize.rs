@@ -24,7 +24,7 @@ use futures::TryStreamExt;
 use serde::Deserialize;
 use snafu::prelude::*;
 use tap::prelude::*;
-use tauri_webview_util::{CookiePatternBuilder, CookieUrl, WebviewExt};
+use tauri_webview_util::{CookieHost, CookiePatternBuilder, WebviewExt};
 use url::Url;
 
 const CLIENT_ID: &str = "6d97ccd0-5a71-48c5-9bc3-a203a183da22";
@@ -220,32 +220,28 @@ async fn flow_get_oauth2_auth_code(
         .notified()
         .await;
     let mut cookies = {
-        let pattern = None;
+        let pattern = Default::default();
         window.webview_get_cookies(pattern)
     };
     while let Some(cookie) = cookies.try_next().await.unwrap() {
         println!("{}", cookie);
     }
-    if reauthorize {
-        let urls = COOKIE_URLS
+    if true {
+        let hosts = COOKIE_URLS
             .into_iter()
             .map(|str| {
                 let url = Url::parse(str).context(UrlParseSnafu)?;
-                Ok(url.into())
+                Ok(url.try_into().unwrap())
             })
-            .collect::<Result<Vec<CookieUrl>, Error>>()?;
-        let pattern = CookiePatternBuilder::default()
-            .match_urls(&urls)
-            .build()
-            .unwrap()
-            .into();
+            .collect::<Result<Vec<CookieHost>, Error>>()?;
+        let pattern = CookiePatternBuilder::default().match_hosts(hosts).build().unwrap();
         window
             .webview_delete_cookies(pattern)
             .await
             .context(TauriWebviewClearCookiesSnafu)?;
     }
-    let logout_url = Url::parse(OAUTH2_LOGOUT_URL).unwrap();
-    window.webview_navigate(logout_url).context(TauriWebviewNavigateSnafu)?;
+    // let logout_url = Url::parse(OAUTH2_LOGOUT_URL).unwrap();
+    // window.webview_navigate(logout_url).context(TauriWebviewNavigateSnafu)?;
 
     let auth_redirect = rx.recv().context(StdSyncMpscReceiveSnafu)?;
 
