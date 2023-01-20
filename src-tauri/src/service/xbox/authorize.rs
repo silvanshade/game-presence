@@ -27,15 +27,13 @@ use tap::prelude::*;
 use tauri_webview_util::{CookieHost, CookiePatternBuilder, WebviewExt};
 use url::Url;
 
-const CLIENT_ID: &str = "6d97ccd0-5a71-48c5-9bc3-a203a183da22";
+const CLIENT_ID: &str = "5dd5d90f-4636-4e7d-b993-4e020c49293c";
 
-const REDIRECT_URL: &str = "https://localhost:3000/api/xbox/authorize/redirect";
+const REDIRECT_URL: &str = "http://localhost:3000/api/xbox/authorize/redirect";
 
 const OAUTH2_SCOPES: [&str; 2] = ["xboxlive.signin", "xboxlive.offline_access"];
 
-const OAUTH2_AUTHORIZE_URL: &str = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
-
-const OAUTH2_LOGOUT_URL: &str = "https://login.microsoftonline.com/consumers/oauth2/v2.0/logout?post_logout_redirect=https%3a%2f%2flocalhost%a3000%2fapi%2fxbox%2flogout%2fredirect";
+const OAUTH2_AUTHORIZE_URL: &str = "http://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
 
 const OAUTH2_TOKEN_URL: &str = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
 
@@ -43,7 +41,7 @@ const XBOX_USER_AUTH_URL: &str = "https://user.auth.xboxlive.com/user/authentica
 
 const XBOX_XSTS_AUTH_URL: &str = "https://xsts.auth.xboxlive.com/xsts/authorize";
 
-const COOKIE_URLS: &[&str] = &[];
+const COOKIE_URLS: &[&str] = &["https://login.microsoftonline.com"];
 
 fn from_xbox_xui_datas<'de, D, T>(deserializer: D) -> Result<T, D::Error>
 where
@@ -139,7 +137,7 @@ fn client() -> Result<oauth2::basic::BasicClient, Error> {
         .pipe(oauth2::TokenUrl::new)
         .context(Oauth2TokenUrlNewSnafu)?
         .conv::<Option<_>>();
-    let redirect_uri = "http://localhost:3000/api/xbox/authorize/redirect"
+    let redirect_uri = REDIRECT_URL
         .conv::<String>()
         .pipe(oauth2::RedirectUrl::new)
         .context(Oauth2RedirectUrlNewSnafu)?;
@@ -219,14 +217,7 @@ async fn flow_get_oauth2_auth_code(
         .xbox_auth_ready
         .notified()
         .await;
-    let mut cookies = {
-        let pattern = Default::default();
-        window.webview_get_cookies(pattern)
-    };
-    while let Some(cookie) = cookies.try_next().await.unwrap() {
-        println!("{}", cookie);
-    }
-    if true {
+    if reauthorize {
         let hosts = COOKIE_URLS
             .into_iter()
             .map(|str| {
@@ -240,9 +231,7 @@ async fn flow_get_oauth2_auth_code(
             .await
             .context(TauriWebviewClearCookiesSnafu)?;
     }
-    // let logout_url = Url::parse(OAUTH2_LOGOUT_URL).unwrap();
-    // window.webview_navigate(logout_url).context(TauriWebviewNavigateSnafu)?;
-
+    window.webview_navigate(auth_url).context(TauriWebviewNavigateSnafu)?;
     let auth_redirect = rx.recv().context(StdSyncMpscReceiveSnafu)?;
 
     tauri::async_runtime::spawn(async move { window.close().context(TauriWindowCloseSnafu) })
